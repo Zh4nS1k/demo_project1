@@ -1,6 +1,77 @@
 const asyncHandler = require('../middleware/asyncHandler');
 const Day = require('../models/Day');
 
+const WEEKDAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const DAY_MS = 86400000;
+
+/** 'YYYY-MM-DD' → UTC epoch ms (safe, no TZ drift). */
+function dayToUtc(s) {
+  return Date.UTC(+s.slice(0, 4), +s.slice(5, 7) - 1, +s.slice(8, 10));
+}
+
+/** Shift a 'YYYY-MM-DD' string by ±n days. */
+function shiftDay(s, delta) {
+  return new Date(dayToUtc(s) + delta * DAY_MS).toISOString().slice(0, 10);
+}
+
+/**
+ * Build activity insights from per-day aggregation rows.
+ * All day boundaries are UTC (consistent with the $dateToString grouping).
+ */
+function buildInsights(byDay, caffeineByDay, todayStr) {
+  // ── Streaks ──
+  const daySet = new Set(byDay.map((d) => d._id));
+  const dayList = [...daySet].sort();
+
+  let longest = 0;
+  let run = 0;
+  for (let i = 0; i < dayList.length; i++) {
+    run = i > 0 && dayToUtc(dayList[i]) - dayToUtc(dayList[i - 1]) === DAY_MS ? run + 1 : 1;
+    if (run > longest) longest = run;
+  }
+
+  // Current streak: counts back from today, or yesterday if today has no log yet
+  const yesterdayStr = shiftDay(todayStr, -1);
+  let current = 0;
+  let cursor = daySet.has(todayStr) ? todayStr : yesterdayStr;
+  while (daySet.has(cursor)) {
+    current++;
+    cursor = shiftDay(cursor, -1);
+  }
+
+  // ── Most active weekday (by cups, ties broken by entries) ──
+  const byDow = {};
+  for (const d of byDay) {
+    const k = d.dow; // Mongo $dayOfWeek: 1=Sunday … 7=Saturday
+    byDow[k] = byDow[k] || { dow: k, cups: 0, entries: 0 };
+    byDow[k].cups += d.cups;
+    byDow[k].entries += d.entries;
+  }
+  let top = null;
+  for (const v of Object.values(byDow)) {
+    if (!top || v.cups > top.cups || (v.cups === top.cups && v.entries > top.entries)) top = v;
+  }
+  const mostActiveWeekday = top
+    ? { day: WEEKDAYS[top.dow - 1], cups: top.cups, entries: top.entries }
+    : null;
+
+  // ── Caffeine trend (cups × energy_boost, zero-filled per day) ──
+  const buildTrend = (n) => {
+    const daily = [];
+    for (let i = n - 1; i >= 0; i--) {
+      const ds = shiftDay(todayStr, -i);
+      daily.push({ date: ds, caffeine: caffeineByDay[ds] || 0 });
+    }
+    return { daily, total: daily.reduce((s, d) => s + d.caffeine, 0) };
+  };
+
+  return {
+    streaks: { current, longest },
+    most_active_weekday: mostActiveWeekday,
+    caffeine_trend: { last7: buildTrend(7), last30: buildTrend(30) },
+  };
+}
+
 /** Whitelisted sort keys — client-facing name → mongoose field */
 const SORT_FIELDS = {
   date: 'date',
@@ -131,6 +202,43 @@ exports.getUserSummary = asyncHandler(async (req, res) => {
     { $sort: { _id: -1 } },
   ]);
 
+  // ─── Insight inputs: per-day rows + caffeine per day ───
+  const byDay = await Day.aggregate([
+    { $match: { username: req.params.username } },
+    {
+      $group: {
+        _id: { $dateToString: { format: '%Y-%m-%d', date: '$date' } },
+        cups: { $sum: '$count_of_cups' },
+        entries: { $sum: 1 },
+        dow: { $first: { $dayOfWeek: '$date' } },
+      },
+    },
+    { $sort: { _id: 1 } },
+  ]);
+
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const thirtyDaysAgo = new Date(shiftDay(todayStr, -29) + 'T00:00:00.000Z');
+  const caffeineAgg = await Day.aggregate([
+    { $match: { username: req.params.username, date: { $gte: thirtyDaysAgo } } },
+    // Join energy_boost via coffee name; unknown coffees (deleted) contribute 0
+    {
+      $lookup: { from: 'coffees', localField: 'coffee_name', foreignField: 'name', as: 'coffee' },
+    },
+    {
+      $addFields: {
+        energy: { $ifNull: [{ $arrayElemAt: ['$coffee.energy_boost', 0] }, 0] },
+      },
+    },
+    {
+      $group: {
+        _id: { $dateToString: { format: '%Y-%m-%d', date: '$date' } },
+        caffeine: { $sum: { $multiply: ['$count_of_cups', '$energy'] } },
+      },
+    },
+  ]);
+  const caffeineByDay = Object.fromEntries(caffeineAgg.map((r) => [r._id, r.caffeine]));
+  const insights = buildInsights(byDay, caffeineByDay, todayStr);
+
   if (summary.length === 0) {
     return res.status(200).json({
       success: true,
@@ -141,6 +249,7 @@ exports.getUserSummary = asyncHandler(async (req, res) => {
         unique_coffees: [],
         avg_rating: 0,
         by_coffee: [],
+        ...insights,
       },
     });
   }
@@ -160,6 +269,7 @@ exports.getUserSummary = asyncHandler(async (req, res) => {
         avg_rating: Math.round((c.avg_rating || 0) * 10) / 10,
       })),
       rating_breakdown: ratingBreakdown.map((r) => ({ rating: r._id, count: r.count })),
+      ...insights,
     },
   });
 });

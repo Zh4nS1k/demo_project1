@@ -142,7 +142,7 @@ Use `npm run seed:clean` to wipe all collections and re-seed from scratch.
 | GET    | `/api/days`                    | Get all entries (`?username=&;coffee_name=&;from=&;to=`) |
 | GET    | `/api/days/:id`                | Get entry by ID                          |
 | GET    | `/api/days/user/:username`     | All entries for a user                   |
-| GET    | `/api/days/summary/:username`  | User summary: total cups, avg rating, favorites, rating breakdown |
+| GET    | `/api/days/summary/:username`  | User summary: totals, favorites, rating breakdown + streaks, most active weekday, 7/30-day caffeine trend |
 | PUT    | `/api/days/:id`                | Update entry                             |
 | DELETE | `/api/days/:id`                | Delete entry                             |
 
