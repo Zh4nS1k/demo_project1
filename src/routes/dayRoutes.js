@@ -8,6 +8,7 @@ const {
   getDayById,
   getDaysByUsername,
   getUserSummary,
+  getLeaderboard,
   updateDay,
   deleteDay,
 } = require('../controllers/dayController');
@@ -61,6 +62,9 @@ router.get('/', [
     .withMessage('Username must be 3–30 characters'),
   ...dayQueryRules,
 ], validate, getAllDays);
+router.get('/leaderboard', [
+  query('period').optional().isIn(['week', 'month']).withMessage('period must be week or month'),
+], validate, getLeaderboard);
 router.get('/user/:username', [
   param('username').isString().trim().isLength({ min: 3, max: 30 })
     .withMessage('Username must be 3–30 characters'),

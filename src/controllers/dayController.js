@@ -140,6 +140,73 @@ exports.getAllDays = asyncHandler(async (req, res) => {
   await listDays(req, res);
 });
 
+// @desc    Leaderboard — top users by total cups in a recent period
+// @route   GET /api/days/leaderboard?period=week|month
+// @access  Public (aggregate data only — no PII)
+exports.getLeaderboard = asyncHandler(async (req, res) => {
+  const days = req.query.period === 'month' ? 30 : 7;
+  const since = new Date(Date.now() - days * 86400000);
+
+  const rows = await Day.aggregate([
+    { $match: { date: { $gte: since } } },
+    {
+      $group: {
+        _id: '$username',
+        cups: { $sum: '$count_of_cups' },
+        entries: { $sum: 1 },
+        rated: { $push: '$rating' },
+        unique: { $addToSet: '$coffee_name' },
+      },
+    },
+    {
+      $addFields: {
+        unique_coffees: { $size: '$unique' },
+        ratedList: { $filter: { input: '$rated', as: 'r', cond: { $gt: ['$$r', 0] } } },
+      },
+    },
+    {
+      $addFields: {
+        avg_rating: {
+          $cond: [
+            { $gt: [{ $size: '$ratedList' }, 0] },
+            { $round: [{ $avg: '$ratedList' }, 1] },
+            null,
+          ],
+        },
+      },
+    },
+    { $sort: { cups: -1, entries: -1 } },
+    { $limit: 50 },
+    // Display name only — never expose the full user document
+    {
+      $lookup: { from: 'users', localField: '_id', foreignField: 'username', as: 'user' },
+    },
+    {
+      $addFields: {
+        name: { $ifNull: [{ $arrayElemAt: ['$user.name', 0] }, '$_id'] },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        username: '$_id',
+        name: 1,
+        cups: 1,
+        entries: 1,
+        avg_rating: 1,
+        unique_coffees: 1,
+      },
+    },
+  ]);
+
+  res.status(200).json({
+    success: true,
+    period: req.query.period || 'week',
+    count: rows.length,
+    data: rows,
+  });
+});
+
 // @desc    Get day entry by ID
 // @route   GET /api/days/:id
 // @access  Public

@@ -77,7 +77,15 @@ exports.getAllUsers = asyncHandler(async (req, res) => {
   });
 });
 
-// @desc    Get single user by ID
+/** Privacy-safe projection for public user reads — never email/age/gender/password. */
+const publicView = (u) => ({
+  id: u._id,
+  username: u.username,
+  name: u.name,
+  member_since: u.createdAt,
+});
+
+// @desc    Get single user by ID (public, sanitized)
 // @route   GET /api/users/:id
 // @access  Public
 exports.getUserById = asyncHandler(async (req, res) => {
@@ -85,10 +93,26 @@ exports.getUserById = asyncHandler(async (req, res) => {
   if (!user) {
     return res.status(404).json({ success: false, message: 'User not found' });
   }
-  res.status(200).json({ success: true, data: user });
+  res.status(200).json({ success: true, data: publicView(user) });
 });
 
-// @desc    Get user by username
+// @desc    Get public profile by username — powers read-only public stats page
+// @route   GET /api/users/public/:username
+// @access  Public
+exports.getPublicUser = asyncHandler(async (req, res) => {
+  const user = await User.findOne({ username: req.params.username }).select(
+    'username name createdAt'
+  );
+  if (!user) {
+    return res.status(404).json({ success: false, message: 'User not found' });
+  }
+  res.status(200).json({
+    success: true,
+    data: { username: user.username, name: user.name, member_since: user.createdAt },
+  });
+});
+
+// @desc    Get user by username (public, sanitized)
 // @route   GET /api/users/username/:username
 // @access  Public
 exports.getUserByUsername = asyncHandler(async (req, res) => {
@@ -96,7 +120,7 @@ exports.getUserByUsername = asyncHandler(async (req, res) => {
   if (!user) {
     return res.status(404).json({ success: false, message: 'User not found' });
   }
-  res.status(200).json({ success: true, data: user });
+  res.status(200).json({ success: true, data: publicView(user) });
 });
 
 // @desc    Update user

@@ -45,7 +45,8 @@ export const api = {
 
   getAllUsers: () => request('/users'),
   getUserById: (id) => request(`/users/${id}`),
-  getUserByUsername: (username) => request(`/users/username/${username}`),
+  getUserByUsername: (username) => request(`/users/username/${encodeURIComponent(username)}`),
+  getPublicUser: (username) => request(`/users/public/${encodeURIComponent(username)}`),
   updateUser: (id, body) =>
     request(`/users/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
   deleteUser: (id) => request(`/users/${id}`, { method: 'DELETE' }),
@@ -67,7 +68,8 @@ export const api = {
   getDayById: (id) => request(`/days/${id}`),
   getDaysByUsername: (username, params = {}) =>
     request(`/days/user/${encodeURIComponent(username)}${toQueryString(params)}`),
-  getUserSummary: (username) => request(`/days/summary/${username}`),
+  getUserSummary: (username) => request(`/days/summary/${encodeURIComponent(username)}`),
+  getLeaderboard: (period = 'week') => request(`/days/leaderboard${toQueryString({ period })}`),
   updateDay: (id, body) =>
     request(`/days/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
   deleteDay: (id) => request(`/days/${id}`, { method: 'DELETE' }),

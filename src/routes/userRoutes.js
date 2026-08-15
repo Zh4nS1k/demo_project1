@@ -8,6 +8,7 @@ const {
   getAllUsers,
   getUserById,
   getUserByUsername,
+  getPublicUser,
   updateUser,
   deleteUser,
   loginUser,
@@ -70,6 +71,13 @@ router.post(
 );
 
 router.get('/', protect, admin, getAllUsers);
+router.get(
+  '/public/:username',
+  param('username').isString().trim().isLength({ min: 3, max: 30 })
+    .withMessage('Username must be 3–30 characters'),
+  validate,
+  getPublicUser
+);
 router.get('/username/:username', getUserByUsername);
 router.get('/:id', param('id').isMongoId().withMessage('Invalid user id'), validate, getUserById);
 
