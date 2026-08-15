@@ -25,18 +25,18 @@ export default function StarRating({ value = 0, onChange, readOnly = false, size
           onMouseLeave={() => !readOnly && setHover(0)}
           className={`cursor-${readOnly ? 'default' : 'pointer'} transition-transform ${
             !readOnly ? 'hover:scale-110' : ''
-          } ${star <= active ? 'text-amber-400' : 'text-gray-300'}`}
+          } ${star <= active ? 'text-coffee-500' : 'text-stone-300'}`}
         >
           ★
         </span>
       ))}
       {!readOnly && (
-        <span className="ml-2 text-xs text-amber-600">
+        <span className="ml-2 text-xs text-stone-500">
           {active > 0 ? `${active}/5` : 'No rating'}
         </span>
       )}
       {readOnly && value > 0 && (
-        <span className="ml-1 text-xs text-amber-600">{value.toFixed(1)}</span>
+        <span className="ml-1 text-xs text-stone-500">{value.toFixed(1)}</span>
       )}
     </div>
   );

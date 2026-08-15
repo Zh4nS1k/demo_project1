@@ -57,19 +57,19 @@ export default function RegisterPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="text-5xl mb-3">☕</div>
-          <h1 className="text-2xl font-bold text-amber-900">Join Coffee Drinker</h1>
-          <p className="text-amber-600 mt-1">Create your account — set up your profile later</p>
+          <h1 className="text-2xl font-bold text-neutral-900">Join Coffee Drinker</h1>
+          <p className="text-stone-500 mt-1">Create your account — set up your profile later</p>
         </div>
 
         {error && (
-          <div className="mb-4 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+          <div className="mb-4 bg-rust-100 border border-rust-300 text-rust-700 px-4 py-3 rounded-lg text-sm">
             {error}
           </div>
         )}
 
         <form
           onSubmit={handleSubmit}
-          className="bg-white rounded-2xl shadow-sm border border-amber-100 p-6 space-y-1"
+          className="bg-white rounded-2xl shadow-sm border border-stone-200 p-6 space-y-1"
         >
           <Input
             label="Username"
@@ -110,20 +110,20 @@ export default function RegisterPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2.5 mt-4 rounded-lg bg-amber-700 text-white font-medium hover:bg-amber-800 transition-colors disabled:opacity-50"
+            className="w-full py-2.5 mt-4 rounded-lg bg-neutral-900 text-white font-medium hover:bg-coffee-800 transition-colors disabled:opacity-50"
           >
             {loading ? 'Creating account…' : 'Register'}
           </button>
         </form>
 
-        <p className="text-center mt-4 text-sm text-amber-700">
+        <p className="text-center mt-4 text-sm text-stone-600">
           Already have an account?{' '}
-          <Link href="/login" className="font-medium underline hover:text-amber-900">
+          <Link href="/login" className="font-medium underline text-coffee-700 hover:text-coffee-900">
             Login
           </Link>
         </p>
 
-        <div className="mt-6 p-3 bg-amber-50 border border-amber-100 rounded-lg text-xs text-amber-700 text-center">
+        <div className="mt-6 p-3 bg-stone-100 border border-stone-200 rounded-lg text-xs text-stone-600 text-center">
           💡 <strong>Tip:</strong> You can add your name, age, gender, and favourite coffee
           from your <Link href="/profile" className="underline">profile page</Link> after registration.
         </div>

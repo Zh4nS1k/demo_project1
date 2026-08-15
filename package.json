@@ -8,6 +8,7 @@
     "dev": "nodemon src/server.js",
     "seed": "node src/seed.js",
     "seed:clean": "node src/seed.js --clean",
+    "promote-admin": "node src/promote-admin.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": ["coffee", "express", "mongodb", "rest-api"],

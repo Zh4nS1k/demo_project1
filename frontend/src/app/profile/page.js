@@ -62,7 +62,7 @@ function ProfileContent() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
-        <div className="text-amber-700 text-lg animate-pulse">Loading profile…</div>
+        <div className="text-stone-600 text-lg animate-pulse">Loading profile…</div>
       </div>
     );
   }
@@ -72,12 +72,12 @@ function ProfileContent() {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       {/* Header */}
-      <div className="bg-gradient-to-r from-amber-100 to-orange-100 rounded-2xl p-6 shadow-sm border border-amber-200 text-center">
+      <div className="bg-gradient-to-r from-stone-200 to-coffee-100 rounded-2xl p-6 shadow-sm border border-stone-300 text-center">
         <div className="text-5xl mb-2">☕</div>
-        <h1 className="text-2xl font-bold text-amber-900">{user.name || user.username}</h1>
-        <p className="text-amber-700">@{user.username}</p>
+        <h1 className="text-2xl font-bold text-neutral-900">{user.name || user.username}</h1>
+        <p className="text-stone-500">@{user.username}</p>
         {fieldEmpty(user.name) || fieldEmpty(user.age) || !user.favourite_coffee ? (
-          <p className="mt-2 text-sm text-amber-600 italic">
+          <p className="mt-2 text-sm text-stone-500 italic">
             💡 Complete your profile — click Edit below
           </p>
         ) : null}
@@ -85,24 +85,24 @@ function ProfileContent() {
 
       {/* Messages */}
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+        <div className="bg-rust-100 border border-rust-300 text-rust-700 px-4 py-3 rounded-lg">
           {error}
         </div>
       )}
       {success && (
-        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
+        <div className="bg-stone-100 border border-stone-300 text-neutral-800 px-4 py-3 rounded-lg">
           {success}
         </div>
       )}
 
       {/* Profile Info */}
-      <div className="bg-white rounded-xl shadow-sm border border-amber-100 p-6">
+      <div className="bg-white rounded-xl shadow-sm border border-stone-200 p-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-amber-900">Profile Details</h2>
+          <h2 className="text-lg font-bold text-neutral-900">Profile Details</h2>
           {!editing && (
             <button
               onClick={() => setEditing(true)}
-              className="px-4 py-1.5 rounded-lg bg-amber-100 text-amber-800 text-sm font-medium hover:bg-amber-200 transition-colors"
+              className="px-4 py-1.5 rounded-lg bg-stone-200 text-neutral-800 text-sm font-medium hover:bg-stone-300 transition-colors"
             >
               ✏️ Edit
             </button>
@@ -145,12 +145,12 @@ function ProfileContent() {
               placeholder="25"
             />
             <div className="mb-4">
-              <label className="block text-sm font-medium text-amber-900 mb-1">Gender</label>
+              <label className="block text-sm font-medium text-neutral-800 mb-1">Gender</label>
               <select
                 name="gender"
                 value={form.gender}
                 onChange={handleChange}
-                className="w-full px-4 py-2.5 rounded-lg border border-amber-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-amber-400"
+                className="w-full px-4 py-2.5 rounded-lg border border-stone-300 bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-coffee-500"
               >
                 <option value="male">Male</option>
                 <option value="female">Female</option>
@@ -167,7 +167,7 @@ function ProfileContent() {
             <div className="flex gap-3 mt-4">
               <button
                 type="submit"
-                className="flex-1 py-2.5 rounded-lg bg-amber-700 text-white font-medium hover:bg-amber-800 transition-colors"
+                className="flex-1 py-2.5 rounded-lg bg-neutral-900 text-white font-medium hover:bg-coffee-800 transition-colors"
               >
                 Save Changes
               </button>
@@ -183,7 +183,7 @@ function ProfileContent() {
                     email: user.email || '',
                   });
                 }}
-                className="flex-1 py-2.5 rounded-lg bg-gray-100 text-gray-700 font-medium hover:bg-gray-200 transition-colors"
+                className="flex-1 py-2.5 rounded-lg bg-stone-100 text-stone-700 font-medium hover:bg-stone-200 transition-colors"
               >
                 Cancel
               </button>
@@ -193,8 +193,8 @@ function ProfileContent() {
       </div>
 
       {/* Account Info */}
-      <div className="bg-white rounded-xl shadow-sm border border-amber-100 p-6">
-        <h2 className="text-lg font-bold text-amber-900 mb-4">Account</h2>
+      <div className="bg-white rounded-xl shadow-sm border border-stone-200 p-6">
+        <h2 className="text-lg font-bold text-neutral-900 mb-4">Account</h2>
         <div className="space-y-3">
           <InfoRow label="User ID" value={user.id} />
           <InfoRow
@@ -209,9 +209,9 @@ function ProfileContent() {
 
 function InfoRow({ label, value, highlight = false }) {
   return (
-    <div className="flex items-center justify-between py-2 border-b border-amber-50 last:border-0">
-      <span className="text-sm text-amber-600">{label}</span>
-      <span className={`text-sm font-medium ${highlight ? 'text-amber-500 italic' : 'text-amber-900'}`}>
+    <div className="flex items-center justify-between py-2 border-b border-stone-100 last:border-0">
+      <span className="text-sm text-stone-500">{label}</span>
+      <span className={`text-sm font-medium ${highlight ? 'text-stone-400 italic' : 'text-neutral-900'}`}>
         {value}
       </span>
     </div>

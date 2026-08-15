@@ -90,7 +90,7 @@ function HomeContent() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
-        <div className="text-amber-700 text-lg animate-pulse">Loading your coffee stats…</div>
+        <div className="text-stone-600 text-lg animate-pulse">Loading your coffee stats…</div>
       </div>
     );
   }
@@ -103,14 +103,14 @@ function HomeContent() {
         <img
           src={heroImg}
           alt="Coffee"
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover grayscale-[35%]"
           onError={(e) => { e.target.style.display = 'none'; }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-amber-900/80 via-amber-900/20 to-transparent flex flex-col justify-end p-6">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent flex flex-col justify-end p-6">
           <h1 className="text-3xl font-bold text-white mb-1">
             ☕ Welcome back, {user.name}!
           </h1>
-          <p className="text-amber-100">
+          <p className="text-stone-200">
             {summary?.total_cups > 0
               ? `You've logged ${summary.total_cups} cups across ${summary.unique_coffees.length} varieties`
               : 'Start logging your coffee journey today!'}
@@ -120,14 +120,14 @@ function HomeContent() {
 
       {/* Error */}
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+        <div className="bg-rust-100 border border-rust-300 text-rust-700 px-4 py-3 rounded-lg">
           {error}
         </div>
       )}
 
       {/* Success */}
       {successMsg && (
-        <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
+        <div className="bg-stone-100 border border-stone-300 text-neutral-800 px-4 py-3 rounded-lg">
           {successMsg}
         </div>
       )}
@@ -145,15 +145,15 @@ function HomeContent() {
       </div>
 
       {/* ─── Log Coffee Form ─── */}
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-amber-100">
-        <h2 className="text-lg font-bold text-amber-900 mb-4">📝 Log a Coffee</h2>
+      <div className="bg-white rounded-xl p-6 shadow-sm border border-stone-200">
+        <h2 className="text-lg font-bold text-neutral-900 mb-4">📝 Log a Coffee</h2>
         <form onSubmit={handleLogCoffee} className="space-y-4">
           <div className="flex flex-col sm:flex-row gap-3">
             <select
               value={selectedCoffee}
               onChange={(e) => setSelectedCoffee(e.target.value)}
               required
-              className="flex-1 px-4 py-2.5 rounded-lg border border-amber-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-amber-400"
+              className="flex-1 px-4 py-2.5 rounded-lg border border-stone-300 bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-coffee-500"
             >
               <option value="">Select a coffee…</option>
               {coffees.map((c) => (
@@ -168,28 +168,28 @@ function HomeContent() {
               max="50"
               value={cups}
               onChange={(e) => setCups(e.target.value)}
-              className="w-full sm:w-24 px-4 py-2.5 rounded-lg border border-amber-200 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-amber-400 text-center"
+              className="w-full sm:w-24 px-4 py-2.5 rounded-lg border border-stone-300 bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-coffee-500 text-center"
               placeholder="Cups"
             />
           </div>
 
           {/* Star Rating */}
           <div className="flex items-center gap-4 flex-wrap">
-            <span className="text-sm font-medium text-amber-900">Rating:</span>
+            <span className="text-sm font-medium text-neutral-800">Rating:</span>
             <StarRating value={rating} onChange={setRating} size="lg" />
           </div>
 
           <button
             type="submit"
             disabled={submitting}
-            className="px-6 py-2.5 rounded-lg bg-amber-700 text-white font-medium hover:bg-amber-800 transition-colors disabled:opacity-50"
+            className="px-6 py-2.5 rounded-lg bg-neutral-900 text-white font-medium hover:bg-coffee-800 transition-colors disabled:opacity-50"
           >
             {submitting ? 'Logging…' : 'Log It!'}
           </button>
         </form>
         {coffees.length === 0 && (
-          <p className="text-sm text-gray-500 mt-2">
-            No coffees in the database yet. Run <code className="bg-amber-50 px-1 rounded">npm run seed</code> on the backend.
+          <p className="text-sm text-stone-500 mt-2">
+            No coffees in the database yet. Run <code className="bg-stone-100 px-1 rounded">npm run seed</code> on the backend.
           </p>
         )}
       </div>
@@ -198,21 +198,21 @@ function HomeContent() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Favorites */}
         {summary?.by_coffee?.length > 0 && (
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-amber-100">
-            <h2 className="text-lg font-bold text-amber-900 mb-4">🏆 Your Favorites</h2>
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-stone-200">
+            <h2 className="text-lg font-bold text-neutral-900 mb-4">🏆 Your Favorites</h2>
             <div className="space-y-2">
               {summary.by_coffee.slice(0, 5).map((c, i) => (
                 <div
                   key={c.coffee_name}
-                  className="flex items-center justify-between px-4 py-2.5 bg-amber-50 rounded-lg"
+                  className="flex items-center justify-between px-4 py-2.5 bg-stone-50 rounded-lg"
                 >
                   <div className="flex items-center gap-3">
                     <span className="text-lg">
                       {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}`}
                     </span>
                     <div>
-                      <div className="font-medium text-amber-900">{c.coffee_name}</div>
-                      <div className="text-xs text-amber-600">{c.total_cups} cups · {c.entries} entries</div>
+                      <div className="font-medium text-neutral-900">{c.coffee_name}</div>
+                      <div className="text-xs text-stone-500">{c.total_cups} cups · {c.entries} entries</div>
                     </div>
                   </div>
                   <StarRating value={c.avg_rating || 0} readOnly size="sm" />
@@ -224,8 +224,8 @@ function HomeContent() {
 
         {/* Rating Breakdown */}
         {summary?.rating_breakdown?.length > 0 && (
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-amber-100">
-            <h2 className="text-lg font-bold text-amber-900 mb-4">⭐ Rating Breakdown</h2>
+          <div className="bg-white rounded-xl p-6 shadow-sm border border-stone-200">
+            <h2 className="text-lg font-bold text-neutral-900 mb-4">⭐ Rating Breakdown</h2>
             <div className="space-y-2">
               {[5, 4, 3, 2, 1, 0].map((star) => {
                 const entry = summary.rating_breakdown.find((r) => r.rating === star);
@@ -234,16 +234,16 @@ function HomeContent() {
                 const pct = total > 0 ? (count / total) * 100 : 0;
                 return (
                   <div key={star} className="flex items-center gap-3">
-                    <span className="text-sm w-16 text-amber-700">
+                    <span className="text-sm w-16 text-coffee-700">
                       {star > 0 ? `${'★'.repeat(star)}${'☆'.repeat(5 - star)}` : 'No rating'}
                     </span>
-                    <div className="flex-1 bg-amber-50 rounded-full h-6 overflow-hidden">
+                    <div className="flex-1 bg-stone-100 rounded-full h-6 overflow-hidden">
                       <div
-                        className="h-full bg-amber-400 rounded-full transition-all"
+                        className="h-full bg-coffee-600 rounded-full transition-all"
                         style={{ width: `${pct}%` }}
                       />
                     </div>
-                    <span className="text-sm text-amber-600 w-8 text-right">{count}</span>
+                    <span className="text-sm text-stone-500 w-8 text-right">{count}</span>
                   </div>
                 );
               })}
@@ -253,21 +253,21 @@ function HomeContent() {
       </div>
 
       {/* ─── Recent Activity ─── */}
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-amber-100">
-        <h2 className="text-lg font-bold text-amber-900 mb-4">📅 Recent Activity</h2>
+      <div className="bg-white rounded-xl p-6 shadow-sm border border-stone-200">
+        <h2 className="text-lg font-bold text-neutral-900 mb-4">📅 Recent Activity</h2>
         {recentDays.length === 0 ? (
-          <p className="text-gray-500">No entries yet. Log your first cup above!</p>
+          <p className="text-stone-500">No entries yet. Log your first cup above!</p>
         ) : (
           <div className="space-y-2">
             {recentDays.map((d) => (
               <div
                 key={d._id}
-                className="flex items-center justify-between px-4 py-2.5 border border-amber-50 rounded-lg hover:bg-amber-50 transition-colors"
+                className="flex items-center justify-between px-4 py-2.5 border border-stone-100 rounded-lg hover:bg-stone-50 transition-colors"
               >
                 <div className="flex items-center gap-3">
                   <div>
-                    <span className="font-medium text-amber-900">{d.coffee_name}</span>
-                    <span className="text-sm text-amber-600 ml-2">
+                    <span className="font-medium text-neutral-900">{d.coffee_name}</span>
+                    <span className="text-sm text-stone-500 ml-2">
                       {new Date(d.date).toLocaleDateString('en-US', {
                         month: 'short', day: 'numeric', year: 'numeric',
                       })}
@@ -276,7 +276,7 @@ function HomeContent() {
                 </div>
                 <div className="flex items-center gap-3">
                   <StarRating value={d.rating || 0} readOnly size="sm" />
-                  <span className="text-sm font-medium text-amber-700">
+                  <span className="text-sm font-medium text-coffee-700">
                     {d.count_of_cups} {d.count_of_cups === 1 ? 'cup' : 'cups'}
                   </span>
                 </div>
@@ -291,10 +291,10 @@ function HomeContent() {
 
 function StatCard({ icon, value, label }) {
   return (
-    <div className="bg-white rounded-xl p-5 shadow-sm border border-amber-100 text-center">
+    <div className="bg-white rounded-xl p-5 shadow-sm border border-stone-200 text-center">
       <div className="text-2xl sm:text-3xl">{icon}</div>
-      <div className="text-xl font-bold text-amber-900 mt-1">{value}</div>
-      <div className="text-xs sm:text-sm text-amber-600">{label}</div>
+      <div className="text-xl font-bold text-neutral-900 mt-1">{value}</div>
+      <div className="text-xs sm:text-sm text-stone-500">{label}</div>
     </div>
   );
 }

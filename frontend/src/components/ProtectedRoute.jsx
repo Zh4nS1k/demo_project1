@@ -20,7 +20,7 @@ export default function ProtectedRoute({ children }) {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="text-amber-700 text-lg animate-pulse">Loading…</div>
+        <div className="text-stone-600 text-lg animate-pulse">Loading…</div>
       </div>
     );
   }

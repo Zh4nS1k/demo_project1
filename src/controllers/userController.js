@@ -45,6 +45,7 @@ exports.createUser = asyncHandler(async (req, res) => {
       age: user.age,
       gender: user.gender,
       favourite_coffee: user.favourite_coffee,
+      role: user.role,
     },
     token,
   });
@@ -100,9 +101,21 @@ exports.getUserByUsername = asyncHandler(async (req, res) => {
 
 // @desc    Update user
 // @route   PUT /api/users/:id
-// @access  Public
+// @access  Private (self or admin)
 exports.updateUser = asyncHandler(async (req, res) => {
-  const { password, ...updateData } = req.body;
+  const isSelf = req.user && req.user._id.toString() === req.params.id;
+  const isAdmin = req.user && req.user.role === 'admin';
+
+  if (!isSelf && !isAdmin) {
+    return res
+      .status(403)
+      .json({ success: false, message: 'Not allowed to update this user' });
+  }
+
+  const { password, role, ...updateData } = req.body;
+
+  // Role changes are admin-only
+  if (role && isAdmin) updateData.role = role;
 
   const user = await User.findById(req.params.id);
   if (!user) {
@@ -123,14 +136,22 @@ exports.updateUser = asyncHandler(async (req, res) => {
       age: user.age,
       gender: user.gender,
       favourite_coffee: user.favourite_coffee,
+      role: user.role,
     },
   });
 });
 
 // @desc    Delete user
 // @route   DELETE /api/users/:id
-// @access  Public
+// @access  Private/Admin
 exports.deleteUser = asyncHandler(async (req, res) => {
+  if (req.user && req.user._id.toString() === req.params.id) {
+    return res.status(400).json({
+      success: false,
+      message: 'You cannot delete your own account',
+    });
+  }
+
   const user = await User.findByIdAndDelete(req.params.id);
   if (!user) {
     return res.status(404).json({ success: false, message: 'User not found' });
@@ -162,6 +183,7 @@ exports.loginUser = asyncHandler(async (req, res) => {
       username: user.username,
       email: user.email,
       name: user.name,
+      role: user.role,
     },
     token,
   });

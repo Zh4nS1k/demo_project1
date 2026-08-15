@@ -1,4 +1,5 @@
 const express = require('express');
+const { protect, admin } = require('../middleware/auth');
 const {
   createUser,
   getAllUsers,
@@ -14,11 +15,11 @@ const router = express.Router();
 // @route   /api/users
 
 router.post('/login', loginUser);
-router.post('/', createUser);
-router.get('/', getAllUsers);
+router.post('/', createUser); // public registration
+router.get('/', protect, admin, getAllUsers); // admin panel listing
 router.get('/username/:username', getUserByUsername);
 router.get('/:id', getUserById);
-router.put('/:id', updateUser);
-router.delete('/:id', deleteUser);
+router.put('/:id', protect, updateUser); // self or admin (checked in controller)
+router.delete('/:id', protect, admin, deleteUser);
 
 module.exports = router;
