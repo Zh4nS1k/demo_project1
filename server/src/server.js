@@ -1,4 +1,6 @@
-require('dotenv').config();
+// Load server/.env regardless of the directory the process is started from
+const path = require('path');
+require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
 
 const connectDB = require('./config/db');
 const app = require('./app');

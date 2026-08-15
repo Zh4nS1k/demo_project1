@@ -1,39 +1,25 @@
 {
-  "name": "coffee-drinker-api",
+  "name": "coffee-drinker",
   "version": "1.0.0",
-  "description": "Coffee Drinker Project - Express.js + MongoDB REST API",
-  "main": "src/server.js",
+  "description": "Coffee Drinker — full-stack demo (Express API + Next.js client)",
+  "private": true,
   "scripts": {
-    "start": "node src/server.js",
-    "dev": "nodemon src/server.js",
-    "seed": "node src/seed.js",
-    "seed:clean": "node src/seed.js --clean",
-    "promote-admin": "node src/promote-admin.js",
-    "test": "jest --runInBand"
-  },
-  "keywords": [
-    "coffee",
-    "express",
-    "mongodb",
-    "rest-api"
-  ],
-  "author": "",
-  "license": "MIT",
-  "dependencies": {
-    "bcryptjs": "^2.4.3",
-    "cors": "^2.8.5",
-    "dotenv": "^16.4.5",
-    "express": "^4.21.2",
-    "express-rate-limit": "^8.6.2",
-    "express-validator": "^7.3.2",
-    "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.9.5",
-    "morgan": "^1.10.0"
+    "dev": "concurrently -k -n server,client -c yellow,cyan \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:server": "npm --prefix server run dev",
+    "dev:client": "npm --prefix client run dev",
+    "build": "npm run build:server && npm run build:client",
+    "build:server": "echo '(server is run from source — nothing to build)'",
+    "build:client": "npm --prefix client run build",
+    "start": "concurrently -k -n server,client -c yellow,cyan \"npm run start:server\" \"npm run start:client\"",
+    "start:server": "npm --prefix server run start",
+    "start:client": "npm --prefix client run start",
+    "test": "npm --prefix server run test",
+    "seed": "npm --prefix server run seed",
+    "seed:clean": "npm --prefix server run seed:clean",
+    "promote-admin": "npm --prefix server run promote-admin"
   },
   "devDependencies": {
-    "jest": "^30.4.2",
-    "mongodb-memory-server": "^11.2.0",
-    "nodemon": "^3.1.9",
-    "supertest": "^7.2.2"
-  }
+    "concurrently": "^9.1.2"
+  },
+  "license": "MIT"
 }

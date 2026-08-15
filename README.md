@@ -15,38 +15,21 @@ Built with **Express.js + MongoDB** (backend) and **Next.js 15 + Tailwind CSS** 
 
 ## 🚀 Quick Start
 
-### 1. Backend
-
 ```bash
-cd demo_project1
+# from the repo root
+npm install               # root tooling (concurrently)
+npm --prefix server install
+cd server
+cp .env.example .env     # Edit .env — set MONGODB_URI and JWT_SECRET
+npm run seed              # Seed demo data
+cd ..
 
-# Install dependencies
-npm install
-
-# Copy env file and configure
-cp .env.example .env
-# Edit .env — set MONGODB_URI and JWT_SECRET
-
-# Seed the database with demo data
-npm run seed
-
-# Start the server
-npm run dev          # http://localhost:3000
-```
-
-### 2. Frontend
-
-```bash
-cd demo_project1/frontend
-
-# Install dependencies
-npm install
-
-# Start the dev server
-npm run dev          # http://localhost:3001
+npm run dev               # Starts API (:3000) + client (:3001) together
 ```
 
 Open **http://localhost:3001** 🎉
+
+Or run each side separately: `npm run dev:server` / `npm run dev:client`.
 
 ---
 
@@ -168,7 +151,7 @@ Use `npm run seed:clean` to wipe all collections and re-seed from scratch.
 - 📈 **Rating breakdown** — bar chart showing distribution of your star ratings
 - 📅 **Recent activity** — feed of your latest coffee logs with ratings
 - ✏️ **Profile editing** — inline edit mode with save/cancel
-- 📱 **Responsive** — Tailwind CSS with a warm coffee/amber theme
+- 📱 **Responsive** — Tailwind CSS, black/white/gray/brown palette
 
 ---
 
@@ -176,51 +159,31 @@ Use `npm run seed:clean` to wipe all collections and re-seed from scratch.
 
 ```
 demo_project1/
-├── src/
-│   ├── config/
-│   │   └── db.js                     # MongoDB connection
-│   ├── models/
-│   │   ├── User.js                   # User schema + bcrypt hashing
-│   │   ├── Coffee.js                 # Coffee schema
-│   │   └── Day.js                    # Day schema (consumption + rating)
-│   ├── controllers/
-│   │   ├── userController.js         # CRUD + JWT auth
-│   │   ├── coffeeController.js       # CRUD + filtering
-│   │   └── dayController.js          # CRUD + summary aggregation
-│   ├── routes/
-│   │   ├── userRoutes.js
-│   │   ├── coffeeRoutes.js
-│   │   └── dayRoutes.js
-│   ├── middleware/
-│   │   ├── asyncHandler.js           # Async error catching
-│   │   └── errorHandler.js           # Global error handler
-│   ├── seed.js                       # Database seed script
-│   └── server.js                     # Express entry point
-├── frontend/
+├── server/                      # Express.js + MongoDB API
 │   ├── src/
-│   │   ├── app/
-│   │   │   ├── layout.js             # Root layout + AuthProvider
-│   │   │   ├── globals.css           # Tailwind + theme
-│   │   │   ├── page.js               # Home dashboard (protected)
-│   │   │   ├── login/page.js         # Login page
-│   │   │   ├── register/page.js      # Registration (username/email/password)
-│   │   │   └── profile/page.js       # Profile view & edit (protected)
-│   │   ├── components/
-│   │   │   ├── Providers.jsx         # AuthProvider + Navbar wrapper
-│   │   │   ├── Navbar.jsx            # Top nav, auth-aware
-│   │   │   ├── ProtectedRoute.jsx    # Auth guard
-│   │   │   ├── Input.jsx             # Reusable form input
-│   │   │   └── StarRating.jsx        # Interactive 0–5 star picker
-│   │   ├── context/
-│   │   │   └── AuthContext.jsx       # Auth state management
-│   │   └── lib/
-│   │       └── api.js                # API client for all endpoints
-│   ├── next.config.js                # Rewrites /api/* → backend
-│   ├── jsconfig.json                 # Path aliases (@/*)
+│   │   ├── config/db.js         # MongoDB connection
+│   │   ├── models/              # User, Coffee, Day schemas
+│   │   ├── controllers/         # userController, coffeeController, dayController
+│   │   ├── routes/              # userRoutes, coffeeRoutes, dayRoutes (+ validation)
+│   │   ├── middleware/          # auth (JWT), validate, rateLimiters, errorHandler
+│   │   ├── app.js               # Express app (importable by supertest)
+│   │   ├── server.js            # Entry point (env, DB connect, listen)
+│   │   ├── seed.js              # Demo data seeder
+│   │   └── promote-admin.js     # Grant/revoke admin role
+│   ├── tests/                   # Jest + Supertest (mongodb-memory-server)
+│   ├── jest.config.js
+│   ├── .env.example
 │   └── package.json
-├── .env.example
-├── .gitignore
-├── package.json
+├── client/                      # Next.js 15 App Router frontend
+│   ├── src/
+│   │   ├── app/                 # / (dashboard), /login, /register, /profile,
+│   │   │                        # /admin, /coffees, /leaderboard, /users/[username]
+│   │   ├── components/          # Navbar, ProtectedRoute, Input, StarRating, Stats
+│   │   ├── context/AuthContext.jsx
+│   │   └── lib/api.js           # API client (JWT-aware)
+│   ├── next.config.js           # Rewrites /api/* → http://localhost:3000
+│   └── package.json
+├── package.json                 # Root scripts (concurrently runs both)
 └── README.md
 ```
 
@@ -277,20 +240,19 @@ curl http://localhost:3000/api/days/summary/alice
 
 ## 📜 Available Scripts
 
-### Backend (`demo_project1/`)
-| Script              | Description                       |
-| ------------------- | --------------------------------- |
-| `npm run dev`       | Start dev server (nodemon)        |
-| `npm start`         | Start production server           |
-| `npm run seed`      | Seed database with demo data      |
-| `npm run seed:clean`| Wipe collections & re-seed        |
+### Root (`demo_project1/`)
+| Script                | Description                                    |
+| --------------------- | ---------------------------------------------- |
+| `npm run dev`         | Run server + client together (concurrently)    |
+| `npm run dev:server`  | Express dev server only (nodemon, :3000)       |
+| `npm run dev:client`  | Next.js dev server only (:3001)                |
+| `npm run build`       | Build the client for production                |
+| `npm test`            | Run the backend test suite (Jest, in-memory DB) |
+| `npm run seed`        | Seed database with demo data                   |
+| `npm run seed:clean`  | Wipe collections & re-seed                     |
+| `npm run promote-admin`| Promote a user to admin role                  |
 
-### Frontend (`demo_project1/frontend/`)
-| Script              | Description                       |
-| ------------------- | --------------------------------- |
-| `npm run dev`       | Start Next.js dev server (port 3001) |
-| `npm run build`     | Production build                  |
-| `npm start`         | Start production server           |
+Each side can also be driven directly inside `server/` and `client/` with their own scripts (`npm run dev`, `npm test`, …).
 
 ---
 
