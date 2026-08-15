@@ -1,0 +1,21 @@
+@import 'tailwindcss';
+
+:root {
+  --color-coffee-light: #c8a27c;
+  --color-coffee-medium: #8b5e3c;
+  --color-coffee-dark: #4a2c17;
+}
+
+body {
+  background-color: #faf7f2;
+  color: #2d1810;
+}
+
+/* Simple fade-in */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
