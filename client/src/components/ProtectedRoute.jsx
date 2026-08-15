@@ -5,17 +5,24 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 
 /**
- * Wraps a page to redirect unauthenticated users to /login.
+ * Route guard with two modes:
+ *
+ * - mode="strict" (default): unauthenticated visitors are redirected to
+ *   /login. Used by pages that make no sense for guests (e.g. /profile).
+ *
+ * - mode="guest": everyone can view the page. Account-only actions on the
+ *   page must gate themselves via requireAuth() from AuthContext, which
+ *   queues the action and shows the sign-up prompt instead of redirecting.
  */
-export default function ProtectedRoute({ children }) {
+export default function ProtectedRoute({ children, mode = 'strict' }) {
   const { user, loading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (mode === 'strict' && !loading && !user) {
       router.push('/login');
     }
-  }, [loading, user, router]);
+  }, [mode, loading, user, router]);
 
   if (loading) {
     return (
@@ -25,7 +32,8 @@ export default function ProtectedRoute({ children }) {
     );
   }
 
-  if (!user) return null;
+  if (mode === 'strict' && !user) return null;
 
+  // guest mode: render for everyone — actions gate themselves
   return children;
 }

@@ -2,6 +2,7 @@
 
 import { AuthProvider } from '@/context/AuthContext';
 import Navbar from '@/components/Navbar';
+import AuthPromptModal from '@/components/AuthPromptModal';
 
 export default function Providers({ children }) {
   return (
@@ -10,6 +11,7 @@ export default function Providers({ children }) {
       <main className="max-w-5xl mx-auto px-4 py-8 animate-fade-in">
         {children}
       </main>
+      <AuthPromptModal />
     </AuthProvider>
   );
 }

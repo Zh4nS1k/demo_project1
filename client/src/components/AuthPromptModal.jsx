@@ -1,0 +1,57 @@
+'use client';
+
+import { usePathname, useRouter } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
+
+/**
+ * Global "sign up to continue" prompt.
+ * Shown when a guest triggers an account-required action (requireAuth).
+ * The queued action runs automatically right after login/register.
+ */
+export default function AuthPromptModal() {
+  const { authPrompt, dismissAuthPrompt } = useAuth();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  // Don't stack the modal on top of the auth pages themselves
+  if (!authPrompt || pathname === '/login' || pathname === '/register') return null;
+
+  return (
+    <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/60" onClick={dismissAuthPrompt} />
+      <div className="relative w-full max-w-sm bg-white rounded-2xl border border-stone-200 shadow-xl p-6 text-center">
+        <div className="text-4xl mb-2">☕</div>
+        <h2 className="text-lg font-bold text-neutral-900">
+          Create an account to save your coffee journey
+        </h2>
+        {authPrompt.message && (
+          <p className="text-sm text-stone-500 mt-1.5">
+            We&apos;ll finish this for you right after you sign in:{' '}
+            <span className="font-medium text-coffee-700">{authPrompt.message}</span>
+          </p>
+        )}
+
+        <div className="flex flex-col gap-2 mt-5">
+          <button
+            onClick={() => router.push('/register')}
+            className="w-full py-2.5 rounded-lg bg-neutral-900 text-white font-medium hover:bg-coffee-800 transition-colors"
+          >
+            Create account
+          </button>
+          <button
+            onClick={() => router.push('/login')}
+            className="w-full py-2.5 rounded-lg border border-stone-300 text-stone-700 font-medium hover:bg-stone-100 transition-colors"
+          >
+            Log in
+          </button>
+          <button
+            onClick={dismissAuthPrompt}
+            className="w-full py-2 rounded-lg text-sm text-stone-400 hover:text-stone-600 transition-colors"
+          >
+            Maybe later
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
