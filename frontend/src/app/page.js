@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { api } from '@/lib/api';
 import ProtectedRoute from '@/components/ProtectedRoute';
@@ -17,7 +17,6 @@ const HERO_IMAGES = [
 function HomeContent() {
   const { user } = useAuth();
   const [summary, setSummary] = useState(null);
-  const [recentDays, setRecentDays] = useState([]);
   const [coffees, setCoffees] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -32,33 +31,58 @@ function HomeContent() {
   const [submitting, setSubmitting] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
 
+  // Recent activity — server-side pagination + sorting
+  const PAGE_SIZE = 10;
+  const [recentDays, setRecentDays] = useState([]);
+  const [daysPage, setDaysPage] = useState(1);
+  const [daysPages, setDaysPages] = useState(1);
+  const [daysTotal, setDaysTotal] = useState(0);
+  const [daysSort, setDaysSort] = useState('date'); // date | rating | cups
+  const [daysLoading, setDaysLoading] = useState(false);
+
+  const fetchDays = useCallback(async (page, sort) => {
+    setDaysLoading(true);
+    try {
+      const res = await api.getDaysByUsername(user.username, {
+        page,
+        limit: PAGE_SIZE,
+        sort,
+        order: 'desc',
+      });
+      setRecentDays(res.data);
+      setDaysPage(res.page);
+      setDaysPages(res.pages);
+      setDaysTotal(res.total);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setDaysLoading(false);
+    }
+  }, [user]);
+
   useEffect(() => {
     if (!user) return;
     (async () => {
       try {
-        const [sum, days, coffeeList] = await Promise.all([
+        const [sum, coffeeList] = await Promise.all([
           api.getUserSummary(user.username),
-          api.getDaysByUsername(user.username),
           api.getAllCoffees(),
         ]);
         setSummary(sum.data);
-        setRecentDays(days.data.slice(0, 10));
         setCoffees(coffeeList.data);
+        await fetchDays(1, 'date');
       } catch (err) {
         setError(err.message);
       } finally {
         setLoading(false);
       }
     })();
-  }, [user]);
+  }, [user, fetchDays]);
 
   const refreshData = async () => {
-    const [sum, days] = await Promise.all([
-      api.getUserSummary(user.username),
-      api.getDaysByUsername(user.username),
-    ]);
+    const sum = await api.getUserSummary(user.username);
     setSummary(sum.data);
-    setRecentDays(days.data.slice(0, 10));
+    await fetchDays(1, daysSort); // newest entry lands on page 1
   };
 
   const handleLogCoffee = async (e) => {
@@ -254,35 +278,79 @@ function HomeContent() {
 
       {/* ─── Recent Activity ─── */}
       <div className="bg-white rounded-xl p-6 shadow-sm border border-stone-200">
-        <h2 className="text-lg font-bold text-neutral-900 mb-4">📅 Recent Activity</h2>
-        {recentDays.length === 0 ? (
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+          <h2 className="text-lg font-bold text-neutral-900">📅 Recent Activity</h2>
+          <label className="flex items-center gap-2 text-sm text-stone-500">
+            Sort by
+            <select
+              value={daysSort}
+              onChange={(e) => {
+                const sort = e.target.value;
+                setDaysSort(sort);
+                fetchDays(1, sort);
+              }}
+              className="px-2 py-1.5 rounded-lg border border-stone-300 bg-white text-neutral-900 text-sm focus:outline-none focus:ring-2 focus:ring-coffee-500"
+            >
+              <option value="date">Date</option>
+              <option value="rating">Rating</option>
+              <option value="cups">Cups</option>
+            </select>
+          </label>
+        </div>
+
+        {recentDays.length === 0 && daysLoading ? (
+          <div className="text-stone-500 text-sm animate-pulse py-4">Loading entries…</div>
+        ) : recentDays.length === 0 ? (
           <p className="text-stone-500">No entries yet. Log your first cup above!</p>
         ) : (
-          <div className="space-y-2">
-            {recentDays.map((d) => (
-              <div
-                key={d._id}
-                className="flex items-center justify-between px-4 py-2.5 border border-stone-100 rounded-lg hover:bg-stone-50 transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  <div>
-                    <span className="font-medium text-neutral-900">{d.coffee_name}</span>
-                    <span className="text-sm text-stone-500 ml-2">
-                      {new Date(d.date).toLocaleDateString('en-US', {
-                        month: 'short', day: 'numeric', year: 'numeric',
-                      })}
+          <>
+            <div className={`space-y-2 transition-opacity ${daysLoading ? 'opacity-50' : ''}`}>
+              {recentDays.map((d) => (
+                <div
+                  key={d._id}
+                  className="flex items-center justify-between px-4 py-2.5 border border-stone-100 rounded-lg hover:bg-stone-50 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <div>
+                      <span className="font-medium text-neutral-900">{d.coffee_name}</span>
+                      <span className="text-sm text-stone-500 ml-2">
+                        {new Date(d.date).toLocaleDateString('en-US', {
+                          month: 'short', day: 'numeric', year: 'numeric',
+                        })}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <StarRating value={d.rating || 0} readOnly size="sm" />
+                    <span className="text-sm font-medium text-coffee-700">
+                      {d.count_of_cups} {d.count_of_cups === 1 ? 'cup' : 'cups'}
                     </span>
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <StarRating value={d.rating || 0} readOnly size="sm" />
-                  <span className="text-sm font-medium text-coffee-700">
-                    {d.count_of_cups} {d.count_of_cups === 1 ? 'cup' : 'cups'}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+
+            {/* Pager */}
+            <div className="flex items-center justify-between mt-4 pt-4 border-t border-stone-100">
+              <button
+                onClick={() => fetchDays(daysPage - 1, daysSort)}
+                disabled={daysPage <= 1 || daysLoading}
+                className="px-4 py-1.5 rounded-lg border border-stone-300 text-sm font-medium text-stone-700 hover:bg-stone-100 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                ← Prev
+              </button>
+              <span className="text-sm text-stone-500">
+                Page {daysPage} of {daysPages} · {daysTotal} {daysTotal === 1 ? 'entry' : 'entries'}
+              </span>
+              <button
+                onClick={() => fetchDays(daysPage + 1, daysSort)}
+                disabled={daysPage >= daysPages || daysLoading}
+                className="px-4 py-1.5 rounded-lg border border-stone-300 text-sm font-medium text-stone-700 hover:bg-stone-100 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                Next →
+              </button>
+            </div>
+          </>
         )}
       </div>
     </div>

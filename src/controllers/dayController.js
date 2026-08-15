@@ -1,18 +1,18 @@
 const asyncHandler = require('../middleware/asyncHandler');
 const Day = require('../models/Day');
 
-// @desc    Create a day entry (log coffee consumption)
-// @route   POST /api/days
-// @access  Public
-exports.createDay = asyncHandler(async (req, res) => {
-  const day = await Day.create(req.body);
-  res.status(201).json({ success: true, data: day });
-});
+/** Whitelisted sort keys — client-facing name → mongoose field */
+const SORT_FIELDS = {
+  date: 'date',
+  rating: 'rating',
+  cups: 'count_of_cups',
+};
 
-// @desc    Get all day entries
-// @route   GET /api/days
-// @access  Public
-exports.getAllDays = asyncHandler(async (req, res) => {
+/**
+ * Shared query parsing for day listings: filters + pagination + sorting.
+ * Query params are validated at the route level; this clamps values defensively.
+ */
+function parseDayQuery(req) {
   const filter = {};
 
   // Optional filters
@@ -24,25 +24,49 @@ exports.getAllDays = asyncHandler(async (req, res) => {
     if (req.query.to) filter.date.$lte = new Date(req.query.to);
   }
 
-  const page = parseInt(req.query.page) || 1;
-  const limit = parseInt(req.query.limit) || 50;
+  const page = Math.min(10000, Math.max(1, parseInt(req.query.page, 10) || 1));
+  const limit = Math.min(100, Math.max(1, parseInt(req.query.limit, 10) || 50));
+  const sortField = SORT_FIELDS[req.query.sort] || 'date';
+  const sortOrder = req.query.order === 'asc' ? 1 : -1;
+
+  return { filter, page, limit, sort: { [sortField]: sortOrder } };
+}
+
+/** Shared paginated listing response (matches /api/users shape). */
+async function listDays(req, res, forceFilter = {}) {
+  const { filter, page, limit, sort } = parseDayQuery(req);
+  Object.assign(filter, forceFilter);
+
   const skip = (page - 1) * limit;
-
-  const days = await Day.find(filter)
-    .skip(skip)
-    .limit(limit)
-    .sort({ date: -1 });
-
-  const total = await Day.countDocuments(filter);
+  const [days, total] = await Promise.all([
+    Day.find(filter).skip(skip).limit(limit).sort(sort),
+    Day.countDocuments(filter),
+  ]);
 
   res.status(200).json({
     success: true,
     count: days.length,
     total,
     page,
-    pages: Math.ceil(total / limit),
+    pages: Math.ceil(total / limit) || 1,
     data: days,
   });
+}
+
+// @desc    Create a day entry (log coffee consumption)
+// @route   POST /api/days
+// @access  Public
+exports.createDay = asyncHandler(async (req, res) => {
+  const day = await Day.create(req.body);
+  res.status(201).json({ success: true, data: day });
+});
+
+// @desc    Get all day entries
+// @route   GET /api/days
+// @access  Public
+// @query   username, coffee_name, from, to, page, limit, sort (date|rating|cups), order (asc|desc)
+exports.getAllDays = asyncHandler(async (req, res) => {
+  await listDays(req, res);
 });
 
 // @desc    Get day entry by ID
@@ -56,12 +80,12 @@ exports.getDayById = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: day });
 });
 
-// @desc    Get all days for a username
+// @desc    Get days for a username (paginated, sortable)
 // @route   GET /api/days/user/:username
 // @access  Public
+// @query   page, limit, sort (date|rating|cups), order (asc|desc)
 exports.getDaysByUsername = asyncHandler(async (req, res) => {
-  const days = await Day.find({ username: req.params.username }).sort({ date: -1 });
-  res.status(200).json({ success: true, count: days.length, data: days });
+  await listDays(req, res, { username: req.params.username });
 });
 
 // @desc    Get daily coffee summary for a user (total cups)

@@ -5,6 +5,14 @@
 
 const API_BASE = '/api';
 
+/** Build a query string from a params object, skipping empty values. */
+function toQueryString(params = {}) {
+  const qs = new URLSearchParams(
+    Object.entries(params).filter(([, v]) => v !== undefined && v !== null && v !== '')
+  ).toString();
+  return qs ? `?${qs}` : '';
+}
+
 async function request(path, options = {}) {
   const url = `${API_BASE}${path}`;
   const headers = { 'Content-Type': 'application/json', ...options.headers };
@@ -55,9 +63,10 @@ export const api = {
   // Days
   createDay: (body) =>
     request('/days', { method: 'POST', body: JSON.stringify(body) }),
-  getAllDays: (params = '') => request(`/days${params}`),
+  getAllDays: (params = {}) => request(`/days${toQueryString(params)}`),
   getDayById: (id) => request(`/days/${id}`),
-  getDaysByUsername: (username) => request(`/days/user/${username}`),
+  getDaysByUsername: (username, params = {}) =>
+    request(`/days/user/${encodeURIComponent(username)}${toQueryString(params)}`),
   getUserSummary: (username) => request(`/days/summary/${username}`),
   updateDay: (id, body) =>
     request(`/days/${id}`, { method: 'PUT', body: JSON.stringify(body) }),
