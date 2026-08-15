@@ -16,6 +16,16 @@ connectDB();
 
 const app = express();
 
+// Behind one proxy hop (Next.js rewrites in dev, nginx in prod) so rate limiting
+// sees the real client IP from X-Forwarded-For. Remove if backend is exposed directly.
+app.set('trust proxy', 1);
+
+// ─── Fail fast on bad config ───
+if (!process.env.JWT_SECRET || process.env.JWT_SECRET.length < 16) {
+  console.error('✗ JWT_SECRET is missing or shorter than 16 chars. Set it in .env');
+  process.exit(1);
+}
+
 // ─── Middleware ───
 app.use(cors());
 app.use(express.json());

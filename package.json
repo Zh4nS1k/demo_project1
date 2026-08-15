@@ -11,7 +11,12 @@
     "promote-admin": "node src/promote-admin.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["coffee", "express", "mongodb", "rest-api"],
+  "keywords": [
+    "coffee",
+    "express",
+    "mongodb",
+    "rest-api"
+  ],
   "author": "",
   "license": "MIT",
   "dependencies": {
@@ -19,6 +24,8 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.21.2",
+    "express-rate-limit": "^8.6.2",
+    "express-validator": "^7.3.2",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.9.5",
     "morgan": "^1.10.0"
