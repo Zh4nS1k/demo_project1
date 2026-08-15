@@ -45,13 +45,17 @@ export default function CoffeeCard({ coffee, user, requireAuth, onLogged }) {
     }
 
     try {
-      await api.createDay({ ...body, username: user.username });
-      setLoggedMsg(`Logged ${cups} ${cups === 1 ? 'cup' : 'cups'}! ☕`);
+      const res = await api.createDay({ ...body, username: user.username });
+      setLoggedMsg(
+        res.queued
+          ? 'Saved locally — will sync when you\u2019re back online ☕'
+          : `Logged ${cups} ${cups === 1 ? 'cup' : 'cups'}! ☕`
+      );
       setOpen(false);
       setCups(1);
       setRating(0);
       onLogged?.();
-      setTimeout(() => setLoggedMsg(''), 3000);
+      setTimeout(() => setLoggedMsg(''), 4000);
     } catch (err) {
       setCardError(err.message);
     } finally {

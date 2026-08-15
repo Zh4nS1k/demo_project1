@@ -50,8 +50,14 @@ function ProfileContent() {
       if (!body.favourite_coffee) delete body.favourite_coffee;
 
       const res = await api.updateUser(user.id, body);
-      updateUserInContext(res.data);
-      setSuccess('Profile updated successfully! ✅');
+      if (res.queued) {
+        // Offline: saved to the sync queue — don't clobber the auth context
+        // with the local echo; it will apply after the server accepts it.
+        setSuccess('Saved locally — will sync automatically when you\u2019re back online ☕');
+      } else {
+        updateUserInContext(res.data);
+        setSuccess('Profile updated successfully! ✅');
+      }
       setEditing(false);
       setTimeout(() => setSuccess(''), 3000);
     } catch (err) {

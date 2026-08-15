@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { api } from '@/lib/api';
@@ -9,6 +9,7 @@ import StarRating from '@/components/StarRating';
 import CoffeeCard from '@/components/CoffeeCard';
 import Hero from '@/components/layout/Hero';
 import { StatCard, InsightCard, Sparkline, deriveInsights } from '@/components/Stats';
+import { SYNC_DONE_EVENT, syncNow } from '@/lib/api';
 
 function HomeContent() {
   const { user } = useAuth();
@@ -32,6 +33,7 @@ function HomeContent() {
   const [daysTotal, setDaysTotal] = useState(0);
   const [daysSort, setDaysSort] = useState('date'); // date | rating | cups
   const [daysLoading, setDaysLoading] = useState(false);
+  const [staleData, setStaleData] = useState(false); // serving cached data during outage
 
   const fetchDays = useCallback(async (page, sort) => {
     setDaysLoading(true);
@@ -46,12 +48,20 @@ function HomeContent() {
       setDaysPage(res.page);
       setDaysPages(res.pages);
       setDaysTotal(res.total);
+      setStaleData(Boolean(res.__stale));
     } catch (err) {
       setError(err.message);
     } finally {
       setDaysLoading(false);
     }
   }, [user]);
+
+  // When queued offline writes sync successfully, refresh the dashboard
+  useEffect(() => {
+    const onSynced = () => refreshDataRef.current?.();
+    window.addEventListener(SYNC_DONE_EVENT, onSynced);
+    return () => window.removeEventListener(SYNC_DONE_EVENT, onSynced);
+  }, []);
 
   useEffect(() => {
     if (!user) return;
@@ -72,11 +82,18 @@ function HomeContent() {
     })();
   }, [user, fetchDays]);
 
+  const refreshDataRef = useRef(null);
   const refreshData = async () => {
-    const sum = await api.getUserSummary(user.username);
-    setSummary(sum.data);
+    try {
+      const sum = await api.getUserSummary(user.username);
+      setSummary(sum.data);
+      setStaleData(false);
+    } catch {
+      // offline mid-refresh — keep whatever is on screen
+    }
     await fetchDays(1, daysSort); // newest entry lands on page 1
   };
+  refreshDataRef.current = refreshData;
 
   const handleLogCoffee = async (e) => {
     e.preventDefault();
@@ -85,14 +102,18 @@ function HomeContent() {
     setError('');
     setSuccessMsg('');
     try {
-      await api.createDay({
+      const res = await api.createDay({
         username: user.username,
         coffee_name: selectedCoffee,
         count_of_cups: parseInt(cups),
         rating,
       });
       await refreshData();
-      setSuccessMsg(`Logged ${cups} cup(s) of ${selectedCoffee}! ☕`);
+      setSuccessMsg(
+        res.queued
+          ? `Saved locally — ${cups} cup(s) of ${selectedCoffee} will sync when you're back online ☕`
+          : `Logged ${cups} cup(s) of ${selectedCoffee}! ☕`
+      );
       setSelectedCoffee('');
       setCups(1);
       setRating(0);
@@ -136,6 +157,16 @@ function HomeContent() {
       {error && (
         <div className="bg-rust-100 border border-rust-300 text-rust-700 px-4 py-3 rounded-lg">
           {error}
+        </div>
+      )}
+
+      {/* Stale-data banner */}
+      {staleData && (
+        <div className="bg-stone-100 border border-stone-300 text-stone-600 px-4 py-2.5 rounded-lg text-sm flex items-center justify-between gap-3">
+          <span>📡 Showing cached data — the server is unreachable. Anything you log is saved locally and will sync.</span>
+          <button onClick={() => syncNow()} className="text-xs underline shrink-0 hover:text-neutral-900">
+            Retry now
+          </button>
         </div>
       )}
 

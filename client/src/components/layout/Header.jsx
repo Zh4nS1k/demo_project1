@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { useUI } from '@/context/UIContext';
+import SyncStatus from '@/components/layout/SyncStatus';
 
 /**
  * Persistent site header: logo, primary nav, auth state.
@@ -75,6 +76,8 @@ export default function Header() {
         </nav>
 
         <div className="flex-1" />
+
+        <SyncStatus />
 
         {/* Auth state */}
         {user ? (
