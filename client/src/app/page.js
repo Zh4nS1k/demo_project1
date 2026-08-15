@@ -7,15 +7,8 @@ import { api } from '@/lib/api';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import StarRating from '@/components/StarRating';
 import CoffeeCard from '@/components/CoffeeCard';
+import Hero from '@/components/layout/Hero';
 import { StatCard, InsightCard, Sparkline, deriveInsights } from '@/components/Stats';
-
-const HERO_IMAGES = [
-  'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=1200&q=80',
-  'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=1200&q=80',
-  'https://images.unsplash.com/photo-1521302080334-4bebac2763a6?w=1200&q=80',
-  'https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=1200&q=80',
-  'https://images.unsplash.com/photo-1511920170033-f8396924c348?w=1200&q=80',
-];
 
 function HomeContent() {
   const { user } = useAuth();
@@ -23,9 +16,6 @@ function HomeContent() {
   const [coffees, setCoffees] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-
-  // Hero image — random each load
-  const [heroImg] = useState(() => HERO_IMAGES[Math.floor(Math.random() * HERO_IMAGES.length)]);
 
   // Log coffee form
   const [selectedCoffee, setSelectedCoffee] = useState('');
@@ -130,26 +120,17 @@ function HomeContent() {
 
   return (
     <div className="space-y-8">
-      {/* ─── Hero Image ─── */}
-      <div className="relative rounded-2xl overflow-hidden shadow-lg h-64 sm:h-80">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={heroImg}
-          alt="Coffee"
-          className="w-full h-full object-cover grayscale-[35%]"
-          onError={(e) => { e.target.style.display = 'none'; }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent flex flex-col justify-end p-6">
-          <h1 className="text-3xl font-bold text-white mb-1">
-            ☕ Welcome back, {user.name}!
-          </h1>
-          <p className="text-stone-200">
-            {summary?.total_cups > 0
-              ? `You've logged ${summary.total_cups} cups across ${summary.unique_coffees.length} varieties`
-              : 'Start logging your coffee journey today!'}
-          </p>
-        </div>
-      </div>
+      {/* ─── Hero ─── */}
+      <Hero
+        compact
+        title={`Welcome back, ${(user.name || user.username).split(' ')[0]}!`}
+        subtitle={
+          summary?.total_cups > 0
+            ? `You've logged ${summary.total_cups} cups across ${summary.unique_coffees.length} varieties`
+            : 'Start logging your coffee journey today!'
+        }
+        primary={{ label: 'Browse coffees', href: '/coffees' }}
+      />
 
       {/* Error */}
       {error && (
@@ -213,7 +194,7 @@ function HomeContent() {
       </div>
 
       {/* ─── Log Coffee Form ─── */}
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-stone-200">
+      <div className="bg-white rounded-xl p-6 border border-stone-200">
         <h2 className="text-lg font-bold text-neutral-900 mb-4">📝 Log a Coffee</h2>
         <form onSubmit={handleLogCoffee} className="space-y-4">
           <div className="flex flex-col sm:flex-row gap-3">
@@ -266,7 +247,7 @@ function HomeContent() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Favorites */}
         {summary?.by_coffee?.length > 0 && (
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-stone-200">
+          <div className="bg-white rounded-xl p-6 border border-stone-200">
             <h2 className="text-lg font-bold text-neutral-900 mb-4">🏆 Your Favorites</h2>
             <div className="space-y-2">
               {summary.by_coffee.slice(0, 5).map((c, i) => (
@@ -292,7 +273,7 @@ function HomeContent() {
 
         {/* Rating Breakdown */}
         {summary?.rating_breakdown?.length > 0 && (
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-stone-200">
+          <div className="bg-white rounded-xl p-6 border border-stone-200">
             <h2 className="text-lg font-bold text-neutral-900 mb-4">⭐ Rating Breakdown</h2>
             <div className="space-y-2">
               {[5, 4, 3, 2, 1, 0].map((star) => {
@@ -321,7 +302,7 @@ function HomeContent() {
       </div>
 
       {/* ─── Recent Activity ─── */}
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-stone-200">
+      <div className="bg-white rounded-xl p-6 border border-stone-200">
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
           <h2 className="text-lg font-bold text-neutral-900">📅 Recent Activity</h2>
           <label className="flex items-center gap-2 text-sm text-stone-500">
@@ -453,43 +434,15 @@ function GuestHome() {
     { varieties: 0, cups: 0, entries: 0 }
   );
 
-  const handleFirstCup = () => {
-    requireAuth(
-      () => {}, // nothing to complete yet — guest just expressed intent
-      'start tracking your cups'
-    );
-  };
-
   return (
     <div className="space-y-8">
       {/* Hero */}
-      <div className="relative rounded-2xl overflow-hidden shadow-lg bg-neutral-950">
-        <div className="absolute inset-0 bg-gradient-to-br from-coffee-900/60 via-neutral-950 to-neutral-950" />
-        <div className="relative px-6 py-14 sm:py-20 text-center">
-          <div className="text-5xl mb-4">☕</div>
-          <h1 className="text-3xl sm:text-4xl font-bold text-white tracking-tight">
-            Your coffee journey starts here
-          </h1>
-          <p className="text-stone-300 mt-3 max-w-xl mx-auto">
-            Track every cup, rate your favourites, and see how your caffeine stacks up —
-            free, and it takes about thirty seconds.
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-3 mt-7">
-            <Link
-              href="/register"
-              className="px-6 py-2.5 rounded-lg bg-white text-neutral-900 font-semibold hover:bg-stone-200 transition-colors"
-            >
-              Create free account
-            </Link>
-            <button
-              onClick={handleFirstCup}
-              className="px-6 py-2.5 rounded-lg border border-stone-600 text-stone-200 font-medium hover:bg-stone-800 hover:text-white transition-colors"
-            >
-              Log my first cup
-            </button>
-          </div>
-        </div>
-      </div>
+      <Hero
+        title="Your coffee journey starts here"
+        subtitle="Track every cup, rate your favourites, and see how your caffeine stacks up — free, and it takes about thirty seconds."
+        primary={{ label: 'Create free account', href: '/register' }}
+        secondary={{ label: 'Browse coffees', href: '/coffees' }}
+      />
 
       {/* Community stats */}
       {loading ? (
@@ -534,7 +487,7 @@ function GuestHome() {
 
           {/* Leaderboard preview */}
           {leaders.length > 0 && (
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-stone-200">
+            <div className="bg-white rounded-xl p-6 border border-stone-200">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-bold text-neutral-900">🏆 This week&apos;s top drinkers</h2>
                 <Link href="/leaderboard" className="text-sm text-coffee-700 underline hover:text-coffee-900">

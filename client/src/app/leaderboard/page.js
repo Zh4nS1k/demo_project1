@@ -27,7 +27,7 @@ export default function LeaderboardPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-white rounded-2xl border border-stone-200 p-6 shadow-sm">
+      <div className="bg-white rounded-2xl border border-stone-200 p-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-neutral-900">🏆 Leaderboard</h1>
@@ -55,13 +55,13 @@ export default function LeaderboardPage() {
           <div className="text-stone-600 text-lg animate-pulse">Loading leaderboard…</div>
         </div>
       ) : rows.length === 0 ? (
-        <div className="bg-white rounded-xl border border-stone-200 p-10 text-center shadow-sm">
+        <div className="bg-white rounded-xl border border-stone-200 p-10 text-center">
           <div className="text-4xl mb-3">☕</div>
           <p className="text-neutral-800 font-medium">No cups logged in this period</p>
           <p className="text-stone-500 text-sm mt-1">Be the first on the board — log a coffee!</p>
         </div>
       ) : (
-        <div className={`bg-white rounded-xl border border-stone-200 shadow-sm overflow-hidden transition-opacity ${loading ? 'opacity-60' : ''}`}>
+        <div className={`bg-white rounded-xl border border-stone-200 overflow-hidden transition-opacity ${loading ? 'opacity-60' : ''}`}>
           {rows.map((r, i) => (
             <div
               key={r.username}

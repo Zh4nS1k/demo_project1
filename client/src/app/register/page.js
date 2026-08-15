@@ -69,7 +69,7 @@ export default function RegisterPage() {
 
         <form
           onSubmit={handleSubmit}
-          className="bg-white rounded-2xl shadow-sm border border-stone-200 p-6 space-y-1"
+          className="bg-white rounded-2xl border border-stone-200 p-6 space-y-1"
         >
           <Input
             label="Username"

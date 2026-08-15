@@ -19,7 +19,7 @@ function AdminContent() {
 
   if (user.role !== 'admin') {
     return (
-      <div className="max-w-md mx-auto mt-16 bg-white rounded-xl border border-stone-200 p-8 text-center shadow-sm">
+      <div className="max-w-md mx-auto mt-16 bg-white rounded-xl border border-stone-200 p-8 text-center">
         <div className="text-4xl mb-3">🔒</div>
         <h1 className="text-xl font-bold text-neutral-900">Admins only</h1>
         <p className="text-stone-500 mt-2 text-sm">
@@ -112,7 +112,7 @@ function AdminPanel() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-white rounded-2xl border border-stone-200 p-6 shadow-sm">
+      <div className="bg-white rounded-2xl border border-stone-200 p-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-neutral-900">⚙️ Admin Panel</h1>
@@ -153,7 +153,7 @@ function AdminPanel() {
 
       {/* Tables */}
       {tab === 'coffees' ? (
-        <section className="bg-white rounded-xl border border-stone-200 shadow-sm overflow-hidden">
+        <section className="bg-white rounded-xl border border-stone-200 overflow-hidden">
           <div className="flex items-center justify-between px-6 py-4 border-b border-stone-200">
             <h2 className="font-bold text-neutral-900">Coffees</h2>
             <button
@@ -201,7 +201,7 @@ function AdminPanel() {
           </div>
         </section>
       ) : (
-        <section className="bg-white rounded-xl border border-stone-200 shadow-sm overflow-hidden">
+        <section className="bg-white rounded-xl border border-stone-200 overflow-hidden">
           <div className="flex items-center justify-between px-6 py-4 border-b border-stone-200">
             <h2 className="font-bold text-neutral-900">Users</h2>
             <button

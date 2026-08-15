@@ -6,7 +6,7 @@
 
 export function StatCard({ icon, value, label }) {
   return (
-    <div className="bg-white rounded-xl p-5 shadow-sm border border-stone-200 text-center">
+    <div className="bg-white rounded-xl p-5 border border-stone-200 text-center">
       <div className="text-2xl sm:text-3xl">{icon}</div>
       <div className="text-xl font-bold text-neutral-900 mt-1">{value}</div>
       <div className="text-xs sm:text-sm text-stone-500">{label}</div>
@@ -16,7 +16,7 @@ export function StatCard({ icon, value, label }) {
 
 export function InsightCard({ icon, title, value, sub, children }) {
   return (
-    <div className="bg-white rounded-xl p-5 shadow-sm border border-stone-200 flex flex-col">
+    <div className="bg-white rounded-xl p-5 border border-stone-200 flex flex-col">
       <div className="flex items-center gap-2 text-xs uppercase tracking-wide text-stone-400 font-semibold">
         <span className="text-base">{icon}</span> {title}
       </div>

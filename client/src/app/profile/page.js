@@ -72,7 +72,7 @@ function ProfileContent() {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       {/* Header */}
-      <div className="bg-gradient-to-r from-stone-200 to-coffee-100 rounded-2xl p-6 shadow-sm border border-stone-300 text-center">
+      <div className="bg-gradient-to-r from-stone-200 to-coffee-100 rounded-2xl p-6 border border-stone-300 text-center">
         <div className="text-5xl mb-2">☕</div>
         <h1 className="text-2xl font-bold text-neutral-900">{user.name || user.username}</h1>
         <p className="text-stone-500">@{user.username}</p>
@@ -96,7 +96,7 @@ function ProfileContent() {
       )}
 
       {/* Profile Info */}
-      <div className="bg-white rounded-xl shadow-sm border border-stone-200 p-6">
+      <div className="bg-white rounded-xl border border-stone-200 p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-bold text-neutral-900">Profile Details</h2>
           {!editing && (
@@ -193,7 +193,7 @@ function ProfileContent() {
       </div>
 
       {/* Account Info */}
-      <div className="bg-white rounded-xl shadow-sm border border-stone-200 p-6">
+      <div className="bg-white rounded-xl border border-stone-200 p-6">
         <h2 className="text-lg font-bold text-neutral-900 mb-4">Account</h2>
         <div className="space-y-3">
           <InfoRow label="User ID" value={user.id} />

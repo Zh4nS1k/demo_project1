@@ -60,7 +60,7 @@ export default function CoffeeCard({ coffee, user, requireAuth, onLogged }) {
   };
 
   return (
-    <div className="bg-white rounded-xl border border-stone-200 p-5 shadow-sm flex flex-col gap-4 hover:border-stone-300 transition-colors">
+    <div className="bg-white rounded-xl border border-stone-200 p-5 flex flex-col gap-4 hover:border-stone-300 transition-colors">
       {/* Top: name + badges */}
       <div className="flex items-start justify-between gap-3">
         <div>

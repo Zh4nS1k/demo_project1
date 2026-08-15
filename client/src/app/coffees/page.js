@@ -49,7 +49,7 @@ export default function CoffeesPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-white rounded-2xl border border-stone-200 p-6 shadow-sm">
+      <div className="bg-white rounded-2xl border border-stone-200 p-6">
         <h1 className="text-2xl font-bold text-neutral-900">☕ Coffee Catalogue</h1>
         <p className="text-stone-500 text-sm mt-1">
           {coffees.length} {coffees.length === 1 ? 'variety' : 'varieties'} with community stats
@@ -124,7 +124,7 @@ export default function CoffeesPage() {
           <div className="text-stone-600 text-lg animate-pulse">Loading coffees…</div>
         </div>
       ) : coffees.length === 0 ? (
-        <div className="bg-white rounded-xl border border-stone-200 p-10 text-center shadow-sm">
+        <div className="bg-white rounded-xl border border-stone-200 p-10 text-center">
           <div className="text-4xl mb-3">🔍</div>
           <p className="text-neutral-800 font-medium">No coffees match those filters</p>
           <p className="text-stone-500 text-sm mt-1">Try loosening taste, milk or energy requirements.</p>
