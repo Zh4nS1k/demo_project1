@@ -132,7 +132,7 @@ function HomeContent() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
-        <div className="text-stone-600 text-lg animate-pulse">Loading your coffee stats…</div>
+        <div className="text-ink-2 text-lg animate-pulse">Loading your coffee stats…</div>
       </div>
     );
   }
@@ -162,9 +162,9 @@ function HomeContent() {
 
       {/* Stale-data banner */}
       {staleData && (
-        <div className="bg-stone-100 border border-stone-300 text-stone-600 px-4 py-2.5 rounded-lg text-sm flex items-center justify-between gap-3">
+        <div className="bg-surface-2 border border-line text-ink-2 px-4 py-2.5 rounded-lg text-sm flex items-center justify-between gap-3">
           <span>📡 Showing cached data — the server is unreachable. Anything you log is saved locally and will sync.</span>
-          <button onClick={() => syncNow()} className="text-xs underline shrink-0 hover:text-neutral-900">
+          <button onClick={() => syncNow()} className="text-xs underline shrink-0 hover:text-ink">
             Retry now
           </button>
         </div>
@@ -172,7 +172,7 @@ function HomeContent() {
 
       {/* Success */}
       {successMsg && (
-        <div className="bg-stone-100 border border-stone-300 text-neutral-800 px-4 py-3 rounded-lg">
+        <div className="bg-surface-2 border border-line text-ink px-4 py-3 rounded-lg">
           {successMsg}
         </div>
       )}
@@ -225,15 +225,15 @@ function HomeContent() {
       </div>
 
       {/* ─── Log Coffee Form ─── */}
-      <div className="bg-white rounded-xl p-6 border border-stone-200">
-        <h2 className="text-lg font-bold text-neutral-900 mb-4">📝 Log a Coffee</h2>
+      <div className="bg-surface rounded-xl p-6 border border-line">
+        <h2 className="text-lg font-bold text-ink mb-4">📝 Log a Coffee</h2>
         <form onSubmit={handleLogCoffee} className="space-y-4">
           <div className="flex flex-col sm:flex-row gap-3">
             <select
               value={selectedCoffee}
               onChange={(e) => setSelectedCoffee(e.target.value)}
               required
-              className="flex-1 px-4 py-2.5 rounded-lg border border-stone-300 bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-coffee-500"
+              className="flex-1 px-4 py-2.5 rounded-lg border border-line bg-surface text-ink focus:outline-none focus:ring-2 focus:ring-coffee-500"
             >
               <option value="">Select a coffee…</option>
               {coffees.map((c) => (
@@ -248,28 +248,28 @@ function HomeContent() {
               max="50"
               value={cups}
               onChange={(e) => setCups(e.target.value)}
-              className="w-full sm:w-24 px-4 py-2.5 rounded-lg border border-stone-300 bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-coffee-500 text-center"
+              className="w-full sm:w-24 px-4 py-2.5 rounded-lg border border-line bg-surface text-ink focus:outline-none focus:ring-2 focus:ring-coffee-500 text-center"
               placeholder="Cups"
             />
           </div>
 
           {/* Star Rating */}
           <div className="flex items-center gap-4 flex-wrap">
-            <span className="text-sm font-medium text-neutral-800">Rating:</span>
+            <span className="text-sm font-medium text-ink">Rating:</span>
             <StarRating value={rating} onChange={setRating} size="lg" />
           </div>
 
           <button
             type="submit"
             disabled={submitting}
-            className="px-6 py-2.5 rounded-lg bg-neutral-900 text-white font-medium hover:bg-coffee-800 transition-colors disabled:opacity-50"
+            className="px-6 py-2.5 rounded-lg bg-ink text-surface font-medium hover:bg-coffee-800 transition-colors disabled:opacity-50"
           >
             {submitting ? 'Logging…' : 'Log It!'}
           </button>
         </form>
         {coffees.length === 0 && (
-          <p className="text-sm text-stone-500 mt-2">
-            No coffees in the database yet. Run <code className="bg-stone-100 px-1 rounded">npm run seed</code> on the backend.
+          <p className="text-sm text-ink-2 mt-2">
+            No coffees in the database yet. Run <code className="bg-surface-2 px-1 rounded">npm run seed</code> on the backend.
           </p>
         )}
       </div>
@@ -278,21 +278,21 @@ function HomeContent() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Favorites */}
         {summary?.by_coffee?.length > 0 && (
-          <div className="bg-white rounded-xl p-6 border border-stone-200">
-            <h2 className="text-lg font-bold text-neutral-900 mb-4">🏆 Your Favorites</h2>
+          <div className="bg-surface rounded-xl p-6 border border-line">
+            <h2 className="text-lg font-bold text-ink mb-4">🏆 Your Favorites</h2>
             <div className="space-y-2">
               {summary.by_coffee.slice(0, 5).map((c, i) => (
                 <div
                   key={c.coffee_name}
-                  className="flex items-center justify-between px-4 py-2.5 bg-stone-50 rounded-lg"
+                  className="flex items-center justify-between px-4 py-2.5 bg-surface-2 rounded-lg"
                 >
                   <div className="flex items-center gap-3">
                     <span className="text-lg">
                       {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}`}
                     </span>
                     <div>
-                      <div className="font-medium text-neutral-900">{c.coffee_name}</div>
-                      <div className="text-xs text-stone-500">{c.total_cups} cups · {c.entries} entries</div>
+                      <div className="font-medium text-ink">{c.coffee_name}</div>
+                      <div className="text-xs text-ink-2">{c.total_cups} cups · {c.entries} entries</div>
                     </div>
                   </div>
                   <StarRating value={c.avg_rating || 0} readOnly size="sm" />
@@ -304,8 +304,8 @@ function HomeContent() {
 
         {/* Rating Breakdown */}
         {summary?.rating_breakdown?.length > 0 && (
-          <div className="bg-white rounded-xl p-6 border border-stone-200">
-            <h2 className="text-lg font-bold text-neutral-900 mb-4">⭐ Rating Breakdown</h2>
+          <div className="bg-surface rounded-xl p-6 border border-line">
+            <h2 className="text-lg font-bold text-ink mb-4">⭐ Rating Breakdown</h2>
             <div className="space-y-2">
               {[5, 4, 3, 2, 1, 0].map((star) => {
                 const entry = summary.rating_breakdown.find((r) => r.rating === star);
@@ -317,13 +317,13 @@ function HomeContent() {
                     <span className="text-sm w-16 text-coffee-700">
                       {star > 0 ? `${'★'.repeat(star)}${'☆'.repeat(5 - star)}` : 'No rating'}
                     </span>
-                    <div className="flex-1 bg-stone-100 rounded-full h-6 overflow-hidden">
+                    <div className="flex-1 bg-surface-2 rounded-full h-6 overflow-hidden">
                       <div
                         className="h-full bg-coffee-600 rounded-full transition-all"
                         style={{ width: `${pct}%` }}
                       />
                     </div>
-                    <span className="text-sm text-stone-500 w-8 text-right">{count}</span>
+                    <span className="text-sm text-ink-2 w-8 text-right">{count}</span>
                   </div>
                 );
               })}
@@ -333,10 +333,10 @@ function HomeContent() {
       </div>
 
       {/* ─── Recent Activity ─── */}
-      <div className="bg-white rounded-xl p-6 border border-stone-200">
+      <div className="bg-surface rounded-xl p-6 border border-line">
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-          <h2 className="text-lg font-bold text-neutral-900">📅 Recent Activity</h2>
-          <label className="flex items-center gap-2 text-sm text-stone-500">
+          <h2 className="text-lg font-bold text-ink">📅 Recent Activity</h2>
+          <label className="flex items-center gap-2 text-sm text-ink-2">
             Sort by
             <select
               value={daysSort}
@@ -345,7 +345,7 @@ function HomeContent() {
                 setDaysSort(sort);
                 fetchDays(1, sort);
               }}
-              className="px-2 py-1.5 rounded-lg border border-stone-300 bg-white text-neutral-900 text-sm focus:outline-none focus:ring-2 focus:ring-coffee-500"
+              className="px-2 py-1.5 rounded-lg border border-line bg-surface text-ink text-sm focus:outline-none focus:ring-2 focus:ring-coffee-500"
             >
               <option value="date">Date</option>
               <option value="rating">Rating</option>
@@ -355,21 +355,21 @@ function HomeContent() {
         </div>
 
         {recentDays.length === 0 && daysLoading ? (
-          <div className="text-stone-500 text-sm animate-pulse py-4">Loading entries…</div>
+          <div className="text-ink-2 text-sm animate-pulse py-4">Loading entries…</div>
         ) : recentDays.length === 0 ? (
-          <p className="text-stone-500">No entries yet. Log your first cup above!</p>
+          <p className="text-ink-2">No entries yet. Log your first cup above!</p>
         ) : (
           <>
             <div className={`space-y-2 transition-opacity ${daysLoading ? 'opacity-50' : ''}`}>
               {recentDays.map((d) => (
                 <div
                   key={d._id}
-                  className="flex items-center justify-between px-4 py-2.5 border border-stone-100 rounded-lg hover:bg-stone-50 transition-colors"
+                  className="flex items-center justify-between px-4 py-2.5 border border-line rounded-lg hover:bg-surface-2 transition-colors"
                 >
                   <div className="flex items-center gap-3">
                     <div>
-                      <span className="font-medium text-neutral-900">{d.coffee_name}</span>
-                      <span className="text-sm text-stone-500 ml-2">
+                      <span className="font-medium text-ink">{d.coffee_name}</span>
+                      <span className="text-sm text-ink-2 ml-2">
                         {new Date(d.date).toLocaleDateString('en-US', {
                           month: 'short', day: 'numeric', year: 'numeric',
                         })}
@@ -387,21 +387,21 @@ function HomeContent() {
             </div>
 
             {/* Pager */}
-            <div className="flex items-center justify-between mt-4 pt-4 border-t border-stone-100">
+            <div className="flex items-center justify-between mt-4 pt-4 border-t border-line">
               <button
                 onClick={() => fetchDays(daysPage - 1, daysSort)}
                 disabled={daysPage <= 1 || daysLoading}
-                className="px-4 py-1.5 rounded-lg border border-stone-300 text-sm font-medium text-stone-700 hover:bg-stone-100 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                className="px-4 py-1.5 rounded-lg border border-line text-sm font-medium text-ink-2 hover:bg-surface-3 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 ← Prev
               </button>
-              <span className="text-sm text-stone-500">
+              <span className="text-sm text-ink-2">
                 Page {daysPage} of {daysPages} · {daysTotal} {daysTotal === 1 ? 'entry' : 'entries'}
               </span>
               <button
                 onClick={() => fetchDays(daysPage + 1, daysSort)}
                 disabled={daysPage >= daysPages || daysLoading}
-                className="px-4 py-1.5 rounded-lg border border-stone-300 text-sm font-medium text-stone-700 hover:bg-stone-100 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                className="px-4 py-1.5 rounded-lg border border-line text-sm font-medium text-ink-2 hover:bg-surface-3 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 Next →
               </button>
@@ -478,7 +478,7 @@ function GuestHome() {
       {/* Community stats */}
       {loading ? (
         <div className="flex items-center justify-center min-h-[20vh]">
-          <div className="text-stone-600 text-lg animate-pulse">Brewing the community stats…</div>
+          <div className="text-ink-2 text-lg animate-pulse">Brewing the community stats…</div>
         </div>
       ) : (
         <>
@@ -497,7 +497,7 @@ function GuestHome() {
           {featured.length > 0 && (
             <div>
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-bold text-neutral-900">⭐ Community favourites</h2>
+                <h2 className="text-lg font-bold text-ink">⭐ Community favourites</h2>
                 <Link href="/coffees" className="text-sm text-coffee-700 underline hover:text-coffee-900">
                   Browse all coffees →
                 </Link>
@@ -518,9 +518,9 @@ function GuestHome() {
 
           {/* Leaderboard preview */}
           {leaders.length > 0 && (
-            <div className="bg-white rounded-xl p-6 border border-stone-200">
+            <div className="bg-surface rounded-xl p-6 border border-line">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-bold text-neutral-900">🏆 This week&apos;s top drinkers</h2>
+                <h2 className="text-lg font-bold text-ink">🏆 This week&apos;s top drinkers</h2>
                 <Link href="/leaderboard" className="text-sm text-coffee-700 underline hover:text-coffee-900">
                   Full leaderboard →
                 </Link>
@@ -530,15 +530,15 @@ function GuestHome() {
                   <Link
                     key={r.username}
                     href={`/users/${r.username}`}
-                    className="flex items-center justify-between px-4 py-2.5 bg-stone-50 rounded-lg hover:bg-stone-100 transition-colors"
+                    className="flex items-center justify-between px-4 py-2.5 bg-surface-2 rounded-lg hover:bg-surface-3 transition-colors"
                   >
                     <div className="flex items-center gap-3">
                       <span className="text-lg">
                         {i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉'}
                       </span>
                       <div>
-                        <div className="font-medium text-neutral-900">{r.name}</div>
-                        <div className="text-xs text-stone-500">@{r.username}</div>
+                        <div className="font-medium text-ink">{r.name}</div>
+                        <div className="text-xs text-ink-2">@{r.username}</div>
                       </div>
                     </div>
                     <div className="text-sm font-bold text-coffee-700">

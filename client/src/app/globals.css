@@ -1,35 +1,110 @@
 @import 'tailwindcss';
 
-/* ── Palette: black, white, gray, brown only ── */
-@theme {
-  /* Brown (coffee) accent scale */
-  --color-coffee-50: #f9f6f3;
-  --color-coffee-100: #f1eae3;
-  --color-coffee-200: #e3d6c9;
-  --color-coffee-300: #cfbba7;
-  --color-coffee-400: #b2977e;
-  --color-coffee-500: #96785c;
-  --color-coffee-600: #7b5d45;
-  --color-coffee-700: #644b38;
-  --color-coffee-800: #4d3a2b;
-  --color-coffee-900: #33261d;
-  --color-coffee-950: #1c1510;
+/* Class-based dark mode (toggled on <html> by ThemeToggle / head script) */
+@custom-variant dark (&:where(.dark, .dark *));
 
-  /* Rust-brown for errors (stays in the brown family) */
-  --color-rust-100: #f2eae7;
-  --color-rust-300: #d8bdb4;
-  --color-rust-700: #6f3a2c;
+/* ── Theme tokens ──
+   Semantic names (surface/ink/line) flip between light and dark.
+   The coffee + rust scales are var-backed so dark mode can use lighter,
+   muted variants for contrast on dark surfaces. */
+@theme inline {
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', Consolas, monospace;
+  --font-sans: 'Instrument Sans', 'Helvetica Neue', Arial, sans-serif;
+
+  --color-page: var(--page);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-line: var(--line);
+
+  --color-coffee-50: var(--coffee-50);
+  --color-coffee-100: var(--coffee-100);
+  --color-coffee-200: var(--coffee-200);
+  --color-coffee-300: var(--coffee-300);
+  --color-coffee-400: var(--coffee-400);
+  --color-coffee-500: var(--coffee-500);
+  --color-coffee-600: var(--coffee-600);
+  --color-coffee-700: var(--coffee-700);
+  --color-coffee-800: var(--coffee-800);
+  --color-coffee-900: var(--coffee-900);
+  --color-coffee-950: var(--coffee-950);
+
+  --color-rust-100: var(--rust-100);
+  --color-rust-300: var(--rust-300);
+  --color-rust-700: var(--rust-700);
 }
 
+/* ── Light: warm paper tones ── */
 :root {
+  color-scheme: light;
+
+  --page: #f6f4f0;
+  --surface: #fdfcfa;
+  --surface-2: #f4f0e9;
+  --surface-3: #eae4d9;
+  --ink: #221c15;
+  --ink-2: #5d554a;
+  --ink-3: #948a7c;
+  --line: #e6dfd3;
+
+  --coffee-50: #f9f6f3;
+  --coffee-100: #f1eae3;
+  --coffee-200: #e3d6c9;
+  --coffee-300: #cfbba7;
+  --coffee-400: #b2977e;
+  --coffee-500: #96785c;
+  --coffee-600: #7b5d45;
+  --coffee-700: #644b38;
+  --coffee-800: #4d3a2b;
+  --coffee-900: #33261d;
+  --coffee-950: #1c1510;
+
+  --rust-100: #f2eae7;
+  --rust-300: #d8bdb4;
+  --rust-700: #6f3a2c;
+
+  /* legacy aliases */
   --color-coffee-light: #b2977e;
   --color-coffee-medium: #7b5d45;
   --color-coffee-dark: #33261d;
 }
 
+/* ── Dark: muted warm-on-dark ── */
+.dark {
+  color-scheme: dark;
+
+  --page: #161310;
+  --surface: #1e1a15;
+  --surface-2: #272119;
+  --surface-3: #332b20;
+  --ink: #ece5d8;
+  --ink-2: #b3a894;
+  --ink-3: #7e7466;
+  --line: #332c22;
+
+  --coffee-50: #221d17;
+  --coffee-100: #322920;
+  --coffee-200: #3e3325;
+  --coffee-300: #55432f;
+  --coffee-400: #6f573d;
+  --coffee-500: #a07d55;
+  --coffee-600: #b78e60;
+  --coffee-700: #cfa678;
+  --coffee-800: #d6bd97;
+  --coffee-900: #241c13;
+  --coffee-950: #171208;
+
+  --rust-100: #3a2a25;
+  --rust-300: #6b4a3f;
+  --rust-700: #d9a08f;
+}
+
 body {
-  background-color: #f5f5f3;
-  color: #1c1917;
+  background-color: var(--page);
+  color: var(--ink);
 }
 
 /* Simple fade-in */

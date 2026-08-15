@@ -68,7 +68,7 @@ export default function SidePanel() {
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Search coffees…"
-          className="w-full px-3 py-1.5 text-sm rounded-md border border-stone-200 bg-stone-50 text-neutral-900 placeholder-stone-400 focus:outline-none focus:ring-1 focus:ring-coffee-500 focus:bg-white"
+          className="w-full px-3 py-1.5 text-sm rounded-md border border-line bg-surface-2 text-ink placeholder-ink-3 focus:outline-none focus:ring-1 focus:ring-coffee-500 focus:bg-surface"
         />
         <div className="flex gap-1 overflow-x-auto pb-1 -mx-1 px-1">
           <Chip active={taste === ''} onClick={() => setTaste('')}>All</Chip>
@@ -87,21 +87,21 @@ export default function SidePanel() {
             key={c._id}
             href="/coffees"
             onClick={closeMobilePanel}
-            className="flex items-center justify-between gap-2 px-3 py-1.5 rounded-md text-sm text-stone-600 hover:bg-stone-100 hover:text-neutral-900 transition-colors"
+            className="flex items-center justify-between gap-2 px-3 py-1.5 rounded-md text-sm text-ink-2 hover:bg-surface-3 hover:text-ink transition-colors"
           >
             <span className="truncate">{c.name}</span>
             {c.avg_rating != null && (
-              <span className="text-xs text-stone-400 shrink-0">★ {c.avg_rating.toFixed(1)}</span>
+              <span className="text-xs text-ink-3 shrink-0">★ {c.avg_rating.toFixed(1)}</span>
             )}
           </Link>
         ))}
         {filtered.length === 0 && (
-          <p className="px-3 py-2 text-xs text-stone-400">No matches</p>
+          <p className="px-3 py-2 text-xs text-ink-3">No matches</p>
         )}
       </nav>
 
       {/* Mobile-only nav (drawer bottom) */}
-      <div className="md:hidden border-t border-stone-100 px-2 py-2 space-y-0.5">
+      <div className="md:hidden border-t border-line px-2 py-2 space-y-0.5">
         {[
           ['/', 'Home'],
           ['/coffees', 'Coffees'],
@@ -112,8 +112,8 @@ export default function SidePanel() {
             href={href}
             onClick={closeMobilePanel}
             className={`block px-3 py-2 rounded-md text-sm ${
-              pathname === href ? 'text-neutral-900 font-medium' : 'text-stone-500'
-            } hover:bg-stone-100`}
+              pathname === href ? 'text-ink font-medium' : 'text-ink-2'
+            } hover:bg-surface-3`}
           >
             {label}
           </Link>
@@ -126,19 +126,19 @@ export default function SidePanel() {
     <>
       {/* ── Desktop rail ── */}
       <aside
-        className={`hidden lg:flex flex-col shrink-0 border-r border-stone-200 bg-white transition-[width] duration-200 ${
+        className={`hidden lg:flex flex-col shrink-0 border-r border-line bg-surface transition-[width] duration-200 ${
           panelOpen ? 'w-60' : 'w-14'
         }`}
       >
         <div className="h-12 flex items-center justify-between px-2 shrink-0">
           {panelOpen && (
-            <span className="text-[11px] font-semibold uppercase tracking-widest text-stone-400 pl-2">
+            <span className="text-[11px] font-semibold uppercase tracking-widest text-ink-3 pl-2">
               Coffees
             </span>
           )}
           <button
             onClick={togglePanel}
-            className="p-2 rounded-md text-stone-400 hover:bg-stone-100 hover:text-neutral-900 transition-colors"
+            className="p-2 rounded-md text-ink-3 hover:bg-surface-3 hover:text-ink transition-colors"
             aria-label={panelOpen ? 'Collapse panel' : 'Expand panel'}
           >
             <Chevron dir={panelOpen ? 'left' : 'right'} />
@@ -151,7 +151,7 @@ export default function SidePanel() {
           <div className="flex flex-col items-center pt-2">
             <Link
               href="/coffees"
-              className="p-2.5 rounded-md text-xl hover:bg-stone-100 transition-colors"
+              className="p-2.5 rounded-md text-xl hover:bg-surface-3 transition-colors"
               title="Browse coffees"
             >
               ☕
@@ -164,14 +164,14 @@ export default function SidePanel() {
       {mobilePanelOpen && (
         <div className="fixed inset-0 z-40 lg:hidden">
           <div className="absolute inset-0 bg-black/40" onClick={closeMobilePanel} />
-          <aside className="absolute left-0 top-0 bottom-0 w-72 max-w-[85vw] bg-white border-r border-stone-200 flex flex-col">
-            <div className="h-14 flex items-center justify-between px-4 border-b border-stone-100 shrink-0">
-              <span className="flex items-center gap-2 font-semibold text-neutral-900">
+          <aside className="absolute left-0 top-0 bottom-0 w-72 max-w-[85vw] bg-surface border-r border-line flex flex-col">
+            <div className="h-14 flex items-center justify-between px-4 border-b border-line shrink-0">
+              <span className="flex items-center gap-2 font-semibold text-ink">
                 <span>☕</span> Coffee Drinker
               </span>
               <button
                 onClick={closeMobilePanel}
-                className="p-2 rounded-md text-stone-400 hover:bg-stone-100 hover:text-neutral-900"
+                className="p-2 rounded-md text-ink-3 hover:bg-surface-3 hover:text-ink"
                 aria-label="Close menu"
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -192,7 +192,7 @@ function Chip({ active, onClick, children }) {
     <button
       onClick={onClick}
       className={`px-2.5 py-1 rounded-full text-xs whitespace-nowrap transition-colors ${
-        active ? 'bg-neutral-900 text-white' : 'bg-stone-100 text-stone-500 hover:bg-stone-200'
+        active ? 'bg-ink text-surface' : 'bg-surface-2 text-ink-2 hover:bg-surface-3'
       }`}
     >
       {children}

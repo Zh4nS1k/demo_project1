@@ -35,13 +35,13 @@ export default function SyncStatus() {
     dotClass = 'bg-coffee-400 animate-pulse';
     label = 'Syncing…';
   } else if (!online || pending > 0) {
-    dotClass = 'bg-transparent border-2 border-stone-400';
+    dotClass = 'bg-transparent border-2 border-ink-3';
     label = pending > 0 ? `Offline · ${pending} pending` : 'Offline';
   }
 
   return (
     <div
-      className="flex items-center gap-1.5 px-2 py-1 rounded-md text-xs text-stone-400"
+      className="flex items-center gap-1.5 px-2 py-1 rounded-md text-xs text-ink-3"
       title={syncing ? 'Uploading saved entries…' : label}
     >
       <span className={`w-2 h-2 rounded-full ${dotClass}`} aria-hidden />

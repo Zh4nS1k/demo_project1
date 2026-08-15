@@ -41,7 +41,7 @@ export default function Hero({ image, title, subtitle, primary, secondary, compa
             {primary?.href && (
               <Link
                 href={primary.href}
-                className="px-6 py-2.5 rounded-lg bg-white text-neutral-900 font-semibold hover:bg-stone-200 transition-colors"
+                className="px-6 py-2.5 rounded-lg bg-surface text-ink font-semibold hover:bg-surface-3 transition-colors"
               >
                 {primary.label}
               </Link>
@@ -49,7 +49,7 @@ export default function Hero({ image, title, subtitle, primary, secondary, compa
             {primary?.onClick && (
               <button
                 onClick={primary.onClick}
-                className="px-6 py-2.5 rounded-lg bg-white text-neutral-900 font-semibold hover:bg-stone-200 transition-colors"
+                className="px-6 py-2.5 rounded-lg bg-surface text-ink font-semibold hover:bg-surface-3 transition-colors"
               >
                 {primary.label}
               </button>
@@ -57,7 +57,7 @@ export default function Hero({ image, title, subtitle, primary, secondary, compa
             {secondary?.href && (
               <Link
                 href={secondary.href}
-                className="px-6 py-2.5 rounded-lg border border-white/30 text-stone-100 font-medium hover:bg-white/10 transition-colors"
+                className="px-6 py-2.5 rounded-lg border border-white/30 text-stone-100 font-medium hover:bg-surface/10 transition-colors"
               >
                 {secondary.label}
               </Link>
@@ -65,7 +65,7 @@ export default function Hero({ image, title, subtitle, primary, secondary, compa
             {secondary?.onClick && (
               <button
                 onClick={secondary.onClick}
-                className="px-6 py-2.5 rounded-lg border border-white/30 text-stone-100 font-medium hover:bg-white/10 transition-colors"
+                className="px-6 py-2.5 rounded-lg border border-white/30 text-stone-100 font-medium hover:bg-surface/10 transition-colors"
               >
                 {secondary.label}
               </button>

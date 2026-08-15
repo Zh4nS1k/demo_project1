@@ -16,7 +16,7 @@ export default function Input({
 }) {
   return (
     <div className="mb-4">
-      <label htmlFor={name} className="block text-sm font-medium text-neutral-800 mb-1">
+      <label htmlFor={name} className="block text-sm font-medium text-ink mb-1">
         {label} {required && <span className="text-rust-700">*</span>}
       </label>
       <input
@@ -27,12 +27,12 @@ export default function Input({
         onChange={onChange}
         placeholder={placeholder}
         required={required}
-        className={`w-full px-4 py-2.5 rounded-lg border bg-white text-neutral-900 placeholder-stone-400
+        className={`w-full px-4 py-2.5 rounded-lg border bg-surface text-ink placeholder-ink-3
           focus:outline-none focus:ring-2 transition-all
           ${
             error
               ? 'border-rust-300 focus:ring-rust-300'
-              : 'border-stone-300 focus:ring-coffee-500'
+              : 'border-line focus:ring-coffee-500'
           }`}
         {...rest}
       />

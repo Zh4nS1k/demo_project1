@@ -45,22 +45,22 @@ export default function PublicProfilePage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
-        <div className="text-stone-600 text-lg animate-pulse">Loading profile…</div>
+        <div className="text-ink-2 text-lg animate-pulse">Loading profile…</div>
       </div>
     );
   }
 
   if (notFound) {
     return (
-      <div className="max-w-md mx-auto mt-16 bg-white rounded-xl border border-stone-200 p-8 text-center">
+      <div className="max-w-md mx-auto mt-16 bg-surface rounded-xl border border-line p-8 text-center">
         <div className="text-4xl mb-3">🔍</div>
-        <h1 className="text-xl font-bold text-neutral-900">User not found</h1>
-        <p className="text-stone-500 mt-2 text-sm">
+        <h1 className="text-xl font-bold text-ink">User not found</h1>
+        <p className="text-ink-2 mt-2 text-sm">
           No one goes by <span className="font-medium">@{username}</span> here.
         </p>
         <Link
           href="/leaderboard"
-          className="inline-block mt-5 px-5 py-2 rounded-lg bg-neutral-900 text-white text-sm font-medium hover:bg-coffee-800 transition-colors"
+          className="inline-block mt-5 px-5 py-2 rounded-lg bg-ink text-surface text-sm font-medium hover:bg-coffee-800 transition-colors"
         >
           ← Back to Leaderboard
         </Link>
@@ -82,19 +82,19 @@ export default function PublicProfilePage() {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       {/* Header */}
-      <div className="bg-gradient-to-r from-stone-200 to-coffee-100 rounded-2xl p-6 border border-stone-300 text-center">
+      <div className="bg-gradient-to-r from-surface-3 to-coffee-100 rounded-2xl p-6 border border-line text-center">
         <div className="text-5xl mb-2">☕</div>
-        <h1 className="text-2xl font-bold text-neutral-900">{profile.name}</h1>
-        <p className="text-stone-500">@{profile.username}</p>
+        <h1 className="text-2xl font-bold text-ink">{profile.name}</h1>
+        <p className="text-ink-2">@{profile.username}</p>
         {profile.member_since && (
-          <p className="text-xs text-stone-400 mt-2">
+          <p className="text-xs text-ink-3 mt-2">
             Coffee drinker since{' '}
             {new Date(profile.member_since).toLocaleDateString('en-US', {
               month: 'long', year: 'numeric',
             })}
           </p>
         )}
-        <span className="inline-block mt-3 px-2.5 py-1 rounded-full text-xs font-semibold bg-white/70 text-stone-500 border border-stone-300">
+        <span className="inline-block mt-3 px-2.5 py-1 rounded-full text-xs font-semibold bg-surface/70 text-ink-2 border border-line">
           👁 Public profile · read-only
         </span>
       </div>
@@ -135,21 +135,21 @@ export default function PublicProfilePage() {
 
       {/* Top coffees */}
       {topCoffees.length > 0 && (
-        <div className="bg-white rounded-xl p-6 border border-stone-200">
-          <h2 className="text-lg font-bold text-neutral-900 mb-4">🏆 Favourites</h2>
+        <div className="bg-surface rounded-xl p-6 border border-line">
+          <h2 className="text-lg font-bold text-ink mb-4">🏆 Favourites</h2>
           <div className="space-y-2">
             {topCoffees.map((c, i) => (
               <div
                 key={c.coffee_name}
-                className="flex items-center justify-between px-4 py-2.5 bg-stone-50 rounded-lg"
+                className="flex items-center justify-between px-4 py-2.5 bg-surface-2 rounded-lg"
               >
                 <div className="flex items-center gap-3">
                   <span className="text-lg">
                     {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}`}
                   </span>
                   <div>
-                    <div className="font-medium text-neutral-900">{c.coffee_name}</div>
-                    <div className="text-xs text-stone-500">
+                    <div className="font-medium text-ink">{c.coffee_name}</div>
+                    <div className="text-xs text-ink-2">
                       {c.total_cups} {c.total_cups === 1 ? 'cup' : 'cups'} · {c.entries} {c.entries === 1 ? 'entry' : 'entries'}
                     </div>
                   </div>
@@ -162,7 +162,7 @@ export default function PublicProfilePage() {
       )}
 
       <div className="text-center">
-        <Link href="/leaderboard" className="text-sm text-stone-500 underline hover:text-coffee-700">
+        <Link href="/leaderboard" className="text-sm text-ink-2 underline hover:text-coffee-700">
           ← Back to Leaderboard
         </Link>
       </div>

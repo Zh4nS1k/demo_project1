@@ -57,8 +57,8 @@ export default function RegisterPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="text-5xl mb-3">☕</div>
-          <h1 className="text-2xl font-bold text-neutral-900">Join Coffee Drinker</h1>
-          <p className="text-stone-500 mt-1">Create your account — set up your profile later</p>
+          <h1 className="text-2xl font-bold text-ink">Join Coffee Drinker</h1>
+          <p className="text-ink-2 mt-1">Create your account — set up your profile later</p>
         </div>
 
         {error && (
@@ -69,7 +69,7 @@ export default function RegisterPage() {
 
         <form
           onSubmit={handleSubmit}
-          className="bg-white rounded-2xl border border-stone-200 p-6 space-y-1"
+          className="bg-surface rounded-2xl border border-line p-6 space-y-1"
         >
           <Input
             label="Username"
@@ -110,20 +110,20 @@ export default function RegisterPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2.5 mt-4 rounded-lg bg-neutral-900 text-white font-medium hover:bg-coffee-800 transition-colors disabled:opacity-50"
+            className="w-full py-2.5 mt-4 rounded-lg bg-ink text-surface font-medium hover:bg-coffee-800 transition-colors disabled:opacity-50"
           >
             {loading ? 'Creating account…' : 'Register'}
           </button>
         </form>
 
-        <p className="text-center mt-4 text-sm text-stone-600">
+        <p className="text-center mt-4 text-sm text-ink-2">
           Already have an account?{' '}
           <Link href="/login" className="font-medium underline text-coffee-700 hover:text-coffee-900">
             Login
           </Link>
         </p>
 
-        <div className="mt-6 p-3 bg-stone-100 border border-stone-200 rounded-lg text-xs text-stone-600 text-center">
+        <div className="mt-6 p-3 bg-surface-2 border border-line rounded-lg text-xs text-ink-2 text-center">
           💡 <strong>Tip:</strong> You can add your name, age, gender, and favourite coffee
           from your <Link href="/profile" className="underline">profile page</Link> after registration.
         </div>

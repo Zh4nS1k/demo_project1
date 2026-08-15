@@ -49,9 +49,9 @@ export default function CoffeesPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-white rounded-2xl border border-stone-200 p-6">
-        <h1 className="text-2xl font-bold text-neutral-900">☕ Coffee Catalogue</h1>
-        <p className="text-stone-500 text-sm mt-1">
+      <div className="bg-surface rounded-2xl border border-line p-6">
+        <h1 className="text-2xl font-bold text-ink">☕ Coffee Catalogue</h1>
+        <p className="text-ink-2 text-sm mt-1">
           {coffees.length} {coffees.length === 1 ? 'variety' : 'varieties'} with community stats
           {!user && (
             <> — <Link href="/register" className="underline text-coffee-700">create an account</Link> to track what you drink</>
@@ -61,11 +61,11 @@ export default function CoffeesPage() {
         {/* Filters */}
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 mt-5">
           <label className="flex flex-col gap-1 text-sm">
-            <span className="text-stone-500 font-medium">Taste</span>
+            <span className="text-ink-2 font-medium">Taste</span>
             <select
               value={taste}
               onChange={(e) => setTaste(e.target.value)}
-              className="px-3 py-2 rounded-lg border border-stone-300 bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-coffee-500"
+              className="px-3 py-2 rounded-lg border border-line bg-surface text-ink focus:outline-none focus:ring-2 focus:ring-coffee-500"
             >
               <option value="">Any taste</option>
               {TASTES.map((t) => <option key={t} value={t}>{t}</option>)}
@@ -73,11 +73,11 @@ export default function CoffeesPage() {
           </label>
 
           <label className="flex flex-col gap-1 text-sm">
-            <span className="text-stone-500 font-medium">Milk</span>
+            <span className="text-ink-2 font-medium">Milk</span>
             <select
               value={milk}
               onChange={(e) => setMilk(e.target.value)}
-              className="px-3 py-2 rounded-lg border border-stone-300 bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-coffee-500"
+              className="px-3 py-2 rounded-lg border border-line bg-surface text-ink focus:outline-none focus:ring-2 focus:ring-coffee-500"
             >
               <option value="">Any</option>
               <option value="1">With milk 🥛</option>
@@ -86,11 +86,11 @@ export default function CoffeesPage() {
           </label>
 
           <label className="flex flex-col gap-1 text-sm">
-            <span className="text-stone-500 font-medium">Min energy</span>
+            <span className="text-ink-2 font-medium">Min energy</span>
             <select
               value={minEnergy}
               onChange={(e) => setMinEnergy(e.target.value)}
-              className="px-3 py-2 rounded-lg border border-stone-300 bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-coffee-500"
+              className="px-3 py-2 rounded-lg border border-line bg-surface text-ink focus:outline-none focus:ring-2 focus:ring-coffee-500"
             >
               <option value="">Any</option>
               {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
@@ -103,7 +103,7 @@ export default function CoffeesPage() {
             <button
               onClick={() => { setTaste(''); setMilk(''); setMinEnergy(''); }}
               disabled={!hasFilters}
-              className="px-4 py-2 rounded-lg border border-stone-300 text-sm font-medium text-stone-700 hover:bg-stone-100 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="px-4 py-2 rounded-lg border border-line text-sm font-medium text-ink-2 hover:bg-surface-3 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               ✕ Clear filters
             </button>
@@ -121,13 +121,13 @@ export default function CoffeesPage() {
       {/* Grid */}
       {loading && coffees.length === 0 ? (
         <div className="flex items-center justify-center min-h-[30vh]">
-          <div className="text-stone-600 text-lg animate-pulse">Loading coffees…</div>
+          <div className="text-ink-2 text-lg animate-pulse">Loading coffees…</div>
         </div>
       ) : coffees.length === 0 ? (
-        <div className="bg-white rounded-xl border border-stone-200 p-10 text-center">
+        <div className="bg-surface rounded-xl border border-line p-10 text-center">
           <div className="text-4xl mb-3">🔍</div>
-          <p className="text-neutral-800 font-medium">No coffees match those filters</p>
-          <p className="text-stone-500 text-sm mt-1">Try loosening taste, milk or energy requirements.</p>
+          <p className="text-ink font-medium">No coffees match those filters</p>
+          <p className="text-ink-2 text-sm mt-1">Try loosening taste, milk or energy requirements.</p>
         </div>
       ) : (
         <div className={`grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 transition-opacity ${loading ? 'opacity-60' : ''}`}>

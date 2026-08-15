@@ -68,7 +68,7 @@ function ProfileContent() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
-        <div className="text-stone-600 text-lg animate-pulse">Loading profile…</div>
+        <div className="text-ink-2 text-lg animate-pulse">Loading profile…</div>
       </div>
     );
   }
@@ -78,12 +78,12 @@ function ProfileContent() {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       {/* Header */}
-      <div className="bg-gradient-to-r from-stone-200 to-coffee-100 rounded-2xl p-6 border border-stone-300 text-center">
+      <div className="bg-gradient-to-r from-surface-3 to-coffee-100 rounded-2xl p-6 border border-line text-center">
         <div className="text-5xl mb-2">☕</div>
-        <h1 className="text-2xl font-bold text-neutral-900">{user.name || user.username}</h1>
-        <p className="text-stone-500">@{user.username}</p>
+        <h1 className="text-2xl font-bold text-ink">{user.name || user.username}</h1>
+        <p className="text-ink-2">@{user.username}</p>
         {fieldEmpty(user.name) || fieldEmpty(user.age) || !user.favourite_coffee ? (
-          <p className="mt-2 text-sm text-stone-500 italic">
+          <p className="mt-2 text-sm text-ink-2 italic">
             💡 Complete your profile — click Edit below
           </p>
         ) : null}
@@ -96,19 +96,19 @@ function ProfileContent() {
         </div>
       )}
       {success && (
-        <div className="bg-stone-100 border border-stone-300 text-neutral-800 px-4 py-3 rounded-lg">
+        <div className="bg-surface-2 border border-line text-ink px-4 py-3 rounded-lg">
           {success}
         </div>
       )}
 
       {/* Profile Info */}
-      <div className="bg-white rounded-xl border border-stone-200 p-6">
+      <div className="bg-surface rounded-xl border border-line p-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-neutral-900">Profile Details</h2>
+          <h2 className="text-lg font-bold text-ink">Profile Details</h2>
           {!editing && (
             <button
               onClick={() => setEditing(true)}
-              className="px-4 py-1.5 rounded-lg bg-stone-200 text-neutral-800 text-sm font-medium hover:bg-stone-300 transition-colors"
+              className="px-4 py-1.5 rounded-lg bg-surface-3 text-ink text-sm font-medium hover:bg-surface-2 transition-colors"
             >
               ✏️ Edit
             </button>
@@ -151,12 +151,12 @@ function ProfileContent() {
               placeholder="25"
             />
             <div className="mb-4">
-              <label className="block text-sm font-medium text-neutral-800 mb-1">Gender</label>
+              <label className="block text-sm font-medium text-ink mb-1">Gender</label>
               <select
                 name="gender"
                 value={form.gender}
                 onChange={handleChange}
-                className="w-full px-4 py-2.5 rounded-lg border border-stone-300 bg-white text-neutral-900 focus:outline-none focus:ring-2 focus:ring-coffee-500"
+                className="w-full px-4 py-2.5 rounded-lg border border-line bg-surface text-ink focus:outline-none focus:ring-2 focus:ring-coffee-500"
               >
                 <option value="male">Male</option>
                 <option value="female">Female</option>
@@ -173,7 +173,7 @@ function ProfileContent() {
             <div className="flex gap-3 mt-4">
               <button
                 type="submit"
-                className="flex-1 py-2.5 rounded-lg bg-neutral-900 text-white font-medium hover:bg-coffee-800 transition-colors"
+                className="flex-1 py-2.5 rounded-lg bg-ink text-surface font-medium hover:bg-coffee-800 transition-colors"
               >
                 Save Changes
               </button>
@@ -189,7 +189,7 @@ function ProfileContent() {
                     email: user.email || '',
                   });
                 }}
-                className="flex-1 py-2.5 rounded-lg bg-stone-100 text-stone-700 font-medium hover:bg-stone-200 transition-colors"
+                className="flex-1 py-2.5 rounded-lg bg-surface-2 text-ink-2 font-medium hover:bg-surface-3 transition-colors"
               >
                 Cancel
               </button>
@@ -199,8 +199,8 @@ function ProfileContent() {
       </div>
 
       {/* Account Info */}
-      <div className="bg-white rounded-xl border border-stone-200 p-6">
-        <h2 className="text-lg font-bold text-neutral-900 mb-4">Account</h2>
+      <div className="bg-surface rounded-xl border border-line p-6">
+        <h2 className="text-lg font-bold text-ink mb-4">Account</h2>
         <div className="space-y-3">
           <InfoRow label="User ID" value={user.id} />
           <InfoRow
@@ -215,9 +215,9 @@ function ProfileContent() {
 
 function InfoRow({ label, value, highlight = false }) {
   return (
-    <div className="flex items-center justify-between py-2 border-b border-stone-100 last:border-0">
-      <span className="text-sm text-stone-500">{label}</span>
-      <span className={`text-sm font-medium ${highlight ? 'text-stone-400 italic' : 'text-neutral-900'}`}>
+    <div className="flex items-center justify-between py-2 border-b border-line last:border-0">
+      <span className="text-sm text-ink-2">{label}</span>
+      <span className={`text-sm font-medium ${highlight ? 'text-ink-3 italic' : 'text-ink'}`}>
         {value}
       </span>
     </div>

@@ -27,7 +27,7 @@ export default function ProtectedRoute({ children, mode = 'strict' }) {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="text-stone-600 text-lg animate-pulse">Loading…</div>
+        <div className="text-ink-2 text-lg animate-pulse">Loading…</div>
       </div>
     );
   }
