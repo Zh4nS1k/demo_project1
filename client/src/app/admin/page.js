@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { useAuth } from '@/context/AuthContext';
 import { api } from '@/lib/api';
 import ProtectedRoute from '@/components/ProtectedRoute';
@@ -16,20 +17,23 @@ const TASTES = [
 function AdminContent() {
   const { user } = useAuth();
   const router = useRouter();
+  const t = useTranslations('admin');
+  const tc = useTranslations('common');
+  const tt = useTranslations('tastes');
 
   if (user.role !== 'admin') {
     return (
       <div className="max-w-md mx-auto mt-16 bg-surface rounded-xl border border-line p-8 text-center">
         <div className="text-4xl mb-3">🔒</div>
-        <h1 className="text-xl font-bold text-ink">Admins only</h1>
+        <h1 className="text-xl font-bold text-ink">{t('lockedTitle')}</h1>
         <p className="text-ink-2 mt-2 text-sm">
-          Your account doesn&apos;t have permission to view this page.
+          {t('lockedBody')}
         </p>
         <button
           onClick={() => router.push('/')}
           className="mt-5 px-5 py-2 rounded-lg bg-ink text-surface text-sm font-medium hover:bg-coffee-800 transition-colors"
         >
-          Back to Home
+          {t('backHome')}
         </button>
       </div>
     );
@@ -76,11 +80,11 @@ function AdminPanel() {
   }, [refresh]);
 
   const handleDeleteCoffee = async (coffee) => {
-    if (!window.confirm(`Delete "${coffee.name}" permanently?`)) return;
+    if (!window.confirm(t('confirmDeleteCoffee', { name: coffee.name }))) return;
     try {
       await api.deleteCoffee(coffee._id);
       await refresh();
-      flash(`Deleted coffee "${coffee.name}"`);
+      flash(t('coffeeDeleted', { name: coffee.name }));
     } catch (err) {
       setError(err.message);
     }
@@ -88,14 +92,14 @@ function AdminPanel() {
 
   const handleDeleteUser = async (u) => {
     if (u._id === user.id) {
-      setError('You cannot delete your own account from the admin panel.');
+      setError(t('selfDeleteError'));
       return;
     }
-    if (!window.confirm(`Delete user "${u.username}" permanently? Their coffee logs stay in the database.`)) return;
+    if (!window.confirm(t('confirmDeleteUser', { username: u.username }))) return;
     try {
       await api.deleteUser(u._id);
       await refresh();
-      flash(`Deleted user "${u.username}"`);
+      flash(t('userDeleted', { username: u.username }));
     } catch (err) {
       setError(err.message);
     }
@@ -104,7 +108,7 @@ function AdminPanel() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
-        <div className="text-ink-2 text-lg animate-pulse">Loading admin panel…</div>
+        <div className="text-ink-2 text-lg animate-pulse">{t('loadingPanel')}</div>
       </div>
     );
   }
@@ -115,26 +119,26 @@ function AdminPanel() {
       <div className="bg-surface rounded-2xl border border-line p-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-ink">⚙️ Admin Panel</h1>
+            <h1 className="text-2xl font-bold text-ink">⚙️ {t('title')}</h1>
             <p className="text-ink-2 text-sm mt-1">
-              Manage coffees and users — signed in as <span className="font-medium text-coffee-700">{user.username}</span>
+              {t('signedInAs', { user: user.username })}
             </p>
           </div>
           <button
             onClick={refresh}
             className="px-4 py-2 rounded-lg border border-line text-sm font-medium text-ink-2 hover:bg-surface-3 transition-colors"
           >
-            ↻ Refresh
+            {t('refresh')}
           </button>
         </div>
 
         {/* Tabs */}
         <div className="flex gap-2 mt-5">
           <TabButton active={tab === 'coffees'} onClick={() => setTab('coffees')}>
-            ☕ Coffees <CountBadge n={coffees.length} />
+            ☕ {t('tabCoffees')} <CountBadge n={coffees.length} />
           </TabButton>
           <TabButton active={tab === 'users'} onClick={() => setTab('users')}>
-            👤 Users <CountBadge n={users.length} />
+            👤 {t('tabUsers')} <CountBadge n={users.length} />
           </TabButton>
         </div>
       </div>
@@ -160,27 +164,27 @@ function AdminPanel() {
               onClick={() => setModal({ type: 'coffee-create' })}
               className="px-4 py-2 rounded-lg bg-ink text-surface text-sm font-medium hover:bg-coffee-800 transition-colors"
             >
-              + Add Coffee
+              {t('addCoffee')}
             </button>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-left text-ink-2 border-b border-line bg-surface-2">
-                  <th className="px-6 py-3 font-semibold">Name</th>
-                  <th className="px-4 py-3 font-semibold">Taste</th>
-                  <th className="px-4 py-3 font-semibold">Energy</th>
-                  <th className="px-4 py-3 font-semibold">Milk</th>
-                  <th className="px-6 py-3 text-right font-semibold">Actions</th>
+                  <th className="px-6 py-3 font-semibold">{t('colName')}</th>
+                  <th className="px-4 py-3 font-semibold">{t('colTaste')}</th>
+                  <th className="px-4 py-3 font-semibold">{t('colEnergy')}</th>
+                  <th className="px-4 py-3 font-semibold">{t('colMilk')}</th>
+                  <th className="px-6 py-3 text-right font-semibold">{t('colActions')}</th>
                 </tr>
               </thead>
               <tbody>
                 {coffees.map((c) => (
                   <tr key={c._id} className="border-b border-line last:border-0 hover:bg-surface-2">
                     <td className="px-6 py-3 font-medium text-ink">{c.name}</td>
-                    <td className="px-4 py-3 text-ink-2">{c.taste}</td>
+                    <td className="px-4 py-3 text-ink-2">{tt.has(c.taste) ? tt(c.taste) : c.taste}</td>
                     <td className="px-4 py-3 text-ink-2">⚡ {c.energy_boost}/10</td>
-                    <td className="px-4 py-3 text-ink-2">{c.milk ? '🥛 Yes' : '—'}</td>
+                    <td className="px-4 py-3 text-ink-2">{c.milk ? t('milkYes') : t('milkNo')}</td>
                     <td className="px-6 py-3 text-right">
                       <RowActions
                         onEdit={() => setModal({ type: 'coffee-edit', item: c })}
@@ -192,7 +196,7 @@ function AdminPanel() {
                 {coffees.length === 0 && (
                   <tr>
                     <td colSpan={5} className="px-6 py-10 text-center text-ink-3">
-                      No coffees yet — add the first one.
+                      {t('noCoffees')}
                     </td>
                   </tr>
                 )}
@@ -208,18 +212,18 @@ function AdminPanel() {
               onClick={() => setModal({ type: 'user-create' })}
               className="px-4 py-2 rounded-lg bg-ink text-surface text-sm font-medium hover:bg-coffee-800 transition-colors"
             >
-              + Add User
+              {t('addUser')}
             </button>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-left text-ink-2 border-b border-line bg-surface-2">
-                  <th className="px-6 py-3 font-semibold">Username</th>
-                  <th className="px-4 py-3 font-semibold">Name</th>
-                  <th className="px-4 py-3 font-semibold">Email</th>
-                  <th className="px-4 py-3 font-semibold">Role</th>
-                  <th className="px-6 py-3 text-right font-semibold">Actions</th>
+                  <th className="px-6 py-3 font-semibold">{tc('username')}</th>
+                  <th className="px-4 py-3 font-semibold">{tc('fullName')}</th>
+                  <th className="px-4 py-3 font-semibold">{t('colEmail')}</th>
+                  <th className="px-4 py-3 font-semibold">{t('colRole')}</th>
+                  <th className="px-6 py-3 text-right font-semibold">{t('colActions')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -227,12 +231,12 @@ function AdminPanel() {
                   <tr key={u._id} className="border-b border-line last:border-0 hover:bg-surface-2">
                     <td className="px-6 py-3 font-medium text-ink">
                       {u.username}
-                      {u._id === user.id && <span className="ml-2 text-xs text-ink-3">(you)</span>}
+                      {u._id === user.id && <span className="ml-2 text-xs text-ink-3">{t('you')}</span>}
                     </td>
                     <td className="px-4 py-3 text-ink-2">{u.name}</td>
                     <td className="px-4 py-3 text-ink-2">{u.email}</td>
                     <td className="px-4 py-3">
-                      <RoleBadge role={u.role} />
+                      <RoleBadge role={u.role} labels={{ user: tc('roleUser'), admin: tc('roleAdmin') }} />
                     </td>
                     <td className="px-6 py-3 text-right">
                       <RowActions
@@ -246,7 +250,7 @@ function AdminPanel() {
                 {users.length === 0 && (
                   <tr>
                     <td colSpan={5} className="px-6 py-10 text-center text-ink-3">
-                      No users found.
+                      {t('noUsers')}
                     </td>
                   </tr>
                 )}
@@ -258,16 +262,16 @@ function AdminPanel() {
 
       {/* Modal */}
       {modal?.type === 'coffee-create' && (
-        <CoffeeModal onClose={() => setModal(null)} onSaved={async () => { setModal(null); await refresh(); flash('Coffee saved'); }} />
+        <CoffeeModal onClose={() => setModal(null)} onSaved={async () => { setModal(null); await refresh(); flash(t('coffeeSaved')); }} />
       )}
       {modal?.type === 'coffee-edit' && (
-        <CoffeeModal initial={modal.item} onClose={() => setModal(null)} onSaved={async () => { setModal(null); await refresh(); flash('Coffee saved'); }} />
+        <CoffeeModal initial={modal.item} onClose={() => setModal(null)} onSaved={async () => { setModal(null); await refresh(); flash(t('coffeeSaved')); }} />
       )}
       {modal?.type === 'user-create' && (
-        <UserModal onClose={() => setModal(null)} onSaved={async () => { setModal(null); await refresh(); flash('User saved'); }} />
+        <UserModal onClose={() => setModal(null)} onSaved={async () => { setModal(null); await refresh(); flash(t('userSaved')); }} />
       )}
       {modal?.type === 'user-edit' && (
-        <UserModal initial={modal.item} onClose={() => setModal(null)} onSaved={async () => { setModal(null); await refresh(); flash('User saved'); }} />
+        <UserModal initial={modal.item} onClose={() => setModal(null)} onSaved={async () => { setModal(null); await refresh(); flash(t('userSaved')); }} />
       )}
     </div>
   );
@@ -321,15 +325,15 @@ function RowActions({ onEdit, onDelete, deleteDisabled = false }) {
         onClick={onEdit}
         className="px-3 py-1.5 rounded-lg border border-line text-xs font-medium text-ink-2 hover:bg-surface-3 transition-colors"
       >
-        ✏️ Edit
+        ✏️ {tc('edit')}
       </button>
       <button
         onClick={onDelete}
         disabled={deleteDisabled}
-        title={deleteDisabled ? 'You cannot delete yourself' : 'Delete'}
+        title={deleteDisabled ? t('selfDeleteDisabled') : tc('delete')}
         className="px-3 py-1.5 rounded-lg border border-rust-300 text-xs font-medium text-rust-700 hover:bg-rust-100 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
       >
-        🗑 Delete
+        🗑 {tc('delete')}
       </button>
     </div>
   );
@@ -361,6 +365,9 @@ function Modal({ title, onClose, children }) {
 /* ─────────────────────────── Coffee modal ─────────────────────────── */
 
 function CoffeeModal({ initial, onClose, onSaved }) {
+  const t = useTranslations('admin');
+  const tt = useTranslations('tastes');
+  const tc = useTranslations('common');
   const isEdit = Boolean(initial);
   const [form, setForm] = useState({
     name: initial?.name || '',
@@ -392,7 +399,7 @@ function CoffeeModal({ initial, onClose, onSaved }) {
   };
 
   return (
-    <Modal title={isEdit ? `Edit “${initial.name}”` : 'Add Coffee'} onClose={onClose}>
+    <Modal title={isEdit ? t('editCoffeeTitle', { name: initial.name }) : t('addCoffeeTitle')} onClose={onClose}>
       <form onSubmit={handleSubmit} className="space-y-4">
         {error && (
           <div className="bg-rust-100 border border-rust-300 text-rust-700 px-3 py-2 rounded-lg text-sm">
@@ -402,13 +409,13 @@ function CoffeeModal({ initial, onClose, onSaved }) {
 
         <div>
           <label className="block text-sm font-medium text-ink mb-1">
-            Name <span className="text-rust-700">*</span>
+            {t('fieldName')} <span className="text-rust-700">*</span>
           </label>
           <input
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
             required
-            placeholder="Flat White"
+            placeholder={t('namePh')}
             className="w-full px-4 py-2.5 rounded-lg border border-line bg-surface text-ink placeholder-ink-3 focus:outline-none focus:ring-2 focus:ring-coffee-500"
           />
         </div>
@@ -416,19 +423,19 @@ function CoffeeModal({ initial, onClose, onSaved }) {
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label className="block text-sm font-medium text-ink mb-1">
-              Taste <span className="text-rust-700">*</span>
+              {t('fieldTaste')} <span className="text-rust-700">*</span>
             </label>
             <select
               value={form.taste}
               onChange={(e) => setForm({ ...form, taste: e.target.value })}
               className="w-full px-4 py-2.5 rounded-lg border border-line bg-surface text-ink focus:outline-none focus:ring-2 focus:ring-coffee-500"
             >
-              {TASTES.map((t) => <option key={t} value={t}>{t}</option>)}
+              {TASTES.map((tst) => <option key={tst} value={tst}>{tt(tst)}</option>)}
             </select>
           </div>
           <div>
             <label className="block text-sm font-medium text-ink mb-1">
-              Energy boost: {form.energy_boost}/10
+              {t('fieldEnergy', { value: form.energy_boost })}
             </label>
             <input
               type="range"
@@ -448,7 +455,7 @@ function CoffeeModal({ initial, onClose, onSaved }) {
             onChange={(e) => setForm({ ...form, milk: e.target.checked })}
             className="w-4 h-4 accent-coffee-600"
           />
-          <span className="text-sm text-ink">Contains milk 🥛</span>
+          <span className="text-sm text-ink">{t('fieldMilk')}</span>
         </label>
 
         <div className="flex gap-3 pt-2">
@@ -457,7 +464,7 @@ function CoffeeModal({ initial, onClose, onSaved }) {
             disabled={saving}
             className="flex-1 py-2.5 rounded-lg bg-ink text-surface font-medium hover:bg-coffee-800 transition-colors disabled:opacity-50"
           >
-            {saving ? 'Saving…' : isEdit ? 'Save Changes' : 'Create Coffee'}
+            {saving ? tc('saving') : isEdit ? t('saveChanges') : t('createCoffee')}
           </button>
           <button
             type="button"
@@ -475,6 +482,8 @@ function CoffeeModal({ initial, onClose, onSaved }) {
 /* ─────────────────────────── User modal ─────────────────────────── */
 
 function UserModal({ initial, onClose, onSaved }) {
+  const t = useTranslations('admin');
+  const tc = useTranslations('common');
   const isEdit = Boolean(initial);
   const [form, setForm] = useState({
     username: initial?.username || '',
@@ -532,7 +541,7 @@ function UserModal({ initial, onClose, onSaved }) {
   };
 
   return (
-    <Modal title={isEdit ? `Edit “${initial.username}”` : 'Add User'} onClose={onClose}>
+    <Modal title={isEdit ? t('editUserTitle', { username: initial.username }) : t('addUserTitle')} onClose={onClose}>
       <form onSubmit={handleSubmit} className="space-y-4">
         {error && (
           <div className="bg-rust-100 border border-rust-300 text-rust-700 px-3 py-2 rounded-lg text-sm">
@@ -543,74 +552,74 @@ function UserModal({ initial, onClose, onSaved }) {
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label className="block text-sm font-medium text-ink mb-1">
-              Username <span className="text-rust-700">*</span>
+              {tc('username')} <span className="text-rust-700">*</span>
             </label>
             <input value={form.username} onChange={set('username')} required minLength={3}
-              placeholder="coffee_lover"
+              placeholder={t("nameUserPh")}
               className="w-full px-3 py-2 rounded-lg border border-line bg-surface text-ink placeholder-ink-3 focus:outline-none focus:ring-2 focus:ring-coffee-500 text-sm" />
           </div>
           <div>
             <label className="block text-sm font-medium text-ink mb-1">
-              Role
+              {t('fieldRole')}
             </label>
             <select value={form.role} onChange={set('role')}
               className="w-full px-3 py-2 rounded-lg border border-line bg-surface text-ink focus:outline-none focus:ring-2 focus:ring-coffee-500 text-sm">
-              <option value="user">user</option>
-              <option value="admin">admin</option>
+              <option value="user">{tc('roleUser')}</option>
+              <option value="admin">{tc('roleAdmin')}</option>
             </select>
           </div>
         </div>
 
         <div>
           <label className="block text-sm font-medium text-ink mb-1">
-            Email <span className="text-rust-700">*</span>
+            {tc('email')} <span className="text-rust-700">*</span>
           </label>
           <input type="email" value={form.email} onChange={set('email')} required
-            placeholder="you@example.com"
+            placeholder={t('emailPh')}
             className="w-full px-4 py-2 rounded-lg border border-line bg-surface text-ink placeholder-ink-3 focus:outline-none focus:ring-2 focus:ring-coffee-500 text-sm" />
         </div>
 
         <div>
           <label className="block text-sm font-medium text-ink mb-1">
-            Full name <span className="text-rust-700">*</span>
+            {tc('fullName')} <span className="text-rust-700">*</span>
           </label>
           <input value={form.name} onChange={set('name')} required
-            placeholder="Jane Doe"
+            placeholder={t("fullPh")}
             className="w-full px-4 py-2 rounded-lg border border-line bg-surface text-ink placeholder-ink-3 focus:outline-none focus:ring-2 focus:ring-coffee-500 text-sm" />
         </div>
 
         <div className="grid grid-cols-3 gap-3">
           <div>
-            <label className="block text-sm font-medium text-ink mb-1">Age</label>
+            <label className="block text-sm font-medium text-ink mb-1">{tc('age')}</label>
             <input type="number" min="0" max="150" value={form.age} onChange={set('age')}
-              placeholder="25"
+              placeholder={t("agePh")}
               className="w-full px-3 py-2 rounded-lg border border-line bg-surface text-ink placeholder-ink-3 focus:outline-none focus:ring-2 focus:ring-coffee-500 text-sm" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-ink mb-1">Gender</label>
+            <label className="block text-sm font-medium text-ink mb-1">{tc('gender')}</label>
             <select value={form.gender} onChange={set('gender')}
               className="w-full px-3 py-2 rounded-lg border border-line bg-surface text-ink focus:outline-none focus:ring-2 focus:ring-coffee-500 text-sm">
-              <option value="male">male</option>
-              <option value="female">female</option>
-              <option value="other">other</option>
+              <option value="male">{tc('genderMale')}</option>
+              <option value="female">{tc('genderFemale')}</option>
+              <option value="other">{tc('genderOther')}</option>
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-ink mb-1">Fav coffee</label>
+            <label className="block text-sm font-medium text-ink mb-1">{tc('favCoffee')}</label>
             <input value={form.favourite_coffee} onChange={set('favourite_coffee')}
-              placeholder="Latte"
+              placeholder={t("favPh")}
               className="w-full px-3 py-2 rounded-lg border border-line bg-surface text-ink placeholder-ink-3 focus:outline-none focus:ring-2 focus:ring-coffee-500 text-sm" />
           </div>
         </div>
 
         <div>
           <label className="block text-sm font-medium text-ink mb-1">
-            {isEdit ? 'New password (leave blank to keep)' : 'Password '}
+            {isEdit ? t('fieldNewPw') : tc('password')}
             {!isEdit && <span className="text-rust-700">*</span>}
           </label>
           <input type="password" value={form.password} onChange={set('password')}
             required={!isEdit} minLength={isEdit && !form.password ? undefined : 6}
-            placeholder={isEdit ? '••••••••' : 'min 6 characters'}
+            placeholder={isEdit ? '••••••••' : t('pwHint')}
             className="w-full px-4 py-2 rounded-lg border border-line bg-surface text-ink placeholder-ink-3 focus:outline-none focus:ring-2 focus:ring-coffee-500 text-sm" />
         </div>
 
@@ -620,7 +629,7 @@ function UserModal({ initial, onClose, onSaved }) {
             disabled={saving}
             className="flex-1 py-2.5 rounded-lg bg-ink text-surface font-medium hover:bg-coffee-800 transition-colors disabled:opacity-50"
           >
-            {saving ? 'Saving…' : isEdit ? 'Save Changes' : 'Create User'}
+            {saving ? tc('saving') : isEdit ? t('saveChanges') : t('createUser')}
           </button>
           <button
             type="button"

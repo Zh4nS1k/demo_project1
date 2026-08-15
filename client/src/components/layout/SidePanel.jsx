@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { api } from '@/lib/api';
 import { useUI } from '@/context/UIContext';
 
@@ -27,6 +28,9 @@ const Chevron = ({ dir }) => (
  */
 export default function SidePanel() {
   const { panelOpen, togglePanel, mobilePanelOpen, closeMobilePanel } = useUI();
+  const tp = useTranslations('sidePanel');
+  const tn = useTranslations('nav');
+  const tt = useTranslations('tastes');
   const pathname = usePathname();
   const [coffees, setCoffees] = useState(coffeeCache || []);
   const [q, setQ] = useState('');
@@ -67,14 +71,14 @@ export default function SidePanel() {
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder="Search coffees…"
+          placeholder={tp('search')}
           className="w-full px-3 py-1.5 text-sm rounded-md border border-line bg-surface-2 text-ink placeholder-ink-3 focus:outline-none focus:ring-1 focus:ring-coffee-500 focus:bg-surface"
         />
         <div className="flex gap-1 overflow-x-auto pb-1 -mx-1 px-1">
-          <Chip active={taste === ''} onClick={() => setTaste('')}>All</Chip>
-          {TASTES.map((t) => (
-            <Chip key={t} active={taste === t} onClick={() => setTaste(t === taste ? '' : t)}>
-              {t}
+          <Chip active={taste === ''} onClick={() => setTaste('')}>{tp('all')}</Chip>
+          {TASTES.map((tst) => (
+            <Chip key={tst} active={taste === tst} onClick={() => setTaste(tst === taste ? '' : tst)}>
+              {tt(tst)}
             </Chip>
           ))}
         </div>
@@ -96,16 +100,16 @@ export default function SidePanel() {
           </Link>
         ))}
         {filtered.length === 0 && (
-          <p className="px-3 py-2 text-xs text-ink-3">No matches</p>
+          <p className="px-3 py-2 text-xs text-ink-3">{tp('noMatches')}</p>
         )}
       </nav>
 
       {/* Mobile-only nav (drawer bottom) */}
       <div className="md:hidden border-t border-line px-2 py-2 space-y-0.5">
         {[
-          ['/', 'Home'],
-          ['/coffees', 'Coffees'],
-          ['/leaderboard', 'Leaderboard'],
+          ['/', tn('home')],
+          ['/coffees', tn('coffees')],
+          ['/leaderboard', tn('leaderboard')],
         ].map(([href, label]) => (
           <Link
             key={href}
@@ -133,7 +137,7 @@ export default function SidePanel() {
         <div className="h-12 flex items-center justify-between px-2 shrink-0">
           {panelOpen && (
             <span className="text-[11px] font-semibold uppercase tracking-widest text-ink-3 pl-2">
-              Coffees
+              {tp('label')}
             </span>
           )}
           <button
@@ -152,7 +156,7 @@ export default function SidePanel() {
             <Link
               href="/coffees"
               className="p-2.5 rounded-md text-xl hover:bg-surface-3 transition-colors"
-              title="Browse coffees"
+              title={tp('browse')}
             >
               ☕
             </Link>

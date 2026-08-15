@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { useAuth } from '@/context/AuthContext';
 
 /**
@@ -16,6 +17,7 @@ import { useAuth } from '@/context/AuthContext';
  */
 export default function ProtectedRoute({ children, mode = 'strict' }) {
   const { user, loading } = useAuth();
+  const t = useTranslations('common');
   const router = useRouter();
 
   useEffect(() => {
@@ -27,7 +29,7 @@ export default function ProtectedRoute({ children, mode = 'strict' }) {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
-        <div className="text-ink-2 text-lg animate-pulse">Loading…</div>
+        <div className="text-ink-2 text-lg animate-pulse">{t('loading')}</div>
       </div>
     );
   }

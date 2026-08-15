@@ -3,10 +3,13 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useTranslations, useFormatter } from 'next-intl';
 import { useAuth } from '@/context/AuthContext';
 import Input from '@/components/Input';
 
 export default function RegisterPage() {
+  const t = useTranslations('register');
+  const tc = useTranslations('common');
   const { register } = useAuth();
   const router = useRouter();
 
@@ -28,11 +31,11 @@ export default function RegisterPage() {
     setError('');
 
     if (form.password !== form.confirmPassword) {
-      setError('Passwords do not match');
+      setError(t('pwMismatch'));
       return;
     }
     if (form.password.length < 6) {
-      setError('Password must be at least 6 characters');
+      setError(t('pwShort'));
       return;
     }
 
@@ -57,8 +60,8 @@ export default function RegisterPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="text-5xl mb-3">☕</div>
-          <h1 className="text-2xl font-bold text-ink">Join Coffee Drinker</h1>
-          <p className="text-ink-2 mt-1">Create your account — set up your profile later</p>
+          <h1 className="text-2xl font-bold text-ink">{t('title')}</h1>
+          <p className="text-ink-2 mt-1">{t('subtitle')}</p>
         </div>
 
         {error && (
@@ -72,38 +75,38 @@ export default function RegisterPage() {
           className="bg-surface rounded-2xl border border-line p-6 space-y-1"
         >
           <Input
-            label="Username"
+            label={tc('username')}
             name="username"
             value={form.username}
             onChange={handleChange}
-            placeholder="coffee_lover"
+            placeholder={t('usernamePh')}
             required
           />
           <Input
-            label="Email"
+            label={tc('email')}
             name="email"
             type="email"
             value={form.email}
             onChange={handleChange}
-            placeholder="you@example.com"
+            placeholder={t('emailPh')}
             required
           />
           <Input
-            label="Password"
+            label={tc('password')}
             name="password"
             type="password"
             value={form.password}
             onChange={handleChange}
-            placeholder="••••••••"
+            placeholder={t('passwordPh')}
             required
           />
           <Input
-            label="Confirm Password"
+            label={t('confirmPassword')}
             name="confirmPassword"
             type="password"
             value={form.confirmPassword}
             onChange={handleChange}
-            placeholder="••••••••"
+            placeholder={t('passwordPh')}
             required
           />
 
@@ -112,20 +115,22 @@ export default function RegisterPage() {
             disabled={loading}
             className="w-full py-2.5 mt-4 rounded-lg bg-ink text-surface font-medium hover:bg-coffee-800 transition-colors disabled:opacity-50"
           >
-            {loading ? 'Creating account…' : 'Register'}
+            {loading ? t('submitting') : t('submit')}
           </button>
         </form>
 
         <p className="text-center mt-4 text-sm text-ink-2">
-          Already have an account?{' '}
+          {t('hasAccount')}{' '}
           <Link href="/login" className="font-medium underline text-coffee-700 hover:text-coffee-900">
-            Login
+            {t('login')}
           </Link>
         </p>
 
         <div className="mt-6 p-3 bg-surface-2 border border-line rounded-lg text-xs text-ink-2 text-center">
-          💡 <strong>Tip:</strong> You can add your name, age, gender, and favourite coffee
-          from your <Link href="/profile" className="underline">profile page</Link> after registration.
+          💡 <strong>{t('tipTitle')}</strong>{' '}
+          {t.rich('tip', {
+            link: (chunks) => <Link href="/profile" className="underline">{chunks}</Link>,
+          })}
         </div>
       </div>
     </div>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
+import { useTranslations, useFormatter } from 'next-intl';
 import { useAuth } from '@/context/AuthContext';
 import { api } from '@/lib/api';
 import ProtectedRoute from '@/components/ProtectedRoute';
@@ -13,6 +14,11 @@ import { SYNC_DONE_EVENT, syncNow } from '@/lib/api';
 
 function HomeContent() {
   const { user } = useAuth();
+  const t = useTranslations('home');
+  const th = useTranslations('hero');
+  const tc = useTranslations('common');
+  const tw = useTranslations('weekdays');
+  const format = useFormatter();
   const [summary, setSummary] = useState(null);
   const [coffees, setCoffees] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -111,8 +117,8 @@ function HomeContent() {
       await refreshData();
       setSuccessMsg(
         res.queued
-          ? `Saved locally — ${cups} cup(s) of ${selectedCoffee} will sync when you're back online ☕`
-          : `Logged ${cups} cup(s) of ${selectedCoffee}! ☕`
+          ? t('queuedMsg', { cups, coffee: selectedCoffee })
+          : t('loggedMsg', { cups, coffee: selectedCoffee })
       );
       setSelectedCoffee('');
       setCups(1);
@@ -132,7 +138,7 @@ function HomeContent() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
-        <div className="text-ink-2 text-lg animate-pulse">Loading your coffee stats…</div>
+        <div className="text-ink-2 text-lg animate-pulse">{t('loadingStats')}</div>
       </div>
     );
   }
@@ -144,13 +150,16 @@ function HomeContent() {
       {/* ─── Hero ─── */}
       <Hero
         compact
-        title={`Welcome back, ${(user.name || user.username).split(' ')[0]}!`}
+        title={th('welcomeBack', { name: (user.name || user.username).split(' ')[0] })}
         subtitle={
           summary?.total_cups > 0
-            ? `You've logged ${summary.total_cups} cups across ${summary.unique_coffees.length} varieties`
-            : 'Start logging your coffee journey today!'
+            ? th('loggedLine', {
+                cups: summary.total_cups,
+                varieties: summary.unique_coffees.length,
+              })
+            : th('startLine')
         }
-        primary={{ label: 'Browse coffees', href: '/coffees' }}
+        primary={{ label: th('browseCoffees'), href: '/coffees' }}
       />
 
       {/* Error */}
@@ -163,9 +172,9 @@ function HomeContent() {
       {/* Stale-data banner */}
       {staleData && (
         <div className="bg-surface-2 border border-line text-ink-2 px-4 py-2.5 rounded-lg text-sm flex items-center justify-between gap-3">
-          <span>📡 Showing cached data — the server is unreachable. Anything you log is saved locally and will sync.</span>
+          <span>📡 {tc('staleBanner')}</span>
           <button onClick={() => syncNow()} className="text-xs underline shrink-0 hover:text-ink">
-            Retry now
+            {tc('retryNow')}
           </button>
         </div>
       )}
@@ -179,46 +188,52 @@ function HomeContent() {
 
       {/* ─── Stats Cards ─── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <StatCard icon="☕" value={summary?.total_cups || 0} label="Total Cups" />
-        <StatCard icon="🎯" value={summary?.unique_coffees?.length || 0} label="Unique Coffees" />
-        <StatCard icon="📋" value={summary?.total_entries || 0} label="Log Entries" />
+        <StatCard icon="☕" value={summary?.total_cups || 0} label={t('totalCups')} />
+        <StatCard icon="🎯" value={summary?.unique_coffees?.length || 0} label={t('uniqueCoffees')} />
+        <StatCard icon="📋" value={summary?.total_entries || 0} label={t('logEntries')} />
         <StatCard
           icon="⭐"
-          value={summary?.avg_rating ? `${summary.avg_rating}/5` : '—'}
-          label="Avg Rating"
+          value={summary?.avg_rating ? t('ratingValue', { value: summary.avg_rating }) : '—'}
+          label={t('avgRating')}
         />
       </div>
       {/* ─── Activity Insights ─── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <InsightCard
           icon="🔥"
-          title="Current Streak"
-          value={`${insights.streaks.current} ${insights.streaks.current === 1 ? 'day' : 'days'}`}
-          sub={`Best: ${insights.streaks.longest} ${insights.streaks.longest === 1 ? 'day' : 'days'}`}
+          title={t('currentStreak')}
+          value={tc('days', { count: insights.streaks.current })}
+          sub={t('best', { days: tc('days', { count: insights.streaks.longest }) })}
         />
         <InsightCard
           icon="📅"
-          title="Most Active Day"
-          value={insights.mostActiveWeekday ? insights.mostActiveWeekday.day : '—'}
+          title={t('mostActiveDay')}
+          value={
+            insights.mostActiveWeekday
+              ? tw.has(insights.mostActiveWeekday.day)
+                ? tw(insights.mostActiveWeekday.day)
+                : insights.mostActiveWeekday.day
+              : '—'
+          }
           sub={
             insights.mostActiveWeekday
-              ? `${insights.mostActiveWeekday.cups} ${insights.mostActiveWeekday.cups === 1 ? 'cup' : 'cups'} logged`
-              : 'No data yet'
+              ? t('cupsLogged', { cups: insights.mostActiveWeekday.cups })
+              : t('noDataYet')
           }
         />
         <InsightCard
           icon="⚡"
-          title="Caffeine · 7 Days"
+          title={t('caffeine7')}
           value={insights.trend7.total}
-          sub="units (cups × energy)"
+          sub={t('caffeineUnits')}
         >
           <Sparkline data={insights.trend7.daily} />
         </InsightCard>
         <InsightCard
           icon="⚡"
-          title="Caffeine · 30 Days"
+          title={t('caffeine30')}
           value={insights.trend30.total}
-          sub="units (cups × energy)"
+          sub={t('caffeineUnits')}
         >
           <Sparkline data={insights.trend30.daily} thin />
         </InsightCard>
@@ -226,7 +241,7 @@ function HomeContent() {
 
       {/* ─── Log Coffee Form ─── */}
       <div className="bg-surface rounded-xl p-6 border border-line">
-        <h2 className="text-lg font-bold text-ink mb-4">📝 Log a Coffee</h2>
+        <h2 className="text-lg font-bold text-ink mb-4">📝 {t('logCoffee')}</h2>
         <form onSubmit={handleLogCoffee} className="space-y-4">
           <div className="flex flex-col sm:flex-row gap-3">
             <select
@@ -235,7 +250,7 @@ function HomeContent() {
               required
               className="flex-1 px-4 py-2.5 rounded-lg border border-line bg-surface text-ink focus:outline-none focus:ring-2 focus:ring-coffee-500"
             >
-              <option value="">Select a coffee…</option>
+              <option value="">{t('selectCoffee')}</option>
               {coffees.map((c) => (
                 <option key={c._id} value={c.name}>
                   {c.name} — {c.taste} · ⚡{c.energy_boost} {c.milk ? '🥛' : ''}
@@ -249,13 +264,13 @@ function HomeContent() {
               value={cups}
               onChange={(e) => setCups(e.target.value)}
               className="w-full sm:w-24 px-4 py-2.5 rounded-lg border border-line bg-surface text-ink focus:outline-none focus:ring-2 focus:ring-coffee-500 text-center"
-              placeholder="Cups"
+              placeholder={t('cupsLabel')}
             />
           </div>
 
           {/* Star Rating */}
           <div className="flex items-center gap-4 flex-wrap">
-            <span className="text-sm font-medium text-ink">Rating:</span>
+            <span className="text-sm font-medium text-ink">{t('rating')}</span>
             <StarRating value={rating} onChange={setRating} size="lg" />
           </div>
 
@@ -264,12 +279,14 @@ function HomeContent() {
             disabled={submitting}
             className="px-6 py-2.5 rounded-lg bg-ink text-surface font-medium hover:bg-coffee-800 transition-colors disabled:opacity-50"
           >
-            {submitting ? 'Logging…' : 'Log It!'}
+            {submitting ? t('logging') : t('logIt')}
           </button>
         </form>
         {coffees.length === 0 && (
           <p className="text-sm text-ink-2 mt-2">
-            No coffees in the database yet. Run <code className="bg-surface-2 px-1 rounded">npm run seed</code> on the backend.
+            {t.rich('seedHint', {
+              code: (chunks) => <code className="bg-surface-2 px-1 rounded">{chunks}</code>,
+            })}
           </p>
         )}
       </div>
@@ -279,7 +296,7 @@ function HomeContent() {
         {/* Favorites */}
         {summary?.by_coffee?.length > 0 && (
           <div className="bg-surface rounded-xl p-6 border border-line">
-            <h2 className="text-lg font-bold text-ink mb-4">🏆 Your Favorites</h2>
+            <h2 className="text-lg font-bold text-ink mb-4">🏆 {t('favorites')}</h2>
             <div className="space-y-2">
               {summary.by_coffee.slice(0, 5).map((c, i) => (
                 <div
@@ -292,7 +309,7 @@ function HomeContent() {
                     </span>
                     <div>
                       <div className="font-medium text-ink">{c.coffee_name}</div>
-                      <div className="text-xs text-ink-2">{c.total_cups} cups · {c.entries} entries</div>
+                      <div className="text-xs text-ink-2">{tc('cups', { count: c.total_cups })} · {tc('entries', { count: c.entries })}</div>
                     </div>
                   </div>
                   <StarRating value={c.avg_rating || 0} readOnly size="sm" />
@@ -305,7 +322,7 @@ function HomeContent() {
         {/* Rating Breakdown */}
         {summary?.rating_breakdown?.length > 0 && (
           <div className="bg-surface rounded-xl p-6 border border-line">
-            <h2 className="text-lg font-bold text-ink mb-4">⭐ Rating Breakdown</h2>
+            <h2 className="text-lg font-bold text-ink mb-4">⭐ {t('ratingBreakdown')}</h2>
             <div className="space-y-2">
               {[5, 4, 3, 2, 1, 0].map((star) => {
                 const entry = summary.rating_breakdown.find((r) => r.rating === star);
@@ -315,7 +332,7 @@ function HomeContent() {
                 return (
                   <div key={star} className="flex items-center gap-3">
                     <span className="text-sm w-16 text-coffee-700">
-                      {star > 0 ? `${'★'.repeat(star)}${'☆'.repeat(5 - star)}` : 'No rating'}
+                      {star > 0 ? `${'★'.repeat(star)}${'☆'.repeat(5 - star)}` : t('noRating')}
                     </span>
                     <div className="flex-1 bg-surface-2 rounded-full h-6 overflow-hidden">
                       <div
@@ -335,9 +352,9 @@ function HomeContent() {
       {/* ─── Recent Activity ─── */}
       <div className="bg-surface rounded-xl p-6 border border-line">
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-          <h2 className="text-lg font-bold text-ink">📅 Recent Activity</h2>
+          <h2 className="text-lg font-bold text-ink">📅 {t('recentActivity')}</h2>
           <label className="flex items-center gap-2 text-sm text-ink-2">
-            Sort by
+            {t('sortBy')}
             <select
               value={daysSort}
               onChange={(e) => {
@@ -347,17 +364,17 @@ function HomeContent() {
               }}
               className="px-2 py-1.5 rounded-lg border border-line bg-surface text-ink text-sm focus:outline-none focus:ring-2 focus:ring-coffee-500"
             >
-              <option value="date">Date</option>
-              <option value="rating">Rating</option>
-              <option value="cups">Cups</option>
+              <option value="date">{t('sortDate')}</option>
+              <option value="rating">{t('sortRating')}</option>
+              <option value="cups">{t('sortCups')}</option>
             </select>
           </label>
         </div>
 
         {recentDays.length === 0 && daysLoading ? (
-          <div className="text-ink-2 text-sm animate-pulse py-4">Loading entries…</div>
+          <div className="text-ink-2 text-sm animate-pulse py-4">{t('loadingEntries')}</div>
         ) : recentDays.length === 0 ? (
-          <p className="text-ink-2">No entries yet. Log your first cup above!</p>
+          <p className="text-ink-2">{t('noEntries')}</p>
         ) : (
           <>
             <div className={`space-y-2 transition-opacity ${daysLoading ? 'opacity-50' : ''}`}>
@@ -370,7 +387,7 @@ function HomeContent() {
                     <div>
                       <span className="font-medium text-ink">{d.coffee_name}</span>
                       <span className="text-sm text-ink-2 ml-2">
-                        {new Date(d.date).toLocaleDateString('en-US', {
+                        {format.dateTime(new Date(d.date), {
                           month: 'short', day: 'numeric', year: 'numeric',
                         })}
                       </span>
@@ -379,7 +396,7 @@ function HomeContent() {
                   <div className="flex items-center gap-3">
                     <StarRating value={d.rating || 0} readOnly size="sm" />
                     <span className="text-sm font-medium text-coffee-700">
-                      {d.count_of_cups} {d.count_of_cups === 1 ? 'cup' : 'cups'}
+                      {tc('cups', { count: d.count_of_cups })}
                     </span>
                   </div>
                 </div>
@@ -393,17 +410,17 @@ function HomeContent() {
                 disabled={daysPage <= 1 || daysLoading}
                 className="px-4 py-1.5 rounded-lg border border-line text-sm font-medium text-ink-2 hover:bg-surface-3 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                ← Prev
+                {t('prev')}
               </button>
               <span className="text-sm text-ink-2">
-                Page {daysPage} of {daysPages} · {daysTotal} {daysTotal === 1 ? 'entry' : 'entries'}
+                {t('pageOf', { page: daysPage, pages: daysPages, total: daysTotal })}
               </span>
               <button
                 onClick={() => fetchDays(daysPage + 1, daysSort)}
                 disabled={daysPage >= daysPages || daysLoading}
                 className="px-4 py-1.5 rounded-lg border border-line text-sm font-medium text-ink-2 hover:bg-surface-3 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                Next →
+                {t('next')}
               </button>
             </div>
           </>
@@ -430,6 +447,9 @@ export default function HomePage() {
  */
 function GuestHome() {
   const { requireAuth } = useAuth();
+  const t = useTranslations('home');
+  const th = useTranslations('hero');
+  const tc = useTranslations('common');
   const [coffees, setCoffees] = useState([]);
   const [leaders, setLeaders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -469,27 +489,27 @@ function GuestHome() {
     <div className="space-y-8">
       {/* Hero */}
       <Hero
-        title="Your coffee journey starts here"
-        subtitle="Track every cup, rate your favourites, and see how your caffeine stacks up — free, and it takes about thirty seconds."
-        primary={{ label: 'Create free account', href: '/register' }}
-        secondary={{ label: 'Browse coffees', href: '/coffees' }}
+        title={th('guestTitle')}
+        subtitle={th('guestSubtitle')}
+        primary={{ label: th('createAccount'), href: '/register' }}
+        secondary={{ label: th('browseCoffees'), href: '/coffees' }}
       />
 
       {/* Community stats */}
       {loading ? (
         <div className="flex items-center justify-center min-h-[20vh]">
-          <div className="text-ink-2 text-lg animate-pulse">Brewing the community stats…</div>
+          <div className="text-ink-2 text-lg animate-pulse">{t('brewingStats')}</div>
         </div>
       ) : (
         <>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <StatCard icon="☕" value={community.cups} label="Cups logged" />
-            <StatCard icon="🎯" value={community.varieties} label="Coffee varieties" />
-            <StatCard icon="📋" value={community.entries} label="Tasting entries" />
+            <StatCard icon="☕" value={community.cups} label={t('cupsLoggedTotal')} />
+            <StatCard icon="🎯" value={community.varieties} label={t('coffeeVarieties')} />
+            <StatCard icon="📋" value={community.entries} label={t('tastingEntries')} />
             <StatCard
               icon="🏆"
               value={leaders[0] ? leaders[0].name.split(' ')[0] : '—'}
-              label="Top drinker this week"
+              label={t('topDrinkerWeek')}
             />
           </div>
 
@@ -497,9 +517,9 @@ function GuestHome() {
           {featured.length > 0 && (
             <div>
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-bold text-ink">⭐ Community favourites</h2>
+                <h2 className="text-lg font-bold text-ink">⭐ {t('communityFavourites')}</h2>
                 <Link href="/coffees" className="text-sm text-coffee-700 underline hover:text-coffee-900">
-                  Browse all coffees →
+                  {t('browseAll')}
                 </Link>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -520,9 +540,9 @@ function GuestHome() {
           {leaders.length > 0 && (
             <div className="bg-surface rounded-xl p-6 border border-line">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-bold text-ink">🏆 This week&apos;s top drinkers</h2>
+                <h2 className="text-lg font-bold text-ink">🏆 {t('topDrinkers')}</h2>
                 <Link href="/leaderboard" className="text-sm text-coffee-700 underline hover:text-coffee-900">
-                  Full leaderboard →
+                  {t('fullLeaderboard')}
                 </Link>
               </div>
               <div className="space-y-2">
@@ -542,7 +562,7 @@ function GuestHome() {
                       </div>
                     </div>
                     <div className="text-sm font-bold text-coffee-700">
-                      {r.cups} {r.cups === 1 ? 'cup' : 'cups'}
+                      {tc('cups', { count: r.cups })}
                     </div>
                   </Link>
                 ))}

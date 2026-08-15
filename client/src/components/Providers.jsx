@@ -2,6 +2,7 @@
 
 import { AuthProvider } from '@/context/AuthContext';
 import { UIProvider } from '@/context/UIContext';
+import { I18nProvider } from '@/context/I18nContext';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import SidePanel from '@/components/layout/SidePanel';
@@ -13,20 +14,22 @@ import AuthPromptModal from '@/components/AuthPromptModal';
  */
 export default function Providers({ children }) {
   return (
-    <AuthProvider>
-      <UIProvider>
-        <div className="min-h-screen flex flex-col">
-          <Header />
-          <div className="flex flex-1 min-w-0">
-            <SidePanel />
-            <main className="flex-1 min-w-0">
-              <div className="max-w-6xl mx-auto px-4 py-8 animate-fade-in">{children}</div>
-            </main>
+    <I18nProvider>
+      <AuthProvider>
+        <UIProvider>
+          <div className="min-h-screen flex flex-col">
+            <Header />
+            <div className="flex flex-1 min-w-0">
+              <SidePanel />
+              <main className="flex-1 min-w-0">
+                <div className="max-w-6xl mx-auto px-4 py-8 animate-fade-in">{children}</div>
+              </main>
+            </div>
+            <Footer />
           </div>
-          <Footer />
-        </div>
-        <AuthPromptModal />
-      </UIProvider>
-    </AuthProvider>
+          <AuthPromptModal />
+        </UIProvider>
+      </AuthProvider>
+    </I18nProvider>
   );
 }

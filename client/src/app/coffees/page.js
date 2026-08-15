@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { useAuth } from '@/context/AuthContext';
 import { api } from '@/lib/api';
 import CoffeeCard from '@/components/CoffeeCard';
@@ -13,6 +14,9 @@ const TASTES = [
 
 export default function CoffeesPage() {
   const { user, requireAuth } = useAuth();
+  const t = useTranslations('coffeesPage');
+  const tt = useTranslations('tastes');
+  const tc = useTranslations('common');
 
   // Filters — map straight onto existing /api/coffees query params
   const [taste, setTaste] = useState('');
@@ -50,11 +54,13 @@ export default function CoffeesPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="bg-surface rounded-2xl border border-line p-6">
-        <h1 className="text-2xl font-bold text-ink">☕ Coffee Catalogue</h1>
+        <h1 className="text-2xl font-bold text-ink">☕ {t('title')}</h1>
         <p className="text-ink-2 text-sm mt-1">
-          {coffees.length} {coffees.length === 1 ? 'variety' : 'varieties'} with community stats
+          {t('subtitle', { count: tc('varieties', { count: coffees.length }) })}
           {!user && (
-            <> — <Link href="/register" className="underline text-coffee-700">create an account</Link> to track what you drink</>
+            <>{' '}{t.rich('subtitleGuest', {
+              link: (chunks) => <Link href="/register" className="underline text-coffee-700">{chunks}</Link>,
+            })}</>
           )}
         </p>
 
@@ -67,8 +73,8 @@ export default function CoffeesPage() {
               onChange={(e) => setTaste(e.target.value)}
               className="px-3 py-2 rounded-lg border border-line bg-surface text-ink focus:outline-none focus:ring-2 focus:ring-coffee-500"
             >
-              <option value="">Any taste</option>
-              {TASTES.map((t) => <option key={t} value={t}>{t}</option>)}
+              <option value="">{t('anyTaste')}</option>
+              {TASTES.map((tst) => <option key={tst} value={tst}>{tt(tst)}</option>)}
             </select>
           </label>
 
@@ -79,9 +85,9 @@ export default function CoffeesPage() {
               onChange={(e) => setMilk(e.target.value)}
               className="px-3 py-2 rounded-lg border border-line bg-surface text-ink focus:outline-none focus:ring-2 focus:ring-coffee-500"
             >
-              <option value="">Any</option>
-              <option value="1">With milk 🥛</option>
-              <option value="0">No milk</option>
+              <option value="">{t('any')}</option>
+              <option value="1">{t('withMilk')}</option>
+              <option value="0">{t('noMilk')}</option>
             </select>
           </label>
 
@@ -92,7 +98,7 @@ export default function CoffeesPage() {
               onChange={(e) => setMinEnergy(e.target.value)}
               className="px-3 py-2 rounded-lg border border-line bg-surface text-ink focus:outline-none focus:ring-2 focus:ring-coffee-500"
             >
-              <option value="">Any</option>
+              <option value="">{t('any')}</option>
               {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
                 <option key={n} value={n}>⚡ {n}+</option>
               ))}
@@ -105,7 +111,7 @@ export default function CoffeesPage() {
               disabled={!hasFilters}
               className="px-4 py-2 rounded-lg border border-line text-sm font-medium text-ink-2 hover:bg-surface-3 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              ✕ Clear filters
+              {t('clearFilters')}
             </button>
           </div>
         </div>
@@ -121,13 +127,13 @@ export default function CoffeesPage() {
       {/* Grid */}
       {loading && coffees.length === 0 ? (
         <div className="flex items-center justify-center min-h-[30vh]">
-          <div className="text-ink-2 text-lg animate-pulse">Loading coffees…</div>
+          <div className="text-ink-2 text-lg animate-pulse">{t('loading')}</div>
         </div>
       ) : coffees.length === 0 ? (
         <div className="bg-surface rounded-xl border border-line p-10 text-center">
           <div className="text-4xl mb-3">🔍</div>
-          <p className="text-ink font-medium">No coffees match those filters</p>
-          <p className="text-ink-2 text-sm mt-1">Try loosening taste, milk or energy requirements.</p>
+          <p className="text-ink font-medium">{t('noMatch')}</p>
+          <p className="text-ink-2 text-sm mt-1">{t('noMatchHint')}</p>
         </div>
       ) : (
         <div className={`grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 transition-opacity ${loading ? 'opacity-60' : ''}`}>

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import { useTranslations, useFormatter } from 'next-intl';
 import { api } from '@/lib/api';
 import StarRating from '@/components/StarRating';
 import { StatCard, InsightCard, Sparkline, deriveInsights } from '@/components/Stats';
@@ -12,6 +13,10 @@ import { StatCard, InsightCard, Sparkline, deriveInsights } from '@/components/S
  * The API deliberately exposes no email, age, gender or password data here.
  */
 export default function PublicProfilePage() {
+  const t = useTranslations('publicProfile');
+  const th = useTranslations('home');
+  const tc = useTranslations('common');
+  const format = useFormatter();
   const params = useParams();
   const username = params?.username;
 
@@ -45,7 +50,7 @@ export default function PublicProfilePage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
-        <div className="text-ink-2 text-lg animate-pulse">Loading profile…</div>
+        <div className="text-ink-2 text-lg animate-pulse">{t('loading')}</div>
       </div>
     );
   }
@@ -54,15 +59,15 @@ export default function PublicProfilePage() {
     return (
       <div className="max-w-md mx-auto mt-16 bg-surface rounded-xl border border-line p-8 text-center">
         <div className="text-4xl mb-3">🔍</div>
-        <h1 className="text-xl font-bold text-ink">User not found</h1>
+        <h1 className="text-xl font-bold text-ink">{t('notFoundTitle')}</h1>
         <p className="text-ink-2 mt-2 text-sm">
-          No one goes by <span className="font-medium">@{username}</span> here.
+          {t('notFoundBody', { username })}
         </p>
         <Link
           href="/leaderboard"
           className="inline-block mt-5 px-5 py-2 rounded-lg bg-ink text-surface text-sm font-medium hover:bg-coffee-800 transition-colors"
         >
-          ← Back to Leaderboard
+          {t('back')}
         </Link>
       </div>
     );
@@ -88,26 +93,25 @@ export default function PublicProfilePage() {
         <p className="text-ink-2">@{profile.username}</p>
         {profile.member_since && (
           <p className="text-xs text-ink-3 mt-2">
-            Coffee drinker since{' '}
-            {new Date(profile.member_since).toLocaleDateString('en-US', {
-              month: 'long', year: 'numeric',
+            {t('memberSince', {
+              date: format.dateTime(new Date(profile.member_since), { month: 'long', year: 'numeric' }),
             })}
           </p>
         )}
         <span className="inline-block mt-3 px-2.5 py-1 rounded-full text-xs font-semibold bg-surface/70 text-ink-2 border border-line">
-          👁 Public profile · read-only
+          👁 {t('badge')}
         </span>
       </div>
 
       {/* Aggregate stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <StatCard icon="☕" value={summary?.total_cups || 0} label="Total Cups" />
-        <StatCard icon="🎯" value={summary?.unique_coffees?.length || 0} label="Unique Coffees" />
-        <StatCard icon="📋" value={summary?.total_entries || 0} label="Log Entries" />
+        <StatCard icon="☕" value={summary?.total_cups || 0} label={th('totalCups')} />
+        <StatCard icon="🎯" value={summary?.unique_coffees?.length || 0} label={th('uniqueCoffees')} />
+        <StatCard icon="📋" value={summary?.total_entries || 0} label={th('logEntries')} />
         <StatCard
           icon="⭐"
-          value={summary?.avg_rating ? `${summary.avg_rating}/5` : '—'}
-          label="Avg Rating"
+          value={summary?.avg_rating ? th('ratingValue', { value: summary.avg_rating }) : '—'}
+          label={th('avgRating')}
         />
       </div>
 
@@ -136,7 +140,7 @@ export default function PublicProfilePage() {
       {/* Top coffees */}
       {topCoffees.length > 0 && (
         <div className="bg-surface rounded-xl p-6 border border-line">
-          <h2 className="text-lg font-bold text-ink mb-4">🏆 Favourites</h2>
+          <h2 className="text-lg font-bold text-ink mb-4">🏆 {t('favourites')}</h2>
           <div className="space-y-2">
             {topCoffees.map((c, i) => (
               <div
@@ -150,7 +154,7 @@ export default function PublicProfilePage() {
                   <div>
                     <div className="font-medium text-ink">{c.coffee_name}</div>
                     <div className="text-xs text-ink-2">
-                      {c.total_cups} {c.total_cups === 1 ? 'cup' : 'cups'} · {c.entries} {c.entries === 1 ? 'entry' : 'entries'}
+                      {tc('cups', { count: c.total_cups })} · {tc('entries', { count: c.entries })}
                     </div>
                   </div>
                 </div>
@@ -163,7 +167,7 @@ export default function PublicProfilePage() {
 
       <div className="text-center">
         <Link href="/leaderboard" className="text-sm text-ink-2 underline hover:text-coffee-700">
-          ← Back to Leaderboard
+          {t('back')}
         </Link>
       </div>
     </div>

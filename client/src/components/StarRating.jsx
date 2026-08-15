@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 
 /**
  * Interactive star rating picker.
@@ -10,6 +11,7 @@ import { useState } from 'react';
  * @param {string} size - 'sm' | 'md' | 'lg'
  */
 export default function StarRating({ value = 0, onChange, readOnly = false, size = 'md' }) {
+  const t = useTranslations('home');
   const [hover, setHover] = useState(0);
 
   const sizes = { sm: 'text-sm', md: 'text-xl', lg: 'text-3xl' };
@@ -32,7 +34,7 @@ export default function StarRating({ value = 0, onChange, readOnly = false, size
       ))}
       {!readOnly && (
         <span className="ml-2 text-xs text-ink-2">
-          {active > 0 ? `${active}/5` : 'No rating'}
+          {active > 0 ? t('ratingValue', { value: active }) : t('noRating')}
         </span>
       )}
       {readOnly && value > 0 && (

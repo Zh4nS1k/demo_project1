@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { api } from '@/lib/api';
 import StarRating from '@/components/StarRating';
 
@@ -11,6 +12,9 @@ import StarRating from '@/components/StarRating';
  * requireAuth and completes it automatically after sign-in.
  */
 export default function CoffeeCard({ coffee, user, requireAuth, onLogged }) {
+  const t = useTranslations('coffeeCard');
+  const tt = useTranslations('tastes');
+  const tc = useTranslations('common');
   const [open, setOpen] = useState(false);
   const [cups, setCups] = useState(1);
   const [rating, setRating] = useState(0);
@@ -36,7 +40,7 @@ export default function CoffeeCard({ coffee, user, requireAuth, onLogged }) {
       const queued = requireAuth(
         (loggedInUser) =>
           api.createDay({ ...body, username: loggedInUser.username }),
-        `Log ${cups} ${cups === 1 ? 'cup' : 'cups'} of ${coffee.name}`
+        `${cups} × ${coffee.name}`
       );
       if (!queued) {
         setSubmitting(false);
@@ -48,8 +52,8 @@ export default function CoffeeCard({ coffee, user, requireAuth, onLogged }) {
       const res = await api.createDay({ ...body, username: user.username });
       setLoggedMsg(
         res.queued
-          ? 'Saved locally — will sync when you\u2019re back online ☕'
-          : `Logged ${cups} ${cups === 1 ? 'cup' : 'cups'}! ☕`
+          ? t('queuedMsg')
+          : t('loggedMsg', { cups })
       );
       setOpen(false);
       setCups(1);
@@ -71,7 +75,7 @@ export default function CoffeeCard({ coffee, user, requireAuth, onLogged }) {
           <h2 className="font-bold text-ink text-lg leading-tight">{coffee.name}</h2>
           <div className="flex flex-wrap items-center gap-2 mt-2">
             <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-surface-3 text-ink-2">
-              {coffee.taste}
+              {tt.has(coffee.taste) ? tt(coffee.taste) : coffee.taste}
             </span>
             <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-surface-2 text-ink-2">
               ⚡ {coffee.energy_boost}/10
@@ -88,7 +92,7 @@ export default function CoffeeCard({ coffee, user, requireAuth, onLogged }) {
       {/* Stats: community average */}
       <div className="flex items-center justify-between border-t border-line pt-3">
         <div>
-          <div className="text-xs text-ink-3 uppercase tracking-wide">Community</div>
+          <div className="text-xs text-ink-3 uppercase tracking-wide">{t('community')}</div>
           <div className="flex items-center gap-2 mt-0.5">
             {coffee.avg_rating != null ? (
               <>
@@ -96,12 +100,12 @@ export default function CoffeeCard({ coffee, user, requireAuth, onLogged }) {
                 <span className="text-sm font-bold text-ink">{coffee.avg_rating.toFixed(1)}</span>
               </>
             ) : (
-              <span className="text-sm text-ink-3">No ratings yet</span>
+              <span className="text-sm text-ink-3">{t('noRatings')}</span>
             )}
           </div>
         </div>
         <div className="text-right">
-          <div className="text-xs text-ink-3 uppercase tracking-wide">Logged</div>
+          <div className="text-xs text-ink-3 uppercase tracking-wide">{t('logged')}</div>
           <div className="text-sm text-ink-2 mt-0.5">
             {coffee.total_cups} {coffee.total_cups === 1 ? 'cup' : 'cups'}
             <span className="text-ink-3"> · {coffee.total_entries} {coffee.total_entries === 1 ? 'entry' : 'entries'}</span>
@@ -126,7 +130,7 @@ export default function CoffeeCard({ coffee, user, requireAuth, onLogged }) {
         <form onSubmit={handleLog} className="space-y-3 border-t border-line pt-3">
           <div className="flex items-center gap-3 flex-wrap">
             <label className="flex items-center gap-2 text-sm text-ink">
-              Cups
+              {t('cups')}
               <input
                 type="number"
                 min="1"
@@ -144,7 +148,7 @@ export default function CoffeeCard({ coffee, user, requireAuth, onLogged }) {
               disabled={submitting}
               className="flex-1 py-2 rounded-lg bg-ink text-surface text-sm font-medium hover:bg-coffee-800 transition-colors disabled:opacity-50"
             >
-              {submitting ? 'Logging…' : 'Log it ☕'}
+              {submitting ? t('logging') : t('logIt')}
             </button>
             <button
               type="button"
@@ -160,12 +164,14 @@ export default function CoffeeCard({ coffee, user, requireAuth, onLogged }) {
           onClick={() => setOpen(true)}
           className="w-full py-2 rounded-lg border border-line text-sm font-medium text-ink-2 hover:bg-surface-3 transition-colors"
         >
-          + Log this coffee
+          {t('logThis')}
         </button>
       )}
       {!user && !open && (
         <p className="text-xs text-ink-3 text-center">
-          You&apos;ll be asked to <Link href="/register" className="underline hover:text-coffee-700">create a free account</Link> to save it
+          {t.rich('guestHint', {
+            link: (chunks) => <Link href="/register" className="underline hover:text-coffee-700">{chunks}</Link>,
+          })}
         </p>
       )}
     </div>

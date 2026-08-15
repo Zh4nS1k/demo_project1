@@ -2,9 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useTranslations, useFormatter } from 'next-intl';
 import { api } from '@/lib/api';
 
 export default function LeaderboardPage() {
+  const t = useTranslations('leaderboardPage');
+  const tc = useTranslations('common');
+  const format = useFormatter();
   const [period, setPeriod] = useState('week');
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -22,7 +26,6 @@ export default function LeaderboardPage() {
       .finally(() => setLoading(false));
   }, [period]);
 
-  const label = period === 'week' ? 'last 7 days' : 'last 30 days';
 
   return (
     <div className="space-y-6">
@@ -30,15 +33,15 @@ export default function LeaderboardPage() {
       <div className="bg-surface rounded-2xl border border-line p-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-ink">🏆 Leaderboard</h1>
-            <p className="text-ink-2 text-sm mt-1">Top coffee drinkers by cups — {label}</p>
+            <h1 className="text-2xl font-bold text-ink">🏆 {t('title')}</h1>
+            <p className="text-ink-2 text-sm mt-1">{t('subtitle', { period: t(period === 'week' ? 'last7' : 'last30') })}</p>
           </div>
           <div className="flex gap-2">
             <PeriodButton active={period === 'week'} onClick={() => setPeriod('week')}>
-              7 Days
+              {t('d7')}
             </PeriodButton>
             <PeriodButton active={period === 'month'} onClick={() => setPeriod('month')}>
-              30 Days
+              {t('d30')}
             </PeriodButton>
           </div>
         </div>
@@ -52,13 +55,13 @@ export default function LeaderboardPage() {
 
       {loading && rows.length === 0 ? (
         <div className="flex items-center justify-center min-h-[30vh]">
-          <div className="text-ink-2 text-lg animate-pulse">Loading leaderboard…</div>
+          <div className="text-ink-2 text-lg animate-pulse">{t('loading')}</div>
         </div>
       ) : rows.length === 0 ? (
         <div className="bg-surface rounded-xl border border-line p-10 text-center">
           <div className="text-4xl mb-3">☕</div>
-          <p className="text-ink font-medium">No cups logged in this period</p>
-          <p className="text-ink-2 text-sm mt-1">Be the first on the board — log a coffee!</p>
+          <p className="text-ink font-medium">{t('empty')}</p>
+          <p className="text-ink-2 text-sm mt-1">{t('emptyHint')}</p>
         </div>
       ) : (
         <div className={`bg-surface rounded-xl border border-line overflow-hidden transition-opacity ${loading ? 'opacity-60' : ''}`}>
@@ -77,13 +80,13 @@ export default function LeaderboardPage() {
                 <div className="text-xs text-ink-2">@{r.username}</div>
               </Link>
               <div className="hidden sm:block text-right text-xs text-ink-2 w-24">
-                {r.unique_coffees} {r.unique_coffees === 1 ? 'variety' : 'varieties'}
+                {tc('varieties', { count: r.unique_coffees })}
                 <br />
-                {r.entries} {r.entries === 1 ? 'entry' : 'entries'}
+                {tc('entries', { count: r.entries })}
               </div>
               <div className="text-right w-20">
-                <div className="text-lg font-bold text-coffee-700">{r.cups}</div>
-                <div className="text-xs text-ink-3">cups</div>
+                <div className="text-lg font-bold text-coffee-700">{format.number(r.cups)}</div>
+                <div className="text-xs text-ink-3">{tc('cupsLabel')}</div>
               </div>
             </div>
           ))}

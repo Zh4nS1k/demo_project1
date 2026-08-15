@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useTranslations, useFormatter } from 'next-intl';
 import { useAuth } from '@/context/AuthContext';
 import { api } from '@/lib/api';
 import ProtectedRoute from '@/components/ProtectedRoute';
@@ -8,6 +9,11 @@ import Input from '@/components/Input';
 
 function ProfileContent() {
   const { user, updateUserInContext } = useAuth();
+  const t = useTranslations('profile');
+  const tc = useTranslations('common');
+  const format = useFormatter();
+  const genderLabel = (g) =>
+    g === 'male' ? tc('genderMale') : g === 'female' ? tc('genderFemale') : g === 'other' ? tc('genderOther') : g;
 
   const [editing, setEditing] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -51,12 +57,10 @@ function ProfileContent() {
 
       const res = await api.updateUser(user.id, body);
       if (res.queued) {
-        // Offline: saved to the sync queue — don't clobber the auth context
-        // with the local echo; it will apply after the server accepts it.
-        setSuccess('Saved locally — will sync automatically when you\u2019re back online ☕');
+        setSuccess(tc('savedLocally'));
       } else {
         updateUserInContext(res.data);
-        setSuccess('Profile updated successfully! ✅');
+        setSuccess(t('updated'));
       }
       setEditing(false);
       setTimeout(() => setSuccess(''), 3000);
@@ -68,7 +72,7 @@ function ProfileContent() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[50vh]">
-        <div className="text-ink-2 text-lg animate-pulse">Loading profile…</div>
+        <div className="text-ink-2 text-lg animate-pulse">{t('loading')}</div>
       </div>
     );
   }
@@ -84,7 +88,7 @@ function ProfileContent() {
         <p className="text-ink-2">@{user.username}</p>
         {fieldEmpty(user.name) || fieldEmpty(user.age) || !user.favourite_coffee ? (
           <p className="mt-2 text-sm text-ink-2 italic">
-            💡 Complete your profile — click Edit below
+            💡 {t('complete')}
           </p>
         ) : null}
       </div>
@@ -110,32 +114,32 @@ function ProfileContent() {
               onClick={() => setEditing(true)}
               className="px-4 py-1.5 rounded-lg bg-surface-3 text-ink text-sm font-medium hover:bg-surface-2 transition-colors"
             >
-              ✏️ Edit
+              ✏️ {tc('edit')}
             </button>
           )}
         </div>
 
         {!editing ? (
           <div className="space-y-3">
-            <InfoRow label="Username" value={user.username} />
-            <InfoRow label="Email" value={user.email} />
-            <InfoRow label="Full Name" value={user.name || 'Not set'} highlight={fieldEmpty(user.name)} />
-            <InfoRow label="Age" value={user.age || 'Not set'} highlight={fieldEmpty(user.age)} />
-            <InfoRow label="Gender" value={user.gender || 'Not set'} highlight={fieldEmpty(user.gender)} />
-            <InfoRow label="Favourite Coffee" value={user.favourite_coffee || 'Not set'} highlight={!user.favourite_coffee} />
+            <InfoRow label={tc('username')} value={user.username} />
+            <InfoRow label={tc('email')} value={user.email} />
+            <InfoRow label={tc('fullName')} value={user.name || tc('notSet')} highlight={fieldEmpty(user.name)} />
+            <InfoRow label={tc('age')} value={user.age || tc('notSet')} highlight={fieldEmpty(user.age)} />
+            <InfoRow label={tc('gender')} value={user.gender ? genderLabel(user.gender) : tc('notSet')} highlight={fieldEmpty(user.gender)} />
+            <InfoRow label={tc('favCoffee')} value={user.favourite_coffee || tc('notSet')} highlight={!user.favourite_coffee} />
           </div>
         ) : (
           <form onSubmit={handleSave} className="space-y-1">
             <Input
-              label="Full Name"
+              label={tc('fullName')}
               name="name"
               value={form.name}
               onChange={handleChange}
-              placeholder="Your name"
+              placeholder={t('namePh')}
               required
             />
             <Input
-              label="Email"
+              label={tc('email')}
               name="email"
               type="email"
               value={form.email}
@@ -143,39 +147,39 @@ function ProfileContent() {
               required
             />
             <Input
-              label="Age"
+              label={tc('age')}
               name="age"
               type="number"
               value={form.age}
               onChange={handleChange}
-              placeholder="25"
+              placeholder={t('agePh')}
             />
             <div className="mb-4">
-              <label className="block text-sm font-medium text-ink mb-1">Gender</label>
+              <label className="block text-sm font-medium text-ink mb-1">{tc('gender')}</label>
               <select
                 name="gender"
                 value={form.gender}
                 onChange={handleChange}
                 className="w-full px-4 py-2.5 rounded-lg border border-line bg-surface text-ink focus:outline-none focus:ring-2 focus:ring-coffee-500"
               >
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-                <option value="other">Other</option>
+                <option value="male">{tc('genderMale')}</option>
+                <option value="female">{tc('genderFemale')}</option>
+                <option value="other">{tc('genderOther')}</option>
               </select>
             </div>
             <Input
-              label="Favourite Coffee"
+              label={tc('favCoffee')}
               name="favourite_coffee"
               value={form.favourite_coffee}
               onChange={handleChange}
-              placeholder="Latte, Espresso, Cappuccino…"
+              placeholder={t('favPh')}
             />
             <div className="flex gap-3 mt-4">
               <button
                 type="submit"
                 className="flex-1 py-2.5 rounded-lg bg-ink text-surface font-medium hover:bg-coffee-800 transition-colors"
               >
-                Save Changes
+                {t('saveChanges')}
               </button>
               <button
                 type="button"
@@ -191,7 +195,7 @@ function ProfileContent() {
                 }}
                 className="flex-1 py-2.5 rounded-lg bg-surface-2 text-ink-2 font-medium hover:bg-surface-3 transition-colors"
               >
-                Cancel
+                {tc('cancel')}
               </button>
             </div>
           </form>
@@ -200,12 +204,12 @@ function ProfileContent() {
 
       {/* Account Info */}
       <div className="bg-surface rounded-xl border border-line p-6">
-        <h2 className="text-lg font-bold text-ink mb-4">Account</h2>
+        <h2 className="text-lg font-bold text-ink mb-4">{t('account')}</h2>
         <div className="space-y-3">
-          <InfoRow label="User ID" value={user.id} />
+          <InfoRow label={t('userId')} value={user.id} />
           <InfoRow
-            label="Member Since"
-            value={user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'Unknown'}
+            label={t('memberSince')}
+            value={user.createdAt ? format.dateTime(new Date(user.createdAt), { dateStyle: 'medium' }) : t('unknown')}
           />
         </div>
       </div>

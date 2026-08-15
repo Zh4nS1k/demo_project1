@@ -3,10 +3,13 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { useAuth } from '@/context/AuthContext';
 import Input from '@/components/Input';
 
 export default function LoginPage() {
+  const t = useTranslations('login');
+  const tc = useTranslations('common');
   const { login } = useAuth();
   const router = useRouter();
 
@@ -34,8 +37,8 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="text-5xl mb-3">☕</div>
-          <h1 className="text-2xl font-bold text-ink">Welcome Back</h1>
-          <p className="text-ink-2 mt-1">Log in to track your coffee journey</p>
+          <h1 className="text-2xl font-bold text-ink">{t('title')}</h1>
+          <p className="text-ink-2 mt-1">{t('subtitle')}</p>
         </div>
 
         {error && (
@@ -49,21 +52,21 @@ export default function LoginPage() {
           className="bg-surface rounded-2xl border border-line p-6 space-y-1"
         >
           <Input
-            label="Email"
+            label={tc('email')}
             name="email"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@example.com"
+            placeholder={t('emailPh')}
             required
           />
           <Input
-            label="Password"
+            label={tc('password')}
             name="password"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="••••••••"
+            placeholder={t('passwordPh')}
             required
           />
 
@@ -72,14 +75,14 @@ export default function LoginPage() {
             disabled={loading}
             className="w-full py-2.5 mt-4 rounded-lg bg-ink text-surface font-medium hover:bg-coffee-800 transition-colors disabled:opacity-50"
           >
-            {loading ? 'Logging in…' : 'Login'}
+            {loading ? t('submitting') : t('submit')}
           </button>
         </form>
 
         <p className="text-center mt-4 text-sm text-ink-2">
-          Don&apos;t have an account?{' '}
+          {t('noAccount')}{' '}
           <Link href="/register" className="font-medium underline text-coffee-700 hover:text-coffee-900">
-            Register
+            {t('register')}
           </Link>
         </p>
       </div>
