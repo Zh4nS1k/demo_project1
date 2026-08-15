@@ -53,7 +53,7 @@ export const api = {
   // Coffees
   createCoffee: (body) =>
     request('/coffees', { method: 'POST', body: JSON.stringify(body) }),
-  getAllCoffees: (params = '') => request(`/coffees${params}`),
+  getAllCoffees: (params = {}) => request(`/coffees${toQueryString(params)}`),
   getCoffeeById: (id) => request(`/coffees/${id}`),
   getCoffeeByName: (name) => request(`/coffees/name/${name}`),
   updateCoffee: (id, body) =>

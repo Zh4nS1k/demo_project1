@@ -1,5 +1,5 @@
 const express = require('express');
-const { body, param } = require('express-validator');
+const { body, param, query } = require('express-validator');
 const { protect, admin } = require('../middleware/auth');
 const validate = require('../middleware/validate');
 const {
@@ -36,8 +36,12 @@ const coffeeFieldRules = (forCreate) => [
     .isIn([0, 1]).withMessage('Milk must be 0 (no milk) or 1 (with milk)'),
 ];
 
-// Reads stay public — the home page coffee picker needs them
-router.get('/', getAllCoffees);
+// Reads stay public — the coffee browser page needs them
+router.get('/', [
+  query('taste').optional().isIn(TASTES).withMessage(`taste must be one of: ${TASTES.join(', ')}`),
+  query('milk').optional().isIn(['0', '1']).withMessage('milk must be 0 or 1'),
+  query('minEnergy').optional().isInt({ min: 1, max: 10 }).withMessage('minEnergy must be 1–10'),
+], validate, getAllCoffees);
 router.get('/name/:name', getCoffeeByName);
 router.get('/:id', param('id').isMongoId().withMessage('Invalid coffee id'), validate, getCoffeeById);
 
