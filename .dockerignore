@@ -1,0 +1,24 @@
+# Root-context build for the client image (docker-compose.yml points at
+# client/Dockerfile with the repo root as context, because next.config.js
+# sets outputFileTracingRoot to the repo root and the standalone build
+# needs that layout). The server image builds from ./server with its own
+# server/.dockerignore — this file does not affect it.
+
+# Never ship dependencies or build output into the build context
+**/node_modules
+client/.next
+
+# Secrets stay out of images
+.env
+**/.env
+**/.env.*
+**/.env*.local
+
+# Not needed by the client image
+.git
+.github
+server
+*.md
+Makefile
+.githooks
+demo_project1.iml

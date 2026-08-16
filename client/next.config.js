@@ -6,6 +6,10 @@ const nextConfig = {
   // there so Next doesn't mis-infer the workspace root from the two lockfiles.
   outputFileTracingRoot: path.join(__dirname, '..'),
 
+  // Self-contained server bundle for Docker (client/Dockerfile uses .next/standalone).
+  // Harmless for normal dev/vercel builds.
+  output: 'standalone',
+
   // Proxy API calls to the Express backend
   async rewrites() {
     return [

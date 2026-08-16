@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+# ─────────────────────────────────────────────────────────────
+# post-merge — keep your checkout healthy after pull/merge.
+# Reinstalls dependencies when a lockfile changed, reinstalls
+# git hooks when .githooks changed.
+# ─────────────────────────────────────────────────────────────
+set -euo pipefail
+cd "$(git rev-parse --show-toplevel)"
+
+# What changed in this merge? (HEAD@{1} works for merges/pulls)
+changed=$(git diff --name-only HEAD@{1} HEAD 2>/dev/null || true)
+
+has() { echo "$changed" | grep -qx "$1"; }
+
+# ─── Lockfiles → reinstall the affected package tree ───
+if has package-lock.json; then
+  echo "🪝 post-merge: root package-lock.json changed → npm install"
+  npm install
+fi
+if has server/package-lock.json; then
+  echo "🪝 post-merge: server lockfile changed → npm install"
+  npm --prefix server install
+fi
+if has client/package-lock.json; then
+  echo "🪝 post-merge: client lockfile changed → npm install"
+  npm --prefix client install
+fi
+
+# ─── Hooks updated → make sure they're executable & wired ───
+if echo "$changed" | grep -q '^\.githooks/'; then
+  chmod +x .githooks/* 2>/dev/null || true
+  echo "🪝 post-merge: hooks updated — run 'make hooks' if not installed yet"
+fi
+
+echo "✅ post-merge: checkout is up to date"
+exit 0

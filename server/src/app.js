@@ -5,6 +5,7 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 
 const errorHandler = require('./middleware/errorHandler');
+const { log } = require('./utils/log');
 
 const userRoutes = require('./routes/userRoutes');
 const coffeeRoutes = require('./routes/coffeeRoutes');
@@ -42,8 +43,22 @@ app.use(express.json({ limit: '100kb' }));
 app.use(express.urlencoded({ extended: true, limit: '100kb' }));
 
 if (process.env.NODE_ENV === 'development') {
-  app.use(morgan('dev'));
+  // Emoji request log: ✅ 2xx/3xx · ⚠️ 4xx · ❌ 5xx, with response time
+  app.use(
+    morgan((tokens, req, res) => {
+      const status = Number(tokens.status(req, res)) || 0;
+      const icon = status >= 500 ? '❌' : status >= 400 ? '⚠️ ' : '✅';
+      const time = Number(tokens['response-time'](req, res)).toFixed(1);
+      const len = tokens.res(req, res, 'content-length') || '-';
+      return `  ${icon} 📥 ${tokens.method(req, res)} ${tokens.url(req, res)} → ${status} · ${time}ms · ${len}b`;
+    })
+  );
+} else if (process.env.NODE_ENV === 'production') {
+  // Compact single-line format for Render/Docker log streams
+  app.use(morgan('⚡ :method :url :status :response-time ms'));
 }
+
+log.success(`App assembled — helmet ✓ CORS (${corsOrigin === '*' ? 'open (dev default)' : corsOrigin.join(', ')}) ✓ rate limit (300/5min) ✓`);
 
 // ─── Health Check ───
 app.get('/', (req, res) => {

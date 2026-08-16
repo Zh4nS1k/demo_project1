@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# ─────────────────────────────────────────────────────────────
+# pre-commit — fast checks (< 2s) on staged files only.
+# Bypass for WIP commits:  git commit --no-verify
+# ─────────────────────────────────────────────────────────────
+set -euo pipefail
+cd "$(git rev-parse --show-toplevel)"
+
+fail() { echo "❌ pre-commit: $1"; exit 1; }
+
+# 1. Never commit secrets
+staged_env=$(git diff --cached --name-only | grep -E '(^|/)\.env(\.|$)' | grep -v '\.env\.example$' || true)
+[ -n "$staged_env" ] && fail "refusing to commit env file(s): $staged_env (they hold secrets)"
+
+# 2. No leftover conflict markers
+if git diff --cached --check | grep -q 'conflict marker'; then
+  fail "conflict markers found — resolve them first"
+fi
+
+# 3. Syntax-check staged .js files (server source; JSX can't be node-checked)
+staged_js=$(git diff --cached --name-only --diff-filter=ACM | grep -E '^server/.*\.js$' | grep -v node_modules || true)
+if [ -n "$staged_js" ]; then
+  for f in $staged_js; do
+    node --check "$f" || fail "syntax error in $f"
+  done
+  echo "🪝 pre-commit: $(echo "$staged_js" | wc -l) file(s) syntax-checked ✓"
+fi
+
+exit 0

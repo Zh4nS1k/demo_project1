@@ -1,3 +1,5 @@
+const { log } = require('../utils/log');
+
 /**
  * Global error handling middleware.
  * Must be registered last (after all routes).
@@ -7,11 +9,13 @@ const errorHandler = (err, req, res, next) => {
   let statusCode = res.statusCode === 200 ? 500 : res.statusCode;
   let message = err.message || 'Internal Server Error';
   let known = statusCode !== 500; // explicit status set by a handler → operational, safe to show
+  let icon = '💥'; // unexpected
 
   // Mongoose validation error
   if (err.name === 'ValidationError') {
     statusCode = 400;
     known = true;
+    icon = '📝';
     const errors = Object.values(err.errors).map((e) => e.message);
     message = errors.join(', ');
   }
@@ -20,6 +24,7 @@ const errorHandler = (err, req, res, next) => {
   if (err.code === 11000) {
     statusCode = 409;
     known = true;
+    icon = '⚔️ ';
     const field = Object.keys(err.keyValue)[0];
     message = `Duplicate value for ${field}: ${err.keyValue[field]}`;
   }
@@ -28,6 +33,7 @@ const errorHandler = (err, req, res, next) => {
   if (err.name === 'CastError') {
     statusCode = 400;
     known = true;
+    icon = '🔢';
     message = `Invalid ${err.path}: ${err.value}`;
   }
 
@@ -36,7 +42,8 @@ const errorHandler = (err, req, res, next) => {
     message = 'Internal Server Error';
   }
 
-  console.error(`[ERROR] ${statusCode} - ${message}`);
+  log.error(`${icon} [${statusCode}] ${req.method} ${req.originalUrl} — ${message}`);
+  if (!known) log.warn('Stack trace (unexpected error):', err.stack);
 
   res.status(statusCode).json({
     success: false,

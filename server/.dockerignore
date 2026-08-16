@@ -1,0 +1,14 @@
+# Dependencies (installed inside the image)
+node_modules
+
+# Secrets — never bake into images
+.env
+.env.*
+
+# Tests & coverage (not needed at runtime)
+tests
+coverage
+
+# Local noise
+*.log
+.DS_Store

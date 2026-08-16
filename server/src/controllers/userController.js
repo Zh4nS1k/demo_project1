@@ -1,6 +1,7 @@
 const asyncHandler = require('../middleware/asyncHandler');
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
+const { log } = require('../utils/log');
 
 // Generate JWT token
 const generateToken = (userId) => {
@@ -51,6 +52,8 @@ exports.createUser = asyncHandler(async (req, res) => {
   });
 
   const token = generateToken(user._id);
+
+  log.event('🎉', `New user registered: ${user.username} (${user.email})`);
 
   res.status(201).json({
     success: true,
@@ -179,6 +182,7 @@ exports.deleteUser = asyncHandler(async (req, res) => {
   if (!user) {
     return res.status(404).json({ success: false, message: 'User not found' });
   }
+  log.event('🗑️ ', `User deleted: ${user.username} (by ${req.user.username})`);
   res.status(200).json({ success: true, message: 'User deleted successfully' });
 });
 
@@ -194,10 +198,13 @@ exports.loginUser = asyncHandler(async (req, res) => {
 
   const user = await User.findOne({ email }).select('+password');
   if (!user || !(await user.matchPassword(password))) {
+    log.warn(`🚫 Login failed: ${email}`);
     return res.status(401).json({ success: false, message: 'Invalid credentials' });
   }
 
   const token = generateToken(user._id);
+
+  log.event('🔑', `Login OK: ${user.username}`);
 
   res.status(200).json({
     success: true,

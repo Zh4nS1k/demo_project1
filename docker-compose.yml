@@ -1,0 +1,60 @@
+# ─────────────────────────────────────────────────────────────
+# Coffee Drinker — full local stack
+#
+#   make docker-up          (or: docker compose up --build)
+#   client  → http://localhost:3001
+#   server  → http://localhost:3000
+#   mongo   → localhost:27017 (exposed for Studio 3T / compass)
+#
+# Production notes:
+#   • Set JWT_SECRET for anything beyond local use (env var or .env file)
+#   • CORS_ORIGIN should list your real client origins in production
+# ─────────────────────────────────────────────────────────────
+
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  server:
+    build: ./server
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      MONGODB_URI: mongodb://mongo:27017/coffee_drinker
+      JWT_SECRET: ${JWT_SECRET:-dev-only-secret-change-me-please}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      CORS_ORIGIN: ${CORS_ORIGIN:-*}
+    depends_on:
+      mongo:
+        condition: service_healthy
+
+  client:
+    build:
+      context: .
+      dockerfile: client/Dockerfile
+      args:
+        # Baked into the Next.js rewrite at build time (container-to-container URL).
+        # The browser only ever talks to the client (same origin, no CORS needed).
+        NEXT_PUBLIC_API_URL: http://server:3000
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    depends_on:
+      - server
+
+volumes:
+  mongo-data:
