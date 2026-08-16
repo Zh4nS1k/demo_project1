@@ -29,6 +29,7 @@ const emailRules = () =>
   body('email')
     .isString()
     .trim()
+    .toLowerCase()
     .isEmail().withMessage('Invalid email format')
     .isLength({ max: 254 });
 
@@ -78,7 +79,13 @@ router.get(
   validate,
   getPublicUser
 );
-router.get('/username/:username', getUserByUsername);
+router.get(
+  '/username/:username',
+  param('username').isString().trim().isLength({ min: 3, max: 30 })
+    .withMessage('Username must be 3–30 characters'),
+  validate,
+  getUserByUsername
+);
 router.get('/:id', param('id').isMongoId().withMessage('Invalid user id'), validate, getUserById);
 
 router.put(

@@ -37,7 +37,7 @@ export function I18nProvider({ children }) {
   }, []);
 
   return (
-    <NextIntlClientProvider locale={locale} messages={messages[locale]}>
+    <NextIntlClientProvider locale={locale} messages={messages[locale]} timeZone="UTC">
       {children}
     </NextIntlClientProvider>
   );

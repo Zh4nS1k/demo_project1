@@ -155,7 +155,7 @@ export default function CoffeeCard({ coffee, user, requireAuth, onLogged }) {
               onClick={() => setOpen(false)}
               className="px-4 py-2 rounded-lg bg-surface-2 text-ink-2 text-sm font-medium hover:bg-surface-3 transition-colors"
             >
-              Cancel
+              {tc('cancel')}
             </button>
           </div>
         </form>

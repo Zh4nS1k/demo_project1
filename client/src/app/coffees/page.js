@@ -67,7 +67,7 @@ export default function CoffeesPage() {
         {/* Filters */}
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 mt-5">
           <label className="flex flex-col gap-1 text-sm">
-            <span className="text-ink-2 font-medium">Taste</span>
+            <span className="text-ink-2 font-medium">{t('taste')}</span>
             <select
               value={taste}
               onChange={(e) => setTaste(e.target.value)}
@@ -79,7 +79,7 @@ export default function CoffeesPage() {
           </label>
 
           <label className="flex flex-col gap-1 text-sm">
-            <span className="text-ink-2 font-medium">Milk</span>
+            <span className="text-ink-2 font-medium">{t('milk')}</span>
             <select
               value={milk}
               onChange={(e) => setMilk(e.target.value)}
@@ -92,7 +92,7 @@ export default function CoffeesPage() {
           </label>
 
           <label className="flex flex-col gap-1 text-sm">
-            <span className="text-ink-2 font-medium">Min energy</span>
+            <span className="text-ink-2 font-medium">{t('minEnergy')}</span>
             <select
               value={minEnergy}
               onChange={(e) => setMinEnergy(e.target.value)}

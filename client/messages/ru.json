@@ -197,6 +197,8 @@
     "title": "Присоединяйтесь к Coffee Drinker",
     "subtitle": "Создайте аккаунт — профиль заполните позже",
     "usernamePh": "coffee_lover",
+    "emailPh": "you@example.com",
+    "passwordPh": "••••••••",
     "confirmPassword": "Повторите пароль",
     "namePh": "Ваше имя",
     "submit": "Зарегистрироваться",
@@ -271,6 +273,7 @@
     "nameUserPh": "coffee_lover",
     "emailPh": "you@example.com",
     "fullPh": "Иван Иванов",
+    "agePh": "напр. 30",
     "favPh": "Латте",
     "selfDeleteDisabled": "Нельзя удалить себя",
     "saveChanges": "Сохранить"

@@ -9,6 +9,23 @@ const generateToken = (userId) => {
   });
 };
 
+/**
+ * Full self-view of a user — what register/login/update return to the client.
+ * Includes private fields (email, age, …): only ever sent to the user themselves
+ * or to admins (getAllUsers is admin-gated).
+ */
+const selfView = (u) => ({
+  id: u._id,
+  username: u.username,
+  email: u.email,
+  name: u.name,
+  age: u.age,
+  gender: u.gender,
+  favourite_coffee: u.favourite_coffee,
+  role: u.role,
+  member_since: u.createdAt,
+});
+
 // @desc    Register a new user
 // @route   POST /api/users
 // @access  Public
@@ -37,16 +54,7 @@ exports.createUser = asyncHandler(async (req, res) => {
 
   res.status(201).json({
     success: true,
-    data: {
-      id: user._id,
-      username: user.username,
-      email: user.email,
-      name: user.name,
-      age: user.age,
-      gender: user.gender,
-      favourite_coffee: user.favourite_coffee,
-      role: user.role,
-    },
+    data: selfView(user),
     token,
   });
 });
@@ -152,16 +160,7 @@ exports.updateUser = asyncHandler(async (req, res) => {
 
   res.status(200).json({
     success: true,
-    data: {
-      id: user._id,
-      username: user.username,
-      email: user.email,
-      name: user.name,
-      age: user.age,
-      gender: user.gender,
-      favourite_coffee: user.favourite_coffee,
-      role: user.role,
-    },
+    data: selfView(user),
   });
 });
 
@@ -202,13 +201,7 @@ exports.loginUser = asyncHandler(async (req, res) => {
 
   res.status(200).json({
     success: true,
-    data: {
-      id: user._id,
-      username: user.username,
-      email: user.email,
-      name: user.name,
-      role: user.role,
-    },
+    data: selfView(user),
     token,
   });
 });

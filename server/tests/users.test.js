@@ -76,6 +76,25 @@ describe('User login', () => {
     expect(res.statusCode).toBe(400);
     expect(res.body.errors[0].field).toBe('email');
   });
+
+  test('login is case-insensitive for email', async () => {
+    await registerUser({ username: 'alice', email: 'alice@x.dev' });
+    const res = await request(app)
+      .post('/api/users/login')
+      .send({ email: 'ALICE@X.DEV', password: 'secret123' });
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.data.username).toBe('alice');
+  });
+
+  test('login response includes member_since', async () => {
+    await registerUser({ username: 'alice', email: 'alice@x.dev' });
+    const res = await request(app)
+      .post('/api/users/login')
+      .send({ email: 'alice@x.dev', password: 'secret123' });
+
+    expect(res.body.data.member_since).toBeTruthy();
+  });
 });
 
 describe('Protected user routes — 401/403 handling', () => {

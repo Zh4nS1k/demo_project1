@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
 const HERO_IMAGES = [
@@ -17,19 +18,28 @@ export function pickHeroImage() {
 /**
  * Shared hero: coffee image, headline, optional CTA buttons.
  * CTAs are { label, href } or { label, onClick }.
+ * The image is picked client-side after mount — Math.random() during
+ * prerender would produce non-deterministic HTML and a hydration
+ * mismatch (server image ≠ client image).
  */
 export default function Hero({ image, title, subtitle, primary, secondary, compact = false }) {
-  const img = image || pickHeroImage();
+  const [img, setImg] = useState(null);
+
+  useEffect(() => {
+    setImg(image || pickHeroImage());
+  }, [image]);
 
   return (
     <section className="relative rounded-2xl overflow-hidden bg-neutral-950">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={img}
-        alt="Coffee"
-        className="absolute inset-0 w-full h-full object-cover opacity-80 grayscale-[30%]"
-        onError={(e) => { e.target.style.display = 'none'; }}
-      />
+      {img && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={img}
+          alt="Coffee"
+          className="absolute inset-0 w-full h-full object-cover opacity-80 grayscale-[30%]"
+          onError={(e) => { e.target.style.display = 'none'; }}
+        />
+      )}
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
 
       <div className={`relative px-6 text-center ${compact ? 'py-12 sm:py-16' : 'py-16 sm:py-24'}`}>

@@ -1,5 +1,5 @@
 const db = require('./db');
-const { request, app, registerUser, auth } = require('./helpers');
+const { request, app, registerUser, makeAdmin, auth } = require('./helpers');
 
 beforeAll(() => db.connect());
 afterEach(() => db.clear());
@@ -121,6 +121,38 @@ describe('Day listing — pagination & sorting', () => {
   });
 });
 
+describe('Day logging — ownership', () => {
+  test('logging under someone else’s username → 403', async () => {
+    await registerUser({ username: 'alice', email: 'alice@x.dev' });
+    const bob = await registerUser({ username: 'bob', email: 'bob@x.dev' });
+
+    const res = await logDay(bob.token, {
+      username: 'alice',
+      coffee_name: 'Latte',
+      count_of_cups: 1,
+      rating: 5,
+    });
+
+    expect(res.statusCode).toBe(403);
+    expect(res.body.message).toMatch(/own account/i);
+  });
+
+  test('admin may log on behalf of another user', async () => {
+    await registerUser({ username: 'alice', email: 'alice@x.dev' });
+    const { token } = await makeAdmin();
+
+    const res = await logDay(token, {
+      username: 'alice',
+      coffee_name: 'Latte',
+      count_of_cups: 1,
+      rating: 5,
+    });
+
+    expect(res.statusCode).toBe(201);
+    expect(res.body.data.username).toBe('alice');
+  });
+});
+
 describe('Day update & delete', () => {
   test('author can update and delete own entry', async () => {
     const { token } = await registerUser({ username: 'alice', email: 'alice@x.dev' });
@@ -144,5 +176,72 @@ describe('Day update & delete', () => {
 
     const gone = await request(app).get(`/api/days/${id}`);
     expect(gone.statusCode).toBe(404);
+  });
+
+  test('another user cannot update or delete someone else’s entry', async () => {
+    const alice = await registerUser({ username: 'alice', email: 'alice@x.dev' });
+    const bob = await registerUser({ username: 'bob', email: 'bob@x.dev' });
+    const created = await logDay(alice.token, {
+      username: 'alice',
+      coffee_name: 'Latte',
+      count_of_cups: 1,
+      rating: 3,
+    });
+    const id = created.body.data._id;
+
+    const upd = await request(app)
+      .put(`/api/days/${id}`)
+      .set(auth(bob.token))
+      .send({ rating: 1 });
+    expect(upd.statusCode).toBe(403);
+
+    const del = await request(app).delete(`/api/days/${id}`).set(auth(bob.token));
+    expect(del.statusCode).toBe(403);
+
+    // alice’s entry is untouched
+    const still = await request(app).get(`/api/days/${id}`);
+    expect(still.statusCode).toBe(200);
+    expect(still.body.data.rating).toBe(3);
+  });
+
+  test('owner cannot reassign an entry to another username; admin can', async () => {
+    const alice = await registerUser({ username: 'alice', email: 'alice@x.dev' });
+    await registerUser({ username: 'bob', email: 'bob@x.dev' });
+    const created = await logDay(alice.token, {
+      username: 'alice',
+      coffee_name: 'Latte',
+      count_of_cups: 1,
+      rating: 3,
+    });
+    const id = created.body.data._id;
+
+    const steal = await request(app)
+      .put(`/api/days/${id}`)
+      .set(auth(alice.token))
+      .send({ username: 'bob' });
+    expect(steal.statusCode).toBe(403);
+
+    const { token } = await makeAdmin();
+    const move = await request(app)
+      .put(`/api/days/${id}`)
+      .set(auth(token))
+      .send({ username: 'bob' });
+    expect(move.statusCode).toBe(200);
+    expect(move.body.data.username).toBe('bob');
+  });
+
+  test('admin can delete another user’s entry', async () => {
+    const alice = await registerUser({ username: 'alice', email: 'alice@x.dev' });
+    const created = await logDay(alice.token, {
+      username: 'alice',
+      coffee_name: 'Latte',
+      count_of_cups: 1,
+      rating: 3,
+    });
+    const id = created.body.data._id;
+
+    const { token } = await makeAdmin();
+    const del = await request(app).delete(`/api/days/${id}`).set(auth(token));
+    expect(del.statusCode).toBe(200);
   });
 });

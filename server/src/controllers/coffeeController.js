@@ -75,11 +75,14 @@ exports.getCoffeeById = asyncHandler(async (req, res) => {
   res.status(200).json({ success: true, data: coffee });
 });
 
+/** Escape regex metacharacters so user input matches literally. */
+const escapeRegex = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 // @desc    Get coffee by name
 // @route   GET /api/coffees/name/:name
 // @access  Public
 exports.getCoffeeByName = asyncHandler(async (req, res) => {
-  const coffee = await Coffee.findOne({ name: new RegExp(req.params.name, 'i') });
+  const coffee = await Coffee.findOne({ name: new RegExp(escapeRegex(req.params.name), 'i') });
   if (!coffee) {
     return res.status(404).json({ success: false, message: 'Coffee not found' });
   }

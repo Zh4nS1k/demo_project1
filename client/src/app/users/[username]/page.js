@@ -16,6 +16,7 @@ export default function PublicProfilePage() {
   const t = useTranslations('publicProfile');
   const th = useTranslations('home');
   const tc = useTranslations('common');
+  const tw = useTranslations('weekdays');
   const format = useFormatter();
   const params = useParams();
   const username = params?.username;
@@ -119,20 +120,26 @@ export default function PublicProfilePage() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <InsightCard
           icon="🔥"
-          title="Current Streak"
-          value={`${insights.streaks.current} ${insights.streaks.current === 1 ? 'day' : 'days'}`}
-          sub={`Best: ${insights.streaks.longest} ${insights.streaks.longest === 1 ? 'day' : 'days'}`}
+          title={th('currentStreak')}
+          value={tc('days', { count: insights.streaks.current })}
+          sub={th('best', { days: tc('days', { count: insights.streaks.longest }) })}
         />
         <InsightCard
           icon="📅"
-          title="Most Active Day"
-          value={insights.mostActiveWeekday ? insights.mostActiveWeekday.day : '—'}
-          sub={insights.mostActiveWeekday ? `${insights.mostActiveWeekday.cups} cups logged` : 'No data yet'}
+          title={th('mostActiveDay')}
+          value={
+            insights.mostActiveWeekday
+              ? tw.has(insights.mostActiveWeekday.day)
+                ? tw(insights.mostActiveWeekday.day)
+                : insights.mostActiveWeekday.day
+              : '—'
+          }
+          sub={insights.mostActiveWeekday ? th('cupsLogged', { cups: insights.mostActiveWeekday.cups }) : th('noDataYet')}
         />
-        <InsightCard icon="⚡" title="Caffeine · 7 Days" value={insights.trend7.total} sub="units (cups × energy)">
+        <InsightCard icon="⚡" title={th('caffeine7')} value={insights.trend7.total} sub={th('caffeineUnits')}>
           <Sparkline data={insights.trend7.daily} />
         </InsightCard>
-        <InsightCard icon="⚡" title="Caffeine · 30 Days" value={insights.trend30.total} sub="units (cups × energy)">
+        <InsightCard icon="⚡" title={th('caffeine30')} value={insights.trend30.total} sub={th('caffeineUnits')}>
           <Sparkline data={insights.trend30.daily} thin />
         </InsightCard>
       </div>

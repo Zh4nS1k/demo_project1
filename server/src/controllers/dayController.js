@@ -126,8 +126,17 @@ async function listDays(req, res, forceFilter = {}) {
 
 // @desc    Create a day entry (log coffee consumption)
 // @route   POST /api/days
-// @access  Public
+// @access  Private — entries can only be logged under the token user's
+//          username (admins may log on behalf of any user)
 exports.createDay = asyncHandler(async (req, res) => {
+  const isAdmin = req.user.role === 'admin';
+  if (req.body.username !== req.user.username && !isAdmin) {
+    return res.status(403).json({
+      success: false,
+      message: 'You can only log entries for your own account',
+    });
+  }
+
   const day = await Day.create(req.body);
   res.status(201).json({ success: true, data: day });
 });
@@ -230,79 +239,92 @@ exports.getDaysByUsername = asyncHandler(async (req, res) => {
 // @route   GET /api/days/summary/:username
 // @access  Public
 exports.getUserSummary = asyncHandler(async (req, res) => {
-  const summary = await Day.aggregate([
-    { $match: { username: req.params.username } },
-    {
-      $group: {
-        _id: null,
-        total_cups: { $sum: '$count_of_cups' },
-        total_entries: { $sum: 1 },
-        unique_coffees: { $addToSet: '$coffee_name' },
-        avg_rating: { $avg: '$rating' },
-      },
-    },
-  ]);
+  const username = req.params.username;
+  const matched = { $match: { username } };
 
-  // Per-coffee breakdown
-  const byCoffee = await Day.aggregate([
-    { $match: { username: req.params.username } },
-    {
-      $group: {
-        _id: '$coffee_name',
-        total_cups: { $sum: '$count_of_cups' },
-        entries: { $sum: 1 },
-        avg_rating: { $avg: '$rating' },
+  // The five aggregations below are independent — run them concurrently
+  const [summary, byCoffee, ratingBreakdown, byDay, caffeineAgg] = await Promise.all([
+    // Totals
+    Day.aggregate([
+      matched,
+      {
+        $group: {
+          _id: null,
+          total_cups: { $sum: '$count_of_cups' },
+          total_entries: { $sum: 1 },
+          unique_coffees: { $addToSet: '$coffee_name' },
+          avg_rating: { $avg: '$rating' },
+        },
       },
-    },
-    { $sort: { total_cups: -1 } },
-  ]);
+    ]),
 
-  // Per-day average rating
-  const ratingBreakdown = await Day.aggregate([
-    { $match: { username: req.params.username } },
-    {
-      $group: {
-        _id: '$rating',
-        count: { $sum: 1 },
+    // Per-coffee breakdown
+    Day.aggregate([
+      matched,
+      {
+        $group: {
+          _id: '$coffee_name',
+          total_cups: { $sum: '$count_of_cups' },
+          entries: { $sum: 1 },
+          avg_rating: { $avg: '$rating' },
+        },
       },
-    },
-    { $sort: { _id: -1 } },
-  ]);
+      { $sort: { total_cups: -1 } },
+    ]),
 
-  // ─── Insight inputs: per-day rows + caffeine per day ───
-  const byDay = await Day.aggregate([
-    { $match: { username: req.params.username } },
-    {
-      $group: {
-        _id: { $dateToString: { format: '%Y-%m-%d', date: '$date' } },
-        cups: { $sum: '$count_of_cups' },
-        entries: { $sum: 1 },
-        dow: { $first: { $dayOfWeek: '$date' } },
+    // Rating distribution
+    Day.aggregate([
+      matched,
+      {
+        $group: {
+          _id: '$rating',
+          count: { $sum: 1 },
+        },
       },
-    },
-    { $sort: { _id: 1 } },
+      { $sort: { _id: -1 } },
+    ]),
+
+    // Per-day rows (insight input)
+    Day.aggregate([
+      matched,
+      {
+        $group: {
+          _id: { $dateToString: { format: '%Y-%m-%d', date: '$date' } },
+          cups: { $sum: '$count_of_cups' },
+          entries: { $sum: 1 },
+          dow: { $first: { $dayOfWeek: '$date' } },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ]),
+
+    // Caffeine per day, last 30 days.
+    // Join energy_boost via coffee name; unknown coffees (deleted) contribute 0
+    Day.aggregate([
+      {
+        $match: {
+          username,
+          date: { $gte: new Date(shiftDay(new Date().toISOString().slice(0, 10), -29) + 'T00:00:00.000Z') },
+        },
+      },
+      {
+        $lookup: { from: 'coffees', localField: 'coffee_name', foreignField: 'name', as: 'coffee' },
+      },
+      {
+        $addFields: {
+          energy: { $ifNull: [{ $arrayElemAt: ['$coffee.energy_boost', 0] }, 0] },
+        },
+      },
+      {
+        $group: {
+          _id: { $dateToString: { format: '%Y-%m-%d', date: '$date' } },
+          caffeine: { $sum: { $multiply: ['$count_of_cups', '$energy'] } },
+        },
+      },
+    ]),
   ]);
 
   const todayStr = new Date().toISOString().slice(0, 10);
-  const thirtyDaysAgo = new Date(shiftDay(todayStr, -29) + 'T00:00:00.000Z');
-  const caffeineAgg = await Day.aggregate([
-    { $match: { username: req.params.username, date: { $gte: thirtyDaysAgo } } },
-    // Join energy_boost via coffee name; unknown coffees (deleted) contribute 0
-    {
-      $lookup: { from: 'coffees', localField: 'coffee_name', foreignField: 'name', as: 'coffee' },
-    },
-    {
-      $addFields: {
-        energy: { $ifNull: [{ $arrayElemAt: ['$coffee.energy_boost', 0] }, 0] },
-      },
-    },
-    {
-      $group: {
-        _id: { $dateToString: { format: '%Y-%m-%d', date: '$date' } },
-        caffeine: { $sum: { $multiply: ['$count_of_cups', '$energy'] } },
-      },
-    },
-  ]);
   const caffeineByDay = Object.fromEntries(caffeineAgg.map((r) => [r._id, r.caffeine]));
   const insights = buildInsights(byDay, caffeineByDay, todayStr);
 
@@ -310,7 +332,7 @@ exports.getUserSummary = asyncHandler(async (req, res) => {
     return res.status(200).json({
       success: true,
       data: {
-        username: req.params.username,
+        username,
         total_cups: 0,
         total_entries: 0,
         unique_coffees: [],
@@ -324,7 +346,7 @@ exports.getUserSummary = asyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
     data: {
-      username: req.params.username,
+      username,
       total_cups: summary[0].total_cups,
       total_entries: summary[0].total_entries,
       unique_coffees: summary[0].unique_coffees,
@@ -343,25 +365,49 @@ exports.getUserSummary = asyncHandler(async (req, res) => {
 
 // @desc    Update day entry
 // @route   PUT /api/days/:id
-// @access  Public
+// @access  Private (entry author or admin)
 exports.updateDay = asyncHandler(async (req, res) => {
-  const day = await Day.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-    runValidators: true,
-  });
+  const day = await Day.findById(req.params.id);
   if (!day) {
     return res.status(404).json({ success: false, message: 'Day entry not found' });
   }
+
+  const isOwner = day.username === req.user.username;
+  const isAdmin = req.user.role === 'admin';
+
+  if (!isOwner && !isAdmin) {
+    return res
+      .status(403)
+      .json({ success: false, message: 'Not allowed to modify this entry' });
+  }
+
+  // Owners cannot reassign an entry to a different username
+  if (req.body.username && req.body.username !== day.username && !isAdmin) {
+    return res
+      .status(403)
+      .json({ success: false, message: 'Not allowed to reassign this entry' });
+  }
+
+  Object.assign(day, req.body);
+  await day.save();
   res.status(200).json({ success: true, data: day });
 });
 
 // @desc    Delete day entry
 // @route   DELETE /api/days/:id
-// @access  Public
+// @access  Private (entry author or admin)
 exports.deleteDay = asyncHandler(async (req, res) => {
-  const day = await Day.findByIdAndDelete(req.params.id);
+  const day = await Day.findById(req.params.id);
   if (!day) {
     return res.status(404).json({ success: false, message: 'Day entry not found' });
   }
+
+  if (day.username !== req.user.username && req.user.role !== 'admin') {
+    return res
+      .status(403)
+      .json({ success: false, message: 'Not allowed to delete this entry' });
+  }
+
+  await day.deleteOne();
   res.status(200).json({ success: true, message: 'Day entry deleted successfully' });
 });

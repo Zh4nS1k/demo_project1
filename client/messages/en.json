@@ -197,6 +197,8 @@
     "title": "Join Coffee Drinker",
     "subtitle": "Create your account — set up your profile later",
     "usernamePh": "coffee_lover",
+    "emailPh": "you@example.com",
+    "passwordPh": "••••••••",
     "confirmPassword": "Confirm Password",
     "namePh": "Your name",
     "submit": "Register",
@@ -271,6 +273,7 @@
     "nameUserPh": "coffee_lover",
     "emailPh": "you@example.com",
     "fullPh": "Jane Doe",
+    "agePh": "e.g. 30",
     "favPh": "Latte",
     "selfDeleteDisabled": "You cannot delete yourself",
     "saveChanges": "Save Changes"

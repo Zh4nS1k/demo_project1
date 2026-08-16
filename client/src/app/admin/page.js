@@ -306,19 +306,21 @@ function CountBadge({ n }) {
   );
 }
 
-function RoleBadge({ role }) {
+function RoleBadge({ role, labels }) {
   return role === 'admin' ? (
     <span className="inline-flex px-2 py-0.5 rounded-full text-xs font-semibold bg-coffee-700 text-white">
-      admin
+      {labels.admin}
     </span>
   ) : (
     <span className="inline-flex px-2 py-0.5 rounded-full text-xs font-semibold bg-surface-3 text-ink-2">
-      user
+      {labels.user}
     </span>
   );
 }
 
 function RowActions({ onEdit, onDelete, deleteDisabled = false }) {
+  const t = useTranslations('admin');
+  const tc = useTranslations('common');
   return (
     <div className="inline-flex gap-2">
       <button
@@ -471,7 +473,7 @@ function CoffeeModal({ initial, onClose, onSaved }) {
             onClick={onClose}
             className="flex-1 py-2.5 rounded-lg bg-surface-2 text-ink-2 font-medium hover:bg-surface-3 transition-colors"
           >
-            Cancel
+            {tc('cancel')}
           </button>
         </div>
       </form>
@@ -636,7 +638,7 @@ function UserModal({ initial, onClose, onSaved }) {
             onClick={onClose}
             className="flex-1 py-2.5 rounded-lg bg-surface-2 text-ink-2 font-medium hover:bg-surface-3 transition-colors"
           >
-            Cancel
+            {tc('cancel')}
           </button>
         </div>
       </form>

@@ -108,7 +108,7 @@ function ProfileContent() {
       {/* Profile Info */}
       <div className="bg-surface rounded-xl border border-line p-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-ink">Profile Details</h2>
+          <h2 className="text-lg font-bold text-ink">{t('details')}</h2>
           {!editing && (
             <button
               onClick={() => setEditing(true)}
@@ -209,7 +209,7 @@ function ProfileContent() {
           <InfoRow label={t('userId')} value={user.id} />
           <InfoRow
             label={t('memberSince')}
-            value={user.createdAt ? format.dateTime(new Date(user.createdAt), { dateStyle: 'medium' }) : t('unknown')}
+            value={user.member_since || user.createdAt ? format.dateTime(new Date(user.member_since || user.createdAt), { dateStyle: 'medium' }) : t('unknown')}
           />
         </div>
       </div>

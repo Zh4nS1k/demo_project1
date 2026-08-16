@@ -101,6 +101,23 @@ describe('Coffee reads — public listing & filters', () => {
     const res = await request(app).get('/api/coffees?taste=metallic');
     expect(res.statusCode).toBe(400);
   });
+
+  test('name lookup treats regex metacharacters literally', async () => {
+    // beforeEach in this block already registered the default admin — use unique creds
+    const { token } = await makeAdmin({ username: 'boss2', email: 'boss2@test.dev' });
+    await request(app)
+      .post('/api/coffees')
+      .set(auth(token))
+      .send({ name: 'Latte', taste: 'sweet', energy_boost: 6, milk: 1 });
+
+    // '.*' must not match everything — no coffee is literally named '.*'
+    const wildcard = await request(app).get('/api/coffees/name/.*');
+    expect(wildcard.statusCode).toBe(404);
+
+    const exact = await request(app).get('/api/coffees/name/latte');
+    expect(exact.statusCode).toBe(200);
+    expect(exact.body.data.name).toBe('Latte');
+  });
 });
 
 describe('Coffee update & delete', () => {
