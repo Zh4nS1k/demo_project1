@@ -1,7 +1,8 @@
 'use client';
 
 /**
- * Reusable form input with label and error display.
+ * Reusable form input: label above in text-secondary, hairline border,
+ * accent focus, inline validation in the error color.
  */
 export default function Input({
   label,
@@ -12,12 +13,13 @@ export default function Input({
   error,
   placeholder,
   required = false,
+  className = '',
   ...rest
 }) {
   return (
-    <div className="mb-4">
-      <label htmlFor={name} className="block text-sm font-medium text-ink mb-1">
-        {label} {required && <span className="text-rust-700">*</span>}
+    <div className={className || 'mb-4'}>
+      <label htmlFor={name} className="block text-xs font-medium uppercase tracking-wide text-ink-2 mb-1.5">
+        {label} {required && <span className="text-error" aria-hidden>*</span>}
       </label>
       <input
         id={name}
@@ -27,16 +29,21 @@ export default function Input({
         onChange={onChange}
         placeholder={placeholder}
         required={required}
-        className={`w-full px-4 py-2.5 rounded-lg border bg-surface text-ink placeholder-ink-3
-          focus:outline-none focus:ring-2 transition-all
-          ${
-            error
-              ? 'border-rust-300 focus:ring-rust-300'
-              : 'border-line focus:ring-coffee-500'
-          }`}
+        aria-invalid={error ? 'true' : undefined}
+        aria-describedby={error ? `${name}-error` : undefined}
+        className={`w-full h-10 px-3.5 rounded-md border bg-surface text-sm text-ink placeholder-ink-3
+          transition-colors duration-150
+          ${error
+            ? 'border-error focus:border-error'
+            : 'border-line hover:border-ink-3/50 focus:border-accent'
+          } focus:outline-none`}
         {...rest}
       />
-      {error && <p className="mt-1 text-xs text-rust-700">{error}</p>}
+      {error && (
+        <p id={`${name}-error`} className="mt-1.5 text-xs text-error">
+          {error}
+        </p>
+      )}
     </div>
   );
 }

@@ -85,7 +85,9 @@
     "browseCoffees": "Browse coffees",
     "welcomeBack": "Welcome back, {name}!",
     "loggedLine": "You've logged {cups} cups across {varieties} varieties",
-    "startLine": "Start logging your coffee journey today!"
+    "startLine": "Start logging your coffee journey today!",
+    "firstCoffee": "Log your first coffee",
+    "quickLog": "Log a coffee"
   },
   "home": {
     "loadingStats": "Loading your coffee stats…",
@@ -132,7 +134,8 @@
     "cupsLoggedTotal": "Cups logged",
     "coffeeVarieties": "Coffee varieties",
     "tastingEntries": "Tasting entries",
-    "topDrinkerWeek": "Top drinker this week"
+    "topDrinkerWeek": "Top drinker this week",
+    "noEntriesTitle": "Nothing here yet"
   },
   "coffeeCard": {
     "community": "Community",
@@ -144,7 +147,8 @@
     "loggedMsg": "Logged {cups}! ☕",
     "queuedMsg": "Saved locally — will sync when you're back online ☕",
     "guestHint": "You'll be asked to <link>create a free account</link> to save it",
-    "cups": "Cups"
+    "cups": "Cups",
+    "milkLabel": "milk"
   },
   "coffeesPage": {
     "title": "Coffee Catalogue",

@@ -6,6 +6,8 @@ import { useAuth } from '@/context/AuthContext';
 import { api } from '@/lib/api';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import Input from '@/components/Input';
+import Button from '@/components/Button';
+import Select from '@/components/Select';
 
 function ProfileContent() {
   const { user, updateUserInContext } = useAuth();
@@ -82,9 +84,11 @@ function ProfileContent() {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       {/* Header */}
-      <div className="bg-gradient-to-r from-surface-3 to-coffee-100 rounded-2xl p-6 border border-line text-center">
-        <div className="text-5xl mb-2">☕</div>
-        <h1 className="text-2xl font-bold text-ink">{user.name || user.username}</h1>
+      <div className="bg-surface rounded-lg p-6 sm:p-8 border border-line text-center">
+        <div className="w-14 h-14 rounded-full bg-accent-soft text-accent text-xl font-semibold flex items-center justify-center mx-auto mb-3" aria-hidden>
+          {(user.name || user.username || '?')[0].toUpperCase()}
+        </div>
+        <h1 className="font-display text-3xl text-ink">{user.name || user.username}</h1>
         <p className="text-ink-2">@{user.username}</p>
         {fieldEmpty(user.name) || fieldEmpty(user.age) || !user.favourite_coffee ? (
           <p className="mt-2 text-sm text-ink-2 italic">
@@ -95,7 +99,7 @@ function ProfileContent() {
 
       {/* Messages */}
       {error && (
-        <div className="bg-rust-100 border border-rust-300 text-rust-700 px-4 py-3 rounded-lg">
+        <div className="bg-error-soft border border-error/25 text-error px-4 py-3 rounded-lg">
           {error}
         </div>
       )}
@@ -108,7 +112,7 @@ function ProfileContent() {
       {/* Profile Info */}
       <div className="bg-surface rounded-xl border border-line p-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-ink">{t('details')}</h2>
+          <h2 className="text-base font-semibold text-ink">{t('details')}</h2>
           {!editing && (
             <button
               onClick={() => setEditing(true)}
@@ -160,7 +164,7 @@ function ProfileContent() {
                 name="gender"
                 value={form.gender}
                 onChange={handleChange}
-                className="w-full px-4 py-2.5 rounded-lg border border-line bg-surface text-ink focus:outline-none focus:ring-2 focus:ring-coffee-500"
+                className="w-full px-4 py-2.5 rounded-lg border border-line bg-surface text-ink focus:outline-none focus:border-accent"
               >
                 <option value="male">{tc('genderMale')}</option>
                 <option value="female">{tc('genderFemale')}</option>
@@ -177,7 +181,7 @@ function ProfileContent() {
             <div className="flex gap-3 mt-4">
               <button
                 type="submit"
-                className="flex-1 py-2.5 rounded-lg bg-ink text-surface font-medium hover:bg-coffee-800 transition-colors"
+                className="flex-1 py-2.5 rounded-lg bg-accent text-white font-medium hover:bg-accent-hover transition-colors"
               >
                 {t('saveChanges')}
               </button>
@@ -204,7 +208,7 @@ function ProfileContent() {
 
       {/* Account Info */}
       <div className="bg-surface rounded-xl border border-line p-6">
-        <h2 className="text-lg font-bold text-ink mb-4">{t('account')}</h2>
+        <h2 className="text-base font-semibold text-ink mb-4">{t('account')}</h2>
         <div className="space-y-3">
           <InfoRow label={t('userId')} value={user.id} />
           <InfoRow

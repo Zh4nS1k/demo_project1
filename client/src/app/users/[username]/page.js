@@ -7,6 +7,7 @@ import { useTranslations, useFormatter } from 'next-intl';
 import { api } from '@/lib/api';
 import StarRating from '@/components/StarRating';
 import { StatCard, InsightCard, Sparkline, deriveInsights } from '@/components/Stats';
+import Card from '@/components/Card';
 
 /**
  * Read-only public profile: aggregate coffee stats only.
@@ -66,7 +67,7 @@ export default function PublicProfilePage() {
         </p>
         <Link
           href="/leaderboard"
-          className="inline-block mt-5 px-5 py-2 rounded-lg bg-ink text-surface text-sm font-medium hover:bg-coffee-800 transition-colors"
+          className="inline-block mt-5 px-5 py-2 rounded-lg bg-accent text-white text-sm font-medium hover:bg-accent-hover transition-colors"
         >
           {t('back')}
         </Link>
@@ -76,7 +77,7 @@ export default function PublicProfilePage() {
 
   if (error) {
     return (
-      <div className="bg-rust-100 border border-rust-300 text-rust-700 px-4 py-3 rounded-lg">
+      <div className="bg-error-soft border border-error/25 text-error px-4 py-3 rounded-lg">
         {error}
       </div>
     );
@@ -88,9 +89,11 @@ export default function PublicProfilePage() {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       {/* Header */}
-      <div className="bg-gradient-to-r from-surface-3 to-coffee-100 rounded-2xl p-6 border border-line text-center">
-        <div className="text-5xl mb-2">☕</div>
-        <h1 className="text-2xl font-bold text-ink">{profile.name}</h1>
+      <div className="bg-surface rounded-lg p-6 sm:p-8 border border-line text-center">
+        <div className="w-14 h-14 rounded-full bg-accent-soft text-accent text-xl font-semibold flex items-center justify-center mx-auto mb-3" aria-hidden>
+          {(profile.name || profile.username || '?')[0].toUpperCase()}
+        </div>
+        <h1 className="font-display text-3xl text-ink">{profile.name}</h1>
         <p className="text-ink-2">@{profile.username}</p>
         {profile.member_since && (
           <p className="text-xs text-ink-3 mt-2">
@@ -99,16 +102,16 @@ export default function PublicProfilePage() {
             })}
           </p>
         )}
-        <span className="inline-block mt-3 px-2.5 py-1 rounded-full text-xs font-semibold bg-surface/70 text-ink-2 border border-line">
-          👁 {t('badge')}
+        <span className="inline-block mt-3 px-2.5 py-1 rounded-full text-xs font-medium bg-surface-2 text-ink-2">
+          {t('badge')}
         </span>
       </div>
 
       {/* Aggregate stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <StatCard icon="☕" value={summary?.total_cups || 0} label={th('totalCups')} />
-        <StatCard icon="🎯" value={summary?.unique_coffees?.length || 0} label={th('uniqueCoffees')} />
-        <StatCard icon="📋" value={summary?.total_entries || 0} label={th('logEntries')} />
+        <StatCard value={summary?.total_cups || 0} label={th('totalCups')} />
+        <StatCard value={summary?.unique_coffees?.length || 0} label={th('uniqueCoffees')} />
+        <StatCard value={summary?.total_entries || 0} label={th('logEntries')} />
         <StatCard
           icon="⭐"
           value={summary?.avg_rating ? th('ratingValue', { value: summary.avg_rating }) : '—'}
@@ -119,13 +122,11 @@ export default function PublicProfilePage() {
       {/* Insights */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <InsightCard
-          icon="🔥"
           title={th('currentStreak')}
           value={tc('days', { count: insights.streaks.current })}
           sub={th('best', { days: tc('days', { count: insights.streaks.longest }) })}
         />
         <InsightCard
-          icon="📅"
           title={th('mostActiveDay')}
           value={
             insights.mostActiveWeekday
@@ -136,10 +137,10 @@ export default function PublicProfilePage() {
           }
           sub={insights.mostActiveWeekday ? th('cupsLogged', { cups: insights.mostActiveWeekday.cups }) : th('noDataYet')}
         />
-        <InsightCard icon="⚡" title={th('caffeine7')} value={insights.trend7.total} sub={th('caffeineUnits')}>
+        <InsightCard title={th('caffeine7')} value={insights.trend7.total} sub={th('caffeineUnits')}>
           <Sparkline data={insights.trend7.daily} />
         </InsightCard>
-        <InsightCard icon="⚡" title={th('caffeine30')} value={insights.trend30.total} sub={th('caffeineUnits')}>
+        <InsightCard title={th('caffeine30')} value={insights.trend30.total} sub={th('caffeineUnits')}>
           <Sparkline data={insights.trend30.daily} thin />
         </InsightCard>
       </div>
@@ -147,7 +148,7 @@ export default function PublicProfilePage() {
       {/* Top coffees */}
       {topCoffees.length > 0 && (
         <div className="bg-surface rounded-xl p-6 border border-line">
-          <h2 className="text-lg font-bold text-ink mb-4">🏆 {t('favourites')}</h2>
+          <h2 className="text-base font-semibold text-ink mb-4">{t('favourites')}</h2>
           <div className="space-y-2">
             {topCoffees.map((c, i) => (
               <div
@@ -155,13 +156,13 @@ export default function PublicProfilePage() {
                 className="flex items-center justify-between px-4 py-2.5 bg-surface-2 rounded-lg"
               >
                 <div className="flex items-center gap-3">
-                  <span className="text-lg">
-                    {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}`}
+                  <span className={`text-sm font-mono tabular-nums ${i < 3 ? 'text-accent font-semibold' : 'text-ink-3'}`}>
+                    {String(i + 1).padStart(2, '0')}
                   </span>
                   <div>
                     <div className="font-medium text-ink">{c.coffee_name}</div>
-                    <div className="text-xs text-ink-2">
-                      {tc('cups', { count: c.total_cups })} · {tc('entries', { count: c.entries })}
+                    <div className="text-xs text-ink-3 font-mono tabular-nums">
+                      {c.total_cups} · {c.entries}
                     </div>
                   </div>
                 </div>
@@ -173,7 +174,7 @@ export default function PublicProfilePage() {
       )}
 
       <div className="text-center">
-        <Link href="/leaderboard" className="text-sm text-ink-2 underline hover:text-coffee-700">
+        <Link href="/leaderboard" className="text-sm text-ink-2 hover:text-accent underline decoration-line underline-offset-2">
           {t('back')}
         </Link>
       </div>

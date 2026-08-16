@@ -9,10 +9,11 @@ import { useUI } from '@/context/UIContext';
 import { LanguageToggle } from '@/context/I18nContext';
 import SyncStatus from '@/components/layout/SyncStatus';
 import ThemeToggle from '@/components/layout/ThemeToggle';
+import Button from '@/components/Button';
 
 /**
- * Persistent site header: logo, primary nav, auth state.
- * Minimalist: single hairline, no shadows, whitespace over boxes.
+ * Persistent site header: wordmark, primary nav, auth state.
+ * Sticky, hairline bottom border, no shadow — calm and confident.
  */
 export default function Header() {
   const t = useTranslations('nav');
@@ -39,8 +40,10 @@ export default function Header() {
       <Link
         key={href}
         href={href}
-        className={`px-3 py-1.5 rounded-md text-sm transition-colors ${
-          active ? 'text-ink font-medium' : 'text-ink-2 hover:text-ink'
+        className={`px-3 py-1.5 rounded-md text-sm transition-colors duration-150 ${
+          active
+            ? 'text-accent font-medium bg-accent-soft'
+            : 'text-ink-2 hover:text-ink hover:bg-surface-2'
         }`}
       >
         {label}
@@ -49,11 +52,11 @@ export default function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-surface/95 backdrop-blur border-b border-line">
+    <header className="sticky top-0 z-50 bg-surface/90 backdrop-blur border-b border-line">
       <div className="max-w-6xl mx-auto px-4 h-14 flex items-center gap-2">
         <button
           onClick={toggleMobilePanel}
-          className="lg:hidden p-2 -ml-2 rounded-md text-ink-2 hover:text-ink hover:bg-surface-2"
+          className="lg:hidden p-2 -ml-2 rounded-md text-ink-2 hover:text-ink hover:bg-surface-2 transition-colors"
           aria-label={t('openMenu')}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -61,9 +64,11 @@ export default function Header() {
           </svg>
         </button>
 
-        <Link href="/" className="flex items-center gap-2 font-semibold text-ink tracking-tight">
-          <span className="text-lg">☕</span>
-          <span className="hidden sm:inline">Coffee Drinker</span>
+        <Link href="/" className="flex items-center gap-2 text-ink group">
+          <span className="text-lg transition-transform duration-200 group-hover:-rotate-12">☕</span>
+          <span className="hidden sm:inline font-display font-semibold text-[17px] tracking-tight">
+            Coffee Drinker
+          </span>
         </Link>
 
         <nav className="hidden md:flex items-center gap-1 ml-6">
@@ -86,30 +91,31 @@ export default function Header() {
               onClick={() => setMenuOpen((v) => !v)}
               className="flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-surface-2 transition-colors"
               aria-label={t('accountMenu')}
+              aria-expanded={menuOpen}
             >
-              <span className="w-7 h-7 rounded-full bg-ink text-surface text-xs font-semibold flex items-center justify-center">
+              <span className="w-7 h-7 rounded-full bg-accent-soft text-accent text-xs font-semibold flex items-center justify-center">
                 {(user.name || user.username || '?')[0].toUpperCase()}
               </span>
               <span className="hidden sm:inline text-sm text-ink-2">{user.username}</span>
             </button>
 
             {menuOpen && (
-              <div className="absolute right-0 mt-2 w-48 bg-surface border border-line rounded-lg py-1 shadow-xl">
+              <div className="absolute right-0 mt-2 w-48 bg-surface border border-line rounded-md py-1 shadow-lift">
                 <div className="px-3 py-2 border-b border-line">
                   <div className="text-sm font-medium text-ink truncate">{user.name}</div>
                   <div className="text-xs text-ink-3">@{user.username}</div>
                 </div>
-                <Link href="/profile" className="block px-3 py-2 text-sm text-ink-2 hover:bg-surface-2 hover:text-ink">
+                <Link href="/profile" className="block px-3 py-2 text-sm text-ink-2 hover:bg-surface-2 hover:text-ink transition-colors">
                   {t('profile')}
                 </Link>
                 {user.role === 'admin' && (
-                  <Link href="/admin" className="block px-3 py-2 text-sm text-ink-2 hover:bg-surface-2 hover:text-ink">
+                  <Link href="/admin" className="block px-3 py-2 text-sm text-ink-2 hover:bg-surface-2 hover:text-ink transition-colors">
                     {t('adminPanel')}
                   </Link>
                 )}
                 <button
                   onClick={logout}
-                  className="w-full text-left px-3 py-2 text-sm text-ink-2 hover:bg-surface-2 hover:text-ink"
+                  className="w-full text-left px-3 py-2 text-sm text-ink-2 hover:bg-surface-2 hover:text-ink transition-colors"
                 >
                   {t('logout')}
                 </button>
@@ -117,16 +123,13 @@ export default function Header() {
             )}
           </div>
         ) : (
-          <div className="flex items-center gap-1">
-            <Link href="/login" className="px-3 py-1.5 rounded-md text-sm text-ink-2 hover:text-ink hover:bg-surface-2 transition-colors">
+          <div className="flex items-center gap-1.5">
+            <Button href="/login" variant="ghost" size="sm">
               {t('login')}
-            </Link>
-            <Link
-              href="/register"
-              className="px-3.5 py-1.5 rounded-md text-sm font-medium bg-ink text-surface hover:bg-coffee-800 transition-colors"
-            >
+            </Button>
+            <Button href="/register" variant="primary" size="sm">
               {t('signup')}
-            </Link>
+            </Button>
           </div>
         )}
       </div>

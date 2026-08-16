@@ -1,8 +1,11 @@
 'use client';
 
-import { usePathname, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/context/AuthContext';
+import Modal from '@/components/Modal';
+import Button from '@/components/Button';
 
 /**
  * Global "sign up to continue" prompt.
@@ -18,41 +21,32 @@ export default function AuthPromptModal() {
   if (!authPrompt || pathname === '/login' || pathname === '/register') return null;
 
   return (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/60" onClick={dismissAuthPrompt} />
-      <div className="relative w-full max-w-sm bg-surface rounded-2xl border border-line shadow-xl p-6 text-center">
-        <div className="text-4xl mb-2">☕</div>
-        <h2 className="text-lg font-bold text-ink">
-          {t('title')}
-        </h2>
+    <Modal onClose={dismissAuthPrompt}>
+      <div className="text-center">
+        <div className="text-4xl mb-3" aria-hidden>☕</div>
+        <h2 className="font-display text-xl text-ink">{t('title')}</h2>
         {authPrompt.message && (
-          <p className="text-sm text-ink-2 mt-1.5">
+          <p className="text-sm text-ink-2 mt-2">
             {t('lead')}{' '}
-            <span className="font-medium text-coffee-700">{authPrompt.message}</span>
+            <span className="font-medium text-accent">{authPrompt.message}</span>
           </p>
         )}
 
-        <div className="flex flex-col gap-2 mt-5">
-          <button
-            onClick={() => router.push('/register')}
-            className="w-full py-2.5 rounded-lg bg-ink text-surface font-medium hover:bg-coffee-800 transition-colors"
-          >
+        <div className="flex flex-col gap-2.5 mt-6">
+          <Button onClick={() => router.push('/register')} className="w-full">
             {t('createAccount')}
-          </button>
-          <button
-            onClick={() => router.push('/login')}
-            className="w-full py-2.5 rounded-lg border border-line text-ink-2 font-medium hover:bg-surface-2 transition-colors"
-          >
+          </Button>
+          <Button onClick={() => router.push('/login')} variant="secondary" className="w-full">
             {t('login')}
-          </button>
+          </Button>
           <button
             onClick={dismissAuthPrompt}
-            className="w-full py-2 rounded-lg text-sm text-ink-3 hover:text-ink-2 transition-colors"
+            className="w-full py-1 rounded-md text-sm text-ink-3 hover:text-ink-2 transition-colors"
           >
             {t('later')}
           </button>
         </div>
       </div>
-    </div>
+    </Modal>
   );
 }

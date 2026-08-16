@@ -5,6 +5,8 @@ import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { api } from '@/lib/api';
 import StarRating from '@/components/StarRating';
+import Card from '@/components/Card';
+import Button from '@/components/Button';
 
 /**
  * Coffee display card with community stats + inline quick-log.
@@ -68,36 +70,34 @@ export default function CoffeeCard({ coffee, user, requireAuth, onLogged }) {
   };
 
   return (
-    <div className="bg-surface rounded-xl border border-line p-5 flex flex-col gap-4 hover:border-ink-3 transition-colors">
-      {/* Top: name + badges */}
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <h2 className="font-bold text-ink text-lg leading-tight">{coffee.name}</h2>
-          <div className="flex flex-wrap items-center gap-2 mt-2">
-            <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-surface-3 text-ink-2">
-              {tt.has(coffee.taste) ? tt(coffee.taste) : coffee.taste}
+    <Card hover padding="md" className="flex flex-col gap-4">
+      {/* Top: name + attributes */}
+      <div>
+        <h2 className="font-medium text-ink text-lg leading-tight">{coffee.name}</h2>
+        <div className="flex flex-wrap items-center gap-2 mt-2.5">
+          <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-accent-soft text-accent">
+            {tt.has(coffee.taste) ? tt(coffee.taste) : coffee.taste}
+          </span>
+          <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-surface-2 text-ink-2 font-mono">
+            ⚡{coffee.energy_boost}/10
+          </span>
+          {coffee.milk === 1 && (
+            <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-surface-2 text-ink-2">
+              🥛 {t('milkLabel')}
             </span>
-            <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-surface-2 text-ink-2">
-              ⚡ {coffee.energy_boost}/10
-            </span>
-            {coffee.milk === 1 && (
-              <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-coffee-100 text-coffee-700">
-                milk 🥛
-              </span>
-            )}
-          </div>
+          )}
         </div>
       </div>
 
       {/* Stats: community average */}
-      <div className="flex items-center justify-between border-t border-line pt-3">
+      <div className="flex items-center justify-between border-t border-line pt-3.5">
         <div>
-          <div className="text-xs text-ink-3 uppercase tracking-wide">{t('community')}</div>
-          <div className="flex items-center gap-2 mt-0.5">
+          <div className="text-[11px] text-ink-3 uppercase tracking-widest">{t('community')}</div>
+          <div className="flex items-center gap-2 mt-1">
             {coffee.avg_rating != null ? (
               <>
                 <StarRating value={Math.round(coffee.avg_rating)} readOnly size="sm" />
-                <span className="text-sm font-bold text-ink">{coffee.avg_rating.toFixed(1)}</span>
+                <span className="text-sm font-medium text-ink font-mono">{coffee.avg_rating.toFixed(1)}</span>
               </>
             ) : (
               <span className="text-sm text-ink-3">{t('noRatings')}</span>
@@ -105,29 +105,29 @@ export default function CoffeeCard({ coffee, user, requireAuth, onLogged }) {
           </div>
         </div>
         <div className="text-right">
-          <div className="text-xs text-ink-3 uppercase tracking-wide">{t('logged')}</div>
-          <div className="text-sm text-ink-2 mt-0.5">
-            {coffee.total_cups} {coffee.total_cups === 1 ? 'cup' : 'cups'}
-            <span className="text-ink-3"> · {coffee.total_entries} {coffee.total_entries === 1 ? 'entry' : 'entries'}</span>
+          <div className="text-[11px] text-ink-3 uppercase tracking-widest">{t('logged')}</div>
+          <div className="text-sm text-ink-2 mt-1 font-mono tabular-nums">
+            {coffee.total_cups}
+            <span className="text-ink-3"> · {coffee.total_entries}</span>
           </div>
         </div>
       </div>
 
       {/* Feedback */}
       {loggedMsg && (
-        <div className="bg-surface-2 border border-line text-ink px-3 py-2 rounded-lg text-sm">
+        <div className="bg-success-soft border border-success/25 text-success px-3 py-2 rounded-md text-sm">
           {loggedMsg}
         </div>
       )}
       {cardError && (
-        <div className="bg-rust-100 border border-rust-300 text-rust-700 px-3 py-2 rounded-lg text-sm">
+        <div className="bg-error-soft border border-error/25 text-error px-3 py-2 rounded-md text-sm">
           {cardError}
         </div>
       )}
 
       {/* Quick log */}
       {open ? (
-        <form onSubmit={handleLog} className="space-y-3 border-t border-line pt-3">
+        <form onSubmit={handleLog} className="space-y-3 border-t border-line pt-3.5">
           <div className="flex items-center gap-3 flex-wrap">
             <label className="flex items-center gap-2 text-sm text-ink">
               {t('cups')}
@@ -137,43 +137,33 @@ export default function CoffeeCard({ coffee, user, requireAuth, onLogged }) {
                 max="50"
                 value={cups}
                 onChange={(e) => setCups(e.target.value)}
-                className="w-16 px-2 py-1.5 rounded-lg border border-line text-center focus:outline-none focus:ring-2 focus:ring-coffee-500"
+                className="w-16 h-9 px-2 rounded-md border border-line text-center font-mono
+                  focus:border-accent focus:outline-none transition-colors duration-150"
               />
             </label>
             <StarRating value={rating} onChange={setRating} size="sm" />
           </div>
           <div className="flex gap-2">
-            <button
-              type="submit"
-              disabled={submitting}
-              className="flex-1 py-2 rounded-lg bg-ink text-surface text-sm font-medium hover:bg-coffee-800 transition-colors disabled:opacity-50"
-            >
-              {submitting ? t('logging') : t('logIt')}
-            </button>
-            <button
-              type="button"
-              onClick={() => setOpen(false)}
-              className="px-4 py-2 rounded-lg bg-surface-2 text-ink-2 text-sm font-medium hover:bg-surface-3 transition-colors"
-            >
+            <Button type="submit" loading={submitting} className="flex-1">
+              {t('logIt')}
+            </Button>
+            <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
               {tc('cancel')}
-            </button>
+            </Button>
           </div>
         </form>
       ) : (
-        <button
-          onClick={() => setOpen(true)}
-          className="w-full py-2 rounded-lg border border-line text-sm font-medium text-ink-2 hover:bg-surface-3 transition-colors"
-        >
+        <Button variant="secondary" size="sm" className="w-full" onClick={() => setOpen(true)}>
           {t('logThis')}
-        </button>
+        </Button>
       )}
       {!user && !open && (
         <p className="text-xs text-ink-3 text-center">
           {t.rich('guestHint', {
-            link: (chunks) => <Link href="/register" className="underline hover:text-coffee-700">{chunks}</Link>,
+            link: (chunks) => <Link href="/register" className="underline hover:text-accent">{chunks}</Link>,
           })}
         </p>
       )}
-    </div>
+    </Card>
   );
 }

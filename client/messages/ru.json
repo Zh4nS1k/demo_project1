@@ -85,7 +85,9 @@
     "browseCoffees": "Смотреть кофе",
     "welcomeBack": "С возвращением, {name}!",
     "loggedLine": "Вы записали {cups, plural, one {# чашку} few {# чашки} many {# чашек} other {# чашки}} — {varieties, plural, one {# сорт} few {# сорта} many {# сортов} other {# сорта}}",
-    "startLine": "Начните своё кофейное путешествие сегодня!"
+    "startLine": "Начните своё кофейное путешествие сегодня!",
+    "firstCoffee": "Запишите первую чашку",
+    "quickLog": "Записать кофе"
   },
   "home": {
     "loadingStats": "Загружаем вашу кофейную статистику…",
@@ -132,7 +134,8 @@
     "cupsLoggedTotal": "Чашек записано",
     "coffeeVarieties": "Сортов кофе",
     "tastingEntries": "Дегустаций",
-    "topDrinkerWeek": "Лидер недели"
+    "topDrinkerWeek": "Лидер недели",
+    "noEntriesTitle": "Пока ничего нет"
   },
   "coffeeCard": {
     "community": "Сообщество",
@@ -144,7 +147,8 @@
     "loggedMsg": "Записано: {cups}! ☕",
     "queuedMsg": "Сохранено локально — синхронизируется позже ☕",
     "guestHint": "Для сохранения вам предложат <link>создать бесплатный аккаунт</link>",
-    "cups": "Чашек"
+    "cups": "Чашек",
+    "milkLabel": "молоко"
   },
   "coffeesPage": {
     "title": "Каталог кофе",

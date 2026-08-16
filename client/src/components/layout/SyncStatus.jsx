@@ -31,10 +31,10 @@ export default function SyncStatus() {
 
   const { online, pending, syncing } = state;
 
-  let dotClass = 'bg-coffee-600';
+  let dotClass = 'bg-success';
   let label = t('online');
   if (syncing) {
-    dotClass = 'bg-coffee-400 animate-pulse';
+    dotClass = 'bg-accent animate-pulse';
     label = t('syncing');
   } else if (!online || pending > 0) {
     dotClass = 'bg-transparent border-2 border-ink-3';

@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/context/AuthContext';
 import Input from '@/components/Input';
+import Button from '@/components/Button';
 
 export default function LoginPage() {
   const t = useTranslations('login');
@@ -36,20 +37,20 @@ export default function LoginPage() {
     <div className="flex items-center justify-center min-h-[75vh] px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="text-5xl mb-3">☕</div>
-          <h1 className="text-2xl font-bold text-ink">{t('title')}</h1>
-          <p className="text-ink-2 mt-1">{t('subtitle')}</p>
+          <div className="text-4xl mb-3" aria-hidden>☕</div>
+          <h1 className="font-display text-3xl text-ink">{t('title')}</h1>
+          <p className="text-ink-2 mt-2 text-sm">{t('subtitle')}</p>
         </div>
 
         {error && (
-          <div className="mb-4 bg-rust-100 border border-rust-300 text-rust-700 px-4 py-3 rounded-lg text-sm">
+          <div className="mb-4 bg-error-soft border border-error/25 text-error px-4 py-3 rounded-lg text-sm">
             {error}
           </div>
         )}
 
         <form
           onSubmit={handleSubmit}
-          className="bg-surface rounded-2xl border border-line p-6 space-y-1"
+          className="bg-surface rounded-lg border border-line p-6 space-y-1"
         >
           <Input
             label={tc('email')}
@@ -73,7 +74,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2.5 mt-4 rounded-lg bg-ink text-surface font-medium hover:bg-coffee-800 transition-colors disabled:opacity-50"
+            className="w-full py-2.5 mt-4 rounded-lg bg-accent text-white font-medium hover:bg-accent-hover transition-colors disabled:opacity-50"
           >
             {loading ? t('submitting') : t('submit')}
           </button>
@@ -81,7 +82,7 @@ export default function LoginPage() {
 
         <p className="text-center mt-4 text-sm text-ink-2">
           {t('noAccount')}{' '}
-          <Link href="/register" className="font-medium underline text-coffee-700 hover:text-coffee-900">
+          <Link href="/register" className="font-medium text-accent hover:text-accent-hover underline decoration-line underline-offset-2">
             {t('register')}
           </Link>
         </p>

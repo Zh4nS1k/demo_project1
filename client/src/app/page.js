@@ -11,6 +11,8 @@ import CoffeeCard from '@/components/CoffeeCard';
 import Hero from '@/components/layout/Hero';
 import { StatCard, InsightCard, Sparkline, deriveInsights } from '@/components/Stats';
 import { SYNC_DONE_EVENT, syncNow } from '@/lib/api';
+import Button from '@/components/Button';
+import { EmptyState } from '@/components/EmptyState';
 
 function HomeContent() {
   const { user } = useAuth();
@@ -159,12 +161,13 @@ function HomeContent() {
               })
             : th('startLine')
         }
-        primary={{ label: th('browseCoffees'), href: '/coffees' }}
+        primary={{ label: th('quickLog'), href: '#log' }}
+        secondary={{ label: th('browseCoffees'), href: '/coffees' }}
       />
 
       {/* Error */}
       {error && (
-        <div className="bg-rust-100 border border-rust-300 text-rust-700 px-4 py-3 rounded-lg">
+        <div className="bg-error-soft border border-error/25 text-error px-4 py-3 rounded-md text-sm">
           {error}
         </div>
       )}
@@ -181,16 +184,16 @@ function HomeContent() {
 
       {/* Success */}
       {successMsg && (
-        <div className="bg-surface-2 border border-line text-ink px-4 py-3 rounded-lg">
+        <div className="bg-success-soft border border-success/25 text-success px-4 py-3 rounded-md text-sm">
           {successMsg}
         </div>
       )}
 
       {/* ─── Stats Cards ─── */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <StatCard icon="☕" value={summary?.total_cups || 0} label={t('totalCups')} />
-        <StatCard icon="🎯" value={summary?.unique_coffees?.length || 0} label={t('uniqueCoffees')} />
-        <StatCard icon="📋" value={summary?.total_entries || 0} label={t('logEntries')} />
+        <StatCard value={summary?.total_cups || 0} label={t('totalCups')} />
+        <StatCard value={summary?.unique_coffees?.length || 0} label={t('uniqueCoffees')} />
+        <StatCard value={summary?.total_entries || 0} label={t('logEntries')} />
         <StatCard
           icon="⭐"
           value={summary?.avg_rating ? t('ratingValue', { value: summary.avg_rating }) : '—'}
@@ -200,13 +203,11 @@ function HomeContent() {
       {/* ─── Activity Insights ─── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <InsightCard
-          icon="🔥"
           title={t('currentStreak')}
           value={tc('days', { count: insights.streaks.current })}
           sub={t('best', { days: tc('days', { count: insights.streaks.longest }) })}
         />
         <InsightCard
-          icon="📅"
           title={t('mostActiveDay')}
           value={
             insights.mostActiveWeekday
@@ -222,7 +223,6 @@ function HomeContent() {
           }
         />
         <InsightCard
-          icon="⚡"
           title={t('caffeine7')}
           value={insights.trend7.total}
           sub={t('caffeineUnits')}
@@ -230,7 +230,6 @@ function HomeContent() {
           <Sparkline data={insights.trend7.daily} />
         </InsightCard>
         <InsightCard
-          icon="⚡"
           title={t('caffeine30')}
           value={insights.trend30.total}
           sub={t('caffeineUnits')}
@@ -241,14 +240,14 @@ function HomeContent() {
 
       {/* ─── Log Coffee Form ─── */}
       <div className="bg-surface rounded-xl p-6 border border-line">
-        <h2 className="text-lg font-bold text-ink mb-4">📝 {t('logCoffee')}</h2>
+        <h2 className="text-base font-semibold text-ink mb-4">📝 {t('logCoffee')}</h2>
         <form onSubmit={handleLogCoffee} className="space-y-4">
           <div className="flex flex-col sm:flex-row gap-3">
             <select
               value={selectedCoffee}
               onChange={(e) => setSelectedCoffee(e.target.value)}
               required
-              className="flex-1 px-4 py-2.5 rounded-lg border border-line bg-surface text-ink focus:outline-none focus:ring-2 focus:ring-coffee-500"
+              className="flex-1 px-4 py-2.5 rounded-lg border border-line bg-surface text-ink focus:outline-none focus:border-accent"
             >
               <option value="">{t('selectCoffee')}</option>
               {coffees.map((c) => (
@@ -263,7 +262,7 @@ function HomeContent() {
               max="50"
               value={cups}
               onChange={(e) => setCups(e.target.value)}
-              className="w-full sm:w-24 px-4 py-2.5 rounded-lg border border-line bg-surface text-ink focus:outline-none focus:ring-2 focus:ring-coffee-500 text-center"
+              className="w-full sm:w-24 px-4 py-2.5 rounded-lg border border-line bg-surface text-ink focus:outline-none focus:border-accent text-center"
               placeholder={t('cupsLabel')}
             />
           </div>
@@ -277,7 +276,7 @@ function HomeContent() {
           <button
             type="submit"
             disabled={submitting}
-            className="px-6 py-2.5 rounded-lg bg-ink text-surface font-medium hover:bg-coffee-800 transition-colors disabled:opacity-50"
+            className="px-6 py-2.5 rounded-lg bg-accent text-white font-medium hover:bg-accent-hover transition-colors disabled:opacity-50"
           >
             {submitting ? t('logging') : t('logIt')}
           </button>
@@ -296,7 +295,7 @@ function HomeContent() {
         {/* Favorites */}
         {summary?.by_coffee?.length > 0 && (
           <div className="bg-surface rounded-xl p-6 border border-line">
-            <h2 className="text-lg font-bold text-ink mb-4">🏆 {t('favorites')}</h2>
+            <h2 className="text-base font-semibold text-ink mb-4">{t('favorites')}</h2>
             <div className="space-y-2">
               {summary.by_coffee.slice(0, 5).map((c, i) => (
                 <div
@@ -305,7 +304,7 @@ function HomeContent() {
                 >
                   <div className="flex items-center gap-3">
                     <span className="text-lg">
-                      {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i + 1}`}
+                      {String(i + 1).padStart(2, '0')}
                     </span>
                     <div>
                       <div className="font-medium text-ink">{c.coffee_name}</div>
@@ -322,7 +321,7 @@ function HomeContent() {
         {/* Rating Breakdown */}
         {summary?.rating_breakdown?.length > 0 && (
           <div className="bg-surface rounded-xl p-6 border border-line">
-            <h2 className="text-lg font-bold text-ink mb-4">⭐ {t('ratingBreakdown')}</h2>
+            <h2 className="text-base font-semibold text-ink mb-4">{t('ratingBreakdown')}</h2>
             <div className="space-y-2">
               {[5, 4, 3, 2, 1, 0].map((star) => {
                 const entry = summary.rating_breakdown.find((r) => r.rating === star);
@@ -331,12 +330,12 @@ function HomeContent() {
                 const pct = total > 0 ? (count / total) * 100 : 0;
                 return (
                   <div key={star} className="flex items-center gap-3">
-                    <span className="text-sm w-16 text-coffee-700">
+                    <span className="text-xs w-20 text-accent font-mono tracking-tight">
                       {star > 0 ? `${'★'.repeat(star)}${'☆'.repeat(5 - star)}` : t('noRating')}
                     </span>
                     <div className="flex-1 bg-surface-2 rounded-full h-6 overflow-hidden">
                       <div
-                        className="h-full bg-coffee-600 rounded-full transition-all"
+                        className="h-full bg-accent rounded-full transition-all"
                         style={{ width: `${pct}%` }}
                       />
                     </div>
@@ -352,7 +351,7 @@ function HomeContent() {
       {/* ─── Recent Activity ─── */}
       <div className="bg-surface rounded-xl p-6 border border-line">
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-          <h2 className="text-lg font-bold text-ink">📅 {t('recentActivity')}</h2>
+          <h2 className="text-lg font-bold text-ink">{t('recentActivity')}</h2>
           <label className="flex items-center gap-2 text-sm text-ink-2">
             {t('sortBy')}
             <select
@@ -362,7 +361,7 @@ function HomeContent() {
                 setDaysSort(sort);
                 fetchDays(1, sort);
               }}
-              className="px-2 py-1.5 rounded-lg border border-line bg-surface text-ink text-sm focus:outline-none focus:ring-2 focus:ring-coffee-500"
+              className="px-2 py-1.5 rounded-lg border border-line bg-surface text-ink text-sm focus:outline-none focus:border-accent"
             >
               <option value="date">{t('sortDate')}</option>
               <option value="rating">{t('sortRating')}</option>
@@ -374,7 +373,7 @@ function HomeContent() {
         {recentDays.length === 0 && daysLoading ? (
           <div className="text-ink-2 text-sm animate-pulse py-4">{t('loadingEntries')}</div>
         ) : recentDays.length === 0 ? (
-          <p className="text-ink-2">{t('noEntries')}</p>
+          <EmptyState title={t('noEntriesTitle')} hint={t('noEntries')} />
         ) : (
           <>
             <div className={`space-y-2 transition-opacity ${daysLoading ? 'opacity-50' : ''}`}>
@@ -395,7 +394,7 @@ function HomeContent() {
                   </div>
                   <div className="flex items-center gap-3">
                     <StarRating value={d.rating || 0} readOnly size="sm" />
-                    <span className="text-sm font-medium text-coffee-700">
+                    <span className="text-sm font-medium text-accent">
                       {tc('cups', { count: d.count_of_cups })}
                     </span>
                   </div>
@@ -491,8 +490,8 @@ function GuestHome() {
       <Hero
         title={th('guestTitle')}
         subtitle={th('guestSubtitle')}
-        primary={{ label: th('createAccount'), href: '/register' }}
-        secondary={{ label: th('browseCoffees'), href: '/coffees' }}
+        primary={{ label: th('firstCoffee'), href: '/coffees' }}
+        secondary={{ label: th('createAccount'), href: '/register' }}
       />
 
       {/* Community stats */}
@@ -503,9 +502,9 @@ function GuestHome() {
       ) : (
         <>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <StatCard icon="☕" value={community.cups} label={t('cupsLoggedTotal')} />
-            <StatCard icon="🎯" value={community.varieties} label={t('coffeeVarieties')} />
-            <StatCard icon="📋" value={community.entries} label={t('tastingEntries')} />
+            <StatCard value={community.cups} label={t('cupsLoggedTotal')} />
+            <StatCard value={community.varieties} label={t('coffeeVarieties')} />
+            <StatCard value={community.entries} label={t('tastingEntries')} />
             <StatCard
               icon="🏆"
               value={leaders[0] ? leaders[0].name.split(' ')[0] : '—'}
@@ -517,8 +516,8 @@ function GuestHome() {
           {featured.length > 0 && (
             <div>
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-bold text-ink">⭐ {t('communityFavourites')}</h2>
-                <Link href="/coffees" className="text-sm text-coffee-700 underline hover:text-coffee-900">
+                <h2 className="text-lg font-bold text-ink">{t('communityFavourites')}</h2>
+                <Link href="/coffees" className="text-sm text-accent hover:text-accent-hover underline decoration-line underline-offset-2">
                   {t('browseAll')}
                 </Link>
               </div>
@@ -540,8 +539,8 @@ function GuestHome() {
           {leaders.length > 0 && (
             <div className="bg-surface rounded-xl p-6 border border-line">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-bold text-ink">🏆 {t('topDrinkers')}</h2>
-                <Link href="/leaderboard" className="text-sm text-coffee-700 underline hover:text-coffee-900">
+                <h2 className="text-lg font-bold text-ink">{t('topDrinkers')}</h2>
+                <Link href="/leaderboard" className="text-sm text-accent hover:text-accent-hover underline decoration-line underline-offset-2">
                   {t('fullLeaderboard')}
                 </Link>
               </div>
@@ -553,15 +552,15 @@ function GuestHome() {
                     className="flex items-center justify-between px-4 py-2.5 bg-surface-2 rounded-lg hover:bg-surface-3 transition-colors"
                   >
                     <div className="flex items-center gap-3">
-                      <span className="text-lg">
-                        {i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉'}
+                      <span className={`text-sm font-mono tabular-nums ${i < 3 ? 'text-accent font-semibold' : 'text-ink-3'}`}>
+                        {String(i + 1).padStart(2, '0')}
                       </span>
                       <div>
                         <div className="font-medium text-ink">{r.name}</div>
                         <div className="text-xs text-ink-2">@{r.username}</div>
                       </div>
                     </div>
-                    <div className="text-sm font-bold text-coffee-700">
+                    <div className="text-sm font-medium text-ink font-mono tabular-nums">
                       {tc('cups', { count: r.cups })}
                     </div>
                   </Link>

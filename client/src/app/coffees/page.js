@@ -6,6 +6,11 @@ import { useTranslations } from 'next-intl';
 import { useAuth } from '@/context/AuthContext';
 import { api } from '@/lib/api';
 import CoffeeCard from '@/components/CoffeeCard';
+import PageTitle from '@/components/PageTitle';
+import Select from '@/components/Select';
+import Button from '@/components/Button';
+import Card from '@/components/Card';
+import { EmptyState } from '@/components/EmptyState';
 
 const TASTES = [
   'sweet', 'bitter', 'sour', 'salty', 'umami',
@@ -52,74 +57,55 @@ export default function CoffeesPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="bg-surface rounded-2xl border border-line p-6">
-        <h1 className="text-2xl font-bold text-ink">☕ {t('title')}</h1>
-        <p className="text-ink-2 text-sm mt-1">
-          {t('subtitle', { count: tc('varieties', { count: coffees.length }) })}
-          {!user && (
-            <>{' '}{t.rich('subtitleGuest', {
-              link: (chunks) => <Link href="/register" className="underline text-coffee-700">{chunks}</Link>,
-            })}</>
-          )}
-        </p>
+      <PageTitle
+        title={t('title')}
+        subtitle={
+          <>
+            {t('subtitle', { count: tc('varieties', { count: coffees.length }) })}
+            {!user && (
+              <>
+                {' '}
+                {t.rich('subtitleGuest', {
+                  link: (chunks) => <Link href="/register" className="underline text-accent">{chunks}</Link>,
+                })}
+              </>
+            )}
+          </>
+        }
+      />
 
-        {/* Filters */}
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 mt-5">
-          <label className="flex flex-col gap-1 text-sm">
-            <span className="text-ink-2 font-medium">{t('taste')}</span>
-            <select
-              value={taste}
-              onChange={(e) => setTaste(e.target.value)}
-              className="px-3 py-2 rounded-lg border border-line bg-surface text-ink focus:outline-none focus:ring-2 focus:ring-coffee-500"
-            >
-              <option value="">{t('anyTaste')}</option>
-              {TASTES.map((tst) => <option key={tst} value={tst}>{tt(tst)}</option>)}
-            </select>
-          </label>
+      {/* Filters */}
+      <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 items-end">
+        <Select label={t('taste')} name="taste" value={taste} onChange={(e) => setTaste(e.target.value)}>
+          <option value="">{t('anyTaste')}</option>
+          {TASTES.map((tst) => <option key={tst} value={tst}>{tt(tst)}</option>)}
+        </Select>
 
-          <label className="flex flex-col gap-1 text-sm">
-            <span className="text-ink-2 font-medium">{t('milk')}</span>
-            <select
-              value={milk}
-              onChange={(e) => setMilk(e.target.value)}
-              className="px-3 py-2 rounded-lg border border-line bg-surface text-ink focus:outline-none focus:ring-2 focus:ring-coffee-500"
-            >
-              <option value="">{t('any')}</option>
-              <option value="1">{t('withMilk')}</option>
-              <option value="0">{t('noMilk')}</option>
-            </select>
-          </label>
+        <Select label={t('milk')} name="milk" value={milk} onChange={(e) => setMilk(e.target.value)}>
+          <option value="">{t('any')}</option>
+          <option value="1">{t('withMilk')}</option>
+          <option value="0">{t('noMilk')}</option>
+        </Select>
 
-          <label className="flex flex-col gap-1 text-sm">
-            <span className="text-ink-2 font-medium">{t('minEnergy')}</span>
-            <select
-              value={minEnergy}
-              onChange={(e) => setMinEnergy(e.target.value)}
-              className="px-3 py-2 rounded-lg border border-line bg-surface text-ink focus:outline-none focus:ring-2 focus:ring-coffee-500"
-            >
-              <option value="">{t('any')}</option>
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
-                <option key={n} value={n}>⚡ {n}+</option>
-              ))}
-            </select>
-          </label>
+        <Select label={t('minEnergy')} name="minEnergy" value={minEnergy} onChange={(e) => setMinEnergy(e.target.value)}>
+          <option value="">{t('any')}</option>
+          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
+            <option key={n} value={n}>⚡ {n}+</option>
+          ))}
+        </Select>
 
-          <div className="flex items-end">
-            <button
-              onClick={() => { setTaste(''); setMilk(''); setMinEnergy(''); }}
-              disabled={!hasFilters}
-              className="px-4 py-2 rounded-lg border border-line text-sm font-medium text-ink-2 hover:bg-surface-3 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              {t('clearFilters')}
-            </button>
-          </div>
-        </div>
+        <Button
+          variant="secondary"
+          onClick={() => { setTaste(''); setMilk(''); setMinEnergy(''); }}
+          disabled={!hasFilters}
+        >
+          {t('clearFilters')}
+        </Button>
       </div>
 
       {/* Messages */}
       {error && (
-        <div className="bg-rust-100 border border-rust-300 text-rust-700 px-4 py-3 rounded-lg">
+        <div className="bg-error-soft border border-error/25 text-error px-4 py-3 rounded-md text-sm">
           {error}
         </div>
       )}
@@ -127,16 +113,14 @@ export default function CoffeesPage() {
       {/* Grid */}
       {loading && coffees.length === 0 ? (
         <div className="flex items-center justify-center min-h-[30vh]">
-          <div className="text-ink-2 text-lg animate-pulse">{t('loading')}</div>
+          <div className="text-ink-2 animate-pulse">{t('loading')}</div>
         </div>
       ) : coffees.length === 0 ? (
-        <div className="bg-surface rounded-xl border border-line p-10 text-center">
-          <div className="text-4xl mb-3">🔍</div>
-          <p className="text-ink font-medium">{t('noMatch')}</p>
-          <p className="text-ink-2 text-sm mt-1">{t('noMatchHint')}</p>
-        </div>
+        <Card padding="none">
+          <EmptyState title={t('noMatch')} hint={t('noMatchHint')} />
+        </Card>
       ) : (
-        <div className={`grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 transition-opacity ${loading ? 'opacity-60' : ''}`}>
+        <div className={`grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 transition-opacity duration-200 ${loading ? 'opacity-60' : ''}`}>
           {coffees.map((c) => (
             <CoffeeCard
               key={c._id}

@@ -72,7 +72,7 @@ export default function SidePanel() {
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder={tp('search')}
-          className="w-full px-3 py-1.5 text-sm rounded-md border border-line bg-surface-2 text-ink placeholder-ink-3 focus:outline-none focus:ring-1 focus:ring-coffee-500 focus:bg-surface"
+          className="w-full h-8 px-3 text-sm rounded-md border border-line bg-surface-2 text-ink placeholder-ink-3\n          transition-colors duration-150\n          focus:border-accent focus:bg-surface focus:outline-none"
         />
         <div className="flex gap-1 overflow-x-auto pb-1 -mx-1 px-1">
           <Chip active={taste === ''} onClick={() => setTaste('')}>{tp('all')}</Chip>
@@ -91,7 +91,7 @@ export default function SidePanel() {
             key={c._id}
             href="/coffees"
             onClick={closeMobilePanel}
-            className="flex items-center justify-between gap-2 px-3 py-1.5 rounded-md text-sm text-ink-2 hover:bg-surface-3 hover:text-ink transition-colors"
+            className="flex items-center justify-between gap-2 px-3 py-1.5 rounded-md text-sm text-ink-2 hover:bg-surface-2 hover:text-ink transition-colors duration-150\n              aria-current={pathname === '/coffees' ? 'page' : undefined}"
           >
             <span className="truncate">{c.name}</span>
             {c.avg_rating != null && (
@@ -115,9 +115,9 @@ export default function SidePanel() {
             key={href}
             href={href}
             onClick={closeMobilePanel}
-            className={`block px-3 py-2 rounded-md text-sm ${
-              pathname === href ? 'text-ink font-medium' : 'text-ink-2'
-            } hover:bg-surface-3`}
+            className={`block px-3 py-2 rounded-md text-sm transition-colors duration-150 ${
+              pathname === href ? 'text-accent font-medium bg-accent-soft' : 'text-ink-2 hover:bg-surface-2'
+            }`}
           >
             {label}
           </Link>
@@ -142,7 +142,7 @@ export default function SidePanel() {
           )}
           <button
             onClick={togglePanel}
-            className="p-2 rounded-md text-ink-3 hover:bg-surface-3 hover:text-ink transition-colors"
+            className="p-2 rounded-md text-ink-3 hover:bg-surface-2 hover:text-ink transition-colors"
             aria-label={panelOpen ? 'Collapse panel' : 'Expand panel'}
           >
             <Chevron dir={panelOpen ? 'left' : 'right'} />
@@ -155,7 +155,7 @@ export default function SidePanel() {
           <div className="flex flex-col items-center pt-2">
             <Link
               href="/coffees"
-              className="p-2.5 rounded-md text-xl hover:bg-surface-3 transition-colors"
+              className="p-2.5 rounded-md text-xl hover:bg-surface-2 transition-colors duration-150"
               title={tp('browse')}
             >
               ☕
@@ -167,7 +167,7 @@ export default function SidePanel() {
       {/* ── Mobile drawer ── */}
       {mobilePanelOpen && (
         <div className="fixed inset-0 z-40 lg:hidden">
-          <div className="absolute inset-0 bg-black/40" onClick={closeMobilePanel} />
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" onClick={closeMobilePanel} />
           <aside className="absolute left-0 top-0 bottom-0 w-72 max-w-[85vw] bg-surface border-r border-line flex flex-col">
             <div className="h-14 flex items-center justify-between px-4 border-b border-line shrink-0">
               <span className="flex items-center gap-2 font-semibold text-ink">
@@ -175,7 +175,7 @@ export default function SidePanel() {
               </span>
               <button
                 onClick={closeMobilePanel}
-                className="p-2 rounded-md text-ink-3 hover:bg-surface-3 hover:text-ink"
+                className="p-2 rounded-md text-ink-3 hover:bg-surface-2 hover:text-ink"
                 aria-label="Close menu"
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -195,8 +195,8 @@ function Chip({ active, onClick, children }) {
   return (
     <button
       onClick={onClick}
-      className={`px-2.5 py-1 rounded-full text-xs whitespace-nowrap transition-colors ${
-        active ? 'bg-ink text-surface' : 'bg-surface-2 text-ink-2 hover:bg-surface-3'
+      className={`px-2.5 py-1 rounded-full text-xs whitespace-nowrap transition-colors duration-150 ${
+        active ? 'bg-accent-soft text-accent font-medium' : 'bg-surface-2 text-ink-2 hover:bg-surface-3'
       }`}
     >
       {children}

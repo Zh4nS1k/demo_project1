@@ -1,42 +1,45 @@
 'use client';
 
 /**
- * Shared stat display pieces (black/white/gray/brown palette).
+ * Shared stat display pieces.
+ * Numbers are set in the mono font for a precise, data-forward feel;
+ * labels are small, uppercase, secondary — no dashboard-widget clichés.
  */
 
-export function StatCard({ icon, value, label }) {
+export function StatCard({ value, label }) {
   return (
-    <div className="bg-surface rounded-xl p-5 border border-line text-center">
-      <div className="text-2xl sm:text-3xl">{icon}</div>
-      <div className="text-xl font-bold text-ink mt-1">{value}</div>
-      <div className="text-xs sm:text-sm text-ink-2">{label}</div>
+    <div className="bg-surface rounded-lg p-5 border border-line">
+      <div className="text-[11px] font-medium uppercase tracking-widest text-ink-2">{label}</div>
+      <div className="text-2xl sm:text-3xl font-medium text-ink mt-2 font-mono tabular-nums leading-none">
+        {value}
+      </div>
     </div>
   );
 }
 
-export function InsightCard({ icon, title, value, sub, children }) {
+export function InsightCard({ title, value, sub, children }) {
   return (
-    <div className="bg-surface rounded-xl p-5 border border-line flex flex-col">
-      <div className="flex items-center gap-2 text-xs uppercase tracking-wide text-ink-3 font-semibold">
-        <span className="text-base">{icon}</span> {title}
+    <div className="bg-surface rounded-lg p-5 border border-line flex flex-col">
+      <div className="text-[11px] font-medium uppercase tracking-widest text-ink-2">
+        {title}
       </div>
-      <div className="text-xl font-bold text-ink mt-2 leading-tight">{value}</div>
+      <div className="text-xl text-ink mt-2 leading-tight font-mono tabular-nums">{value}</div>
       {children ? (
         <>
-          <div className="mt-2">{children}</div>
-          <div className="text-xs text-ink-2 mt-1.5">{sub}</div>
+          <div className="mt-3">{children}</div>
+          <div className="text-xs text-ink-2 mt-2">{sub}</div>
         </>
       ) : (
-        <div className="text-xs text-ink-2 mt-1">{sub}</div>
+        <div className="text-xs text-ink-2 mt-1.5">{sub}</div>
       )}
     </div>
   );
 }
 
-/** Tiny bar sparkline — black/gray/brown only, zero-state safe. */
+/** Tiny bar sparkline — accent bars on a quiet grid, zero-state safe. */
 export function Sparkline({ data, thin = false }) {
   if (!data?.length) {
-    return <div className="h-8 rounded bg-surface-2" />;
+    return <div className="h-8 rounded-sm bg-surface-2" />;
   }
   const max = Math.max(...data.map((d) => d.caffeine), 1);
   return (
@@ -45,8 +48,8 @@ export function Sparkline({ data, thin = false }) {
         <div
           key={d.date}
           title={`${d.date}: ${d.caffeine}`}
-          className={`flex-1 rounded-sm ${thin ? 'min-w-[1px]' : ''} ${
-            d.caffeine > 0 ? 'bg-coffee-600' : 'bg-surface-3'
+          className={`flex-1 rounded-sm transition-colors ${thin ? 'min-w-[1px]' : ''} ${
+            d.caffeine > 0 ? 'bg-accent/70' : 'bg-surface-3'
           }`}
           style={{ height: `${Math.max((d.caffeine / max) * 100, 6)}%` }}
         />

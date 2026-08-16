@@ -6,6 +6,9 @@ import { useTranslations } from 'next-intl';
 import { useAuth } from '@/context/AuthContext';
 import { api } from '@/lib/api';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import Modal from '@/components/Modal';
+import Button from '@/components/Button';
+import PageTitle from '@/components/PageTitle';
 
 const TASTES = [
   'sweet', 'bitter', 'sour', 'salty', 'umami',
@@ -31,7 +34,7 @@ function AdminContent() {
         </p>
         <button
           onClick={() => router.push('/')}
-          className="mt-5 px-5 py-2 rounded-lg bg-ink text-surface text-sm font-medium hover:bg-coffee-800 transition-colors"
+          className="mt-5 px-5 py-2 rounded-lg bg-accent text-white text-sm font-medium hover:bg-accent-hover transition-colors"
         >
           {t('backHome')}
         </button>
@@ -46,6 +49,9 @@ function AdminContent() {
 
 function AdminPanel() {
   const { user } = useAuth();
+  const t = useTranslations('admin');
+  const tt = useTranslations('tastes');
+  const tc = useTranslations('common');
   const [tab, setTab] = useState('coffees');
 
   const [coffees, setCoffees] = useState([]);
@@ -116,7 +122,7 @@ function AdminPanel() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="bg-surface rounded-2xl border border-line p-6">
+      <div className="bg-surface rounded-lg border border-line p-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-ink">⚙️ {t('title')}</h1>
@@ -145,7 +151,7 @@ function AdminPanel() {
 
       {/* Messages */}
       {error && (
-        <div className="bg-rust-100 border border-rust-300 text-rust-700 px-4 py-3 rounded-lg">
+        <div className="bg-error-soft border border-error/25 text-error px-4 py-3 rounded-lg">
           {error}
         </div>
       )}
@@ -159,10 +165,10 @@ function AdminPanel() {
       {tab === 'coffees' ? (
         <section className="bg-surface rounded-xl border border-line overflow-hidden">
           <div className="flex items-center justify-between px-6 py-4 border-b border-line">
-            <h2 className="font-bold text-ink">Coffees</h2>
+            <h2 className="font-semibold text-ink">Coffees</h2>
             <button
               onClick={() => setModal({ type: 'coffee-create' })}
-              className="px-4 py-2 rounded-lg bg-ink text-surface text-sm font-medium hover:bg-coffee-800 transition-colors"
+              className="px-4 py-2 rounded-lg bg-accent text-white text-sm font-medium hover:bg-accent-hover transition-colors"
             >
               {t('addCoffee')}
             </button>
@@ -207,10 +213,10 @@ function AdminPanel() {
       ) : (
         <section className="bg-surface rounded-xl border border-line overflow-hidden">
           <div className="flex items-center justify-between px-6 py-4 border-b border-line">
-            <h2 className="font-bold text-ink">Users</h2>
+            <h2 className="font-semibold text-ink">Users</h2>
             <button
               onClick={() => setModal({ type: 'user-create' })}
-              className="px-4 py-2 rounded-lg bg-ink text-surface text-sm font-medium hover:bg-coffee-800 transition-colors"
+              className="px-4 py-2 rounded-lg bg-accent text-white text-sm font-medium hover:bg-accent-hover transition-colors"
             >
               {t('addUser')}
             </button>
@@ -285,7 +291,7 @@ function TabButton({ active, onClick, children }) {
       onClick={onClick}
       className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
         active
-          ? 'bg-ink text-surface'
+          ? 'bg-accent text-white'
           : 'bg-surface-2 text-ink-2 hover:bg-surface-3'
       }`}
     >
@@ -294,11 +300,11 @@ function TabButton({ active, onClick, children }) {
   );
 }
 
-function CountBadge({ n }) {
+function CountBadge({ n, active = false }) {
   return (
     <span
-      className={`px-1.5 py-0.5 rounded text-xs ${
-        'bg-black/20 text-white'
+      className={`px-1.5 py-0.5 rounded text-xs font-mono tabular-nums ${
+        active ? 'bg-accent/15 text-accent' : 'bg-surface-2 text-ink-3'
       }`}
     >
       {n}
@@ -308,7 +314,7 @@ function CountBadge({ n }) {
 
 function RoleBadge({ role, labels }) {
   return role === 'admin' ? (
-    <span className="inline-flex px-2 py-0.5 rounded-full text-xs font-semibold bg-coffee-700 text-white">
+    <span className="inline-flex px-2 py-0.5 rounded-full text-xs font-semibold bg-accent-soft text-accent">
       {labels.admin}
     </span>
   ) : (
@@ -333,33 +339,10 @@ function RowActions({ onEdit, onDelete, deleteDisabled = false }) {
         onClick={onDelete}
         disabled={deleteDisabled}
         title={deleteDisabled ? t('selfDeleteDisabled') : tc('delete')}
-        className="px-3 py-1.5 rounded-lg border border-rust-300 text-xs font-medium text-rust-700 hover:bg-rust-100 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        className="px-3 py-1.5 rounded-lg border border-error/40 text-xs font-medium text-error hover:bg-error-soft transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
       >
         🗑 {tc('delete')}
       </button>
-    </div>
-  );
-}
-
-/* ─────────────────────────── Modal shell ─────────────────────────── */
-
-function Modal({ title, onClose, children }) {
-  return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/60" onClick={onClose} />
-      <div className="relative w-full max-w-md max-h-[90vh] overflow-y-auto bg-surface rounded-2xl border border-line shadow-xl">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-line">
-          <h3 className="font-bold text-ink">{title}</h3>
-          <button
-            onClick={onClose}
-            className="w-8 h-8 rounded-lg text-ink-2 hover:bg-surface-3 transition-colors text-lg"
-            aria-label="Close"
-          >
-            ✕
-          </button>
-        </div>
-        <div className="p-6">{children}</div>
-      </div>
     </div>
   );
 }
@@ -404,39 +387,39 @@ function CoffeeModal({ initial, onClose, onSaved }) {
     <Modal title={isEdit ? t('editCoffeeTitle', { name: initial.name }) : t('addCoffeeTitle')} onClose={onClose}>
       <form onSubmit={handleSubmit} className="space-y-4">
         {error && (
-          <div className="bg-rust-100 border border-rust-300 text-rust-700 px-3 py-2 rounded-lg text-sm">
+          <div className="bg-error-soft border border-error/25 text-error px-3 py-2 rounded-lg text-sm">
             {error}
           </div>
         )}
 
         <div>
-          <label className="block text-sm font-medium text-ink mb-1">
-            {t('fieldName')} <span className="text-rust-700">*</span>
+          <label className="block text-xs font-medium uppercase tracking-wide text-ink-2 mb-1.5">
+            {t('fieldName')} <span className="text-error">*</span>
           </label>
           <input
             value={form.name}
             onChange={(e) => setForm({ ...form, name: e.target.value })}
             required
             placeholder={t('namePh')}
-            className="w-full px-4 py-2.5 rounded-lg border border-line bg-surface text-ink placeholder-ink-3 focus:outline-none focus:ring-2 focus:ring-coffee-500"
+            className="w-full px-4 py-2.5 rounded-lg border border-line bg-surface text-ink placeholder-ink-3 focus:outline-none focus:border-accent"
           />
         </div>
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-sm font-medium text-ink mb-1">
-              {t('fieldTaste')} <span className="text-rust-700">*</span>
+            <label className="block text-xs font-medium uppercase tracking-wide text-ink-2 mb-1.5">
+              {t('fieldTaste')} <span className="text-error">*</span>
             </label>
             <select
               value={form.taste}
               onChange={(e) => setForm({ ...form, taste: e.target.value })}
-              className="w-full px-4 py-2.5 rounded-lg border border-line bg-surface text-ink focus:outline-none focus:ring-2 focus:ring-coffee-500"
+              className="w-full px-4 py-2.5 rounded-lg border border-line bg-surface text-ink focus:outline-none focus:border-accent"
             >
               {TASTES.map((tst) => <option key={tst} value={tst}>{tt(tst)}</option>)}
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-ink mb-1">
+            <label className="block text-xs font-medium uppercase tracking-wide text-ink-2 mb-1.5">
               {t('fieldEnergy', { value: form.energy_boost })}
             </label>
             <input
@@ -445,7 +428,7 @@ function CoffeeModal({ initial, onClose, onSaved }) {
               max="10"
               value={form.energy_boost}
               onChange={(e) => setForm({ ...form, energy_boost: e.target.value })}
-              className="w-full mt-3 accent-coffee-600"
+              className="w-full mt-3 accent-accent"
             />
           </div>
         </div>
@@ -455,7 +438,7 @@ function CoffeeModal({ initial, onClose, onSaved }) {
             type="checkbox"
             checked={!!form.milk}
             onChange={(e) => setForm({ ...form, milk: e.target.checked })}
-            className="w-4 h-4 accent-coffee-600"
+            className="w-4 h-4 accent-accent"
           />
           <span className="text-sm text-ink">{t('fieldMilk')}</span>
         </label>
@@ -464,7 +447,7 @@ function CoffeeModal({ initial, onClose, onSaved }) {
           <button
             type="submit"
             disabled={saving}
-            className="flex-1 py-2.5 rounded-lg bg-ink text-surface font-medium hover:bg-coffee-800 transition-colors disabled:opacity-50"
+            className="flex-1 py-2.5 rounded-lg bg-accent text-white font-medium hover:bg-accent-hover transition-colors disabled:opacity-50"
           >
             {saving ? tc('saving') : isEdit ? t('saveChanges') : t('createCoffee')}
           </button>
@@ -546,26 +529,26 @@ function UserModal({ initial, onClose, onSaved }) {
     <Modal title={isEdit ? t('editUserTitle', { username: initial.username }) : t('addUserTitle')} onClose={onClose}>
       <form onSubmit={handleSubmit} className="space-y-4">
         {error && (
-          <div className="bg-rust-100 border border-rust-300 text-rust-700 px-3 py-2 rounded-lg text-sm">
+          <div className="bg-error-soft border border-error/25 text-error px-3 py-2 rounded-lg text-sm">
             {error}
           </div>
         )}
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-sm font-medium text-ink mb-1">
-              {tc('username')} <span className="text-rust-700">*</span>
+            <label className="block text-xs font-medium uppercase tracking-wide text-ink-2 mb-1.5">
+              {tc('username')} <span className="text-error">*</span>
             </label>
             <input value={form.username} onChange={set('username')} required minLength={3}
               placeholder={t("nameUserPh")}
-              className="w-full px-3 py-2 rounded-lg border border-line bg-surface text-ink placeholder-ink-3 focus:outline-none focus:ring-2 focus:ring-coffee-500 text-sm" />
+              className="w-full px-3 py-2 rounded-lg border border-line bg-surface text-ink placeholder-ink-3 focus:outline-none focus:border-accent text-sm" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-ink mb-1">
+            <label className="block text-xs font-medium uppercase tracking-wide text-ink-2 mb-1.5">
               {t('fieldRole')}
             </label>
             <select value={form.role} onChange={set('role')}
-              className="w-full px-3 py-2 rounded-lg border border-line bg-surface text-ink focus:outline-none focus:ring-2 focus:ring-coffee-500 text-sm">
+              className="w-full px-3 py-2 rounded-lg border border-line bg-surface text-ink focus:outline-none focus:border-accent text-sm">
               <option value="user">{tc('roleUser')}</option>
               <option value="admin">{tc('roleAdmin')}</option>
             </select>
@@ -573,63 +556,63 @@ function UserModal({ initial, onClose, onSaved }) {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-ink mb-1">
-            {tc('email')} <span className="text-rust-700">*</span>
+          <label className="block text-xs font-medium uppercase tracking-wide text-ink-2 mb-1.5">
+            {tc('email')} <span className="text-error">*</span>
           </label>
           <input type="email" value={form.email} onChange={set('email')} required
             placeholder={t('emailPh')}
-            className="w-full px-4 py-2 rounded-lg border border-line bg-surface text-ink placeholder-ink-3 focus:outline-none focus:ring-2 focus:ring-coffee-500 text-sm" />
+            className="w-full px-4 py-2 rounded-lg border border-line bg-surface text-ink placeholder-ink-3 focus:outline-none focus:border-accent text-sm" />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-ink mb-1">
-            {tc('fullName')} <span className="text-rust-700">*</span>
+          <label className="block text-xs font-medium uppercase tracking-wide text-ink-2 mb-1.5">
+            {tc('fullName')} <span className="text-error">*</span>
           </label>
           <input value={form.name} onChange={set('name')} required
             placeholder={t("fullPh")}
-            className="w-full px-4 py-2 rounded-lg border border-line bg-surface text-ink placeholder-ink-3 focus:outline-none focus:ring-2 focus:ring-coffee-500 text-sm" />
+            className="w-full px-4 py-2 rounded-lg border border-line bg-surface text-ink placeholder-ink-3 focus:outline-none focus:border-accent text-sm" />
         </div>
 
         <div className="grid grid-cols-3 gap-3">
           <div>
-            <label className="block text-sm font-medium text-ink mb-1">{tc('age')}</label>
+            <label className="block text-xs font-medium uppercase tracking-wide text-ink-2 mb-1.5">{tc('age')}</label>
             <input type="number" min="0" max="150" value={form.age} onChange={set('age')}
               placeholder={t("agePh")}
-              className="w-full px-3 py-2 rounded-lg border border-line bg-surface text-ink placeholder-ink-3 focus:outline-none focus:ring-2 focus:ring-coffee-500 text-sm" />
+              className="w-full px-3 py-2 rounded-lg border border-line bg-surface text-ink placeholder-ink-3 focus:outline-none focus:border-accent text-sm" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-ink mb-1">{tc('gender')}</label>
+            <label className="block text-xs font-medium uppercase tracking-wide text-ink-2 mb-1.5">{tc('gender')}</label>
             <select value={form.gender} onChange={set('gender')}
-              className="w-full px-3 py-2 rounded-lg border border-line bg-surface text-ink focus:outline-none focus:ring-2 focus:ring-coffee-500 text-sm">
+              className="w-full px-3 py-2 rounded-lg border border-line bg-surface text-ink focus:outline-none focus:border-accent text-sm">
               <option value="male">{tc('genderMale')}</option>
               <option value="female">{tc('genderFemale')}</option>
               <option value="other">{tc('genderOther')}</option>
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-ink mb-1">{tc('favCoffee')}</label>
+            <label className="block text-xs font-medium uppercase tracking-wide text-ink-2 mb-1.5">{tc('favCoffee')}</label>
             <input value={form.favourite_coffee} onChange={set('favourite_coffee')}
               placeholder={t("favPh")}
-              className="w-full px-3 py-2 rounded-lg border border-line bg-surface text-ink placeholder-ink-3 focus:outline-none focus:ring-2 focus:ring-coffee-500 text-sm" />
+              className="w-full px-3 py-2 rounded-lg border border-line bg-surface text-ink placeholder-ink-3 focus:outline-none focus:border-accent text-sm" />
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-ink mb-1">
+          <label className="block text-xs font-medium uppercase tracking-wide text-ink-2 mb-1.5">
             {isEdit ? t('fieldNewPw') : tc('password')}
-            {!isEdit && <span className="text-rust-700">*</span>}
+            {!isEdit && <span className="text-error">*</span>}
           </label>
           <input type="password" value={form.password} onChange={set('password')}
             required={!isEdit} minLength={isEdit && !form.password ? undefined : 6}
             placeholder={isEdit ? '••••••••' : t('pwHint')}
-            className="w-full px-4 py-2 rounded-lg border border-line bg-surface text-ink placeholder-ink-3 focus:outline-none focus:ring-2 focus:ring-coffee-500 text-sm" />
+            className="w-full px-4 py-2 rounded-lg border border-line bg-surface text-ink placeholder-ink-3 focus:outline-none focus:border-accent text-sm" />
         </div>
 
         <div className="flex gap-3 pt-2">
           <button
             type="submit"
             disabled={saving}
-            className="flex-1 py-2.5 rounded-lg bg-ink text-surface font-medium hover:bg-coffee-800 transition-colors disabled:opacity-50"
+            className="flex-1 py-2.5 rounded-lg bg-accent text-white font-medium hover:bg-accent-hover transition-colors disabled:opacity-50"
           >
             {saving ? tc('saving') : isEdit ? t('saveChanges') : t('createUser')}
           </button>
